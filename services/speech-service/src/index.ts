@@ -101,6 +101,21 @@ export {
   createDefaultSpeechSessionManager,
 } from "./session";
 
+export type {
+  SpeechEventType,
+  SpeechEvent,
+  SpeechEventListener,
+  SpeechEventBus,
+  SpeechStreamChunk,
+  SpeechStreamSession,
+  SpeechStreamManager,
+} from "./events";
+export {
+  InMemorySpeechEventBus,
+  InMemorySpeechStreamManager,
+  createDefaultSpeechEventBus,
+} from "./events";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -112,6 +127,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "runtime",
   "routing",
   "session",
+  "events",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];

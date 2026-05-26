@@ -17,6 +17,7 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `runtime/*` | Provider runtime status/health manager (stub-only in Phase 29) |
 | `routing/*` | Capability-based provider selection (stub metadata only, Phase 30) |
 | `session/*` | In-memory speech session orchestration (deterministic, Phase 31) |
+| `events/*` | In-memory event bus + stream session foundation (deterministic, Phase 32) |
 
 ## Pipeline
 
@@ -193,6 +194,50 @@ Supported states:
 - `processing`
 - `speaking`
 - `completed`
+- `error`
+
+## Speech Event Bus & Stream Foundation (Phase 32)
+
+```
+Voice UI
+  ↓
+Speech Service
+  ↓
+Speech Event Bus
+  ↓
+Speech Session Manager
+  ↓
+Speech Adapter
+  ↓
+Speech Runtime Manager
+  ↓
+Speech Capability Router
+  ↓
+Future providers
+```
+
+Event module (`src/events/`) provides:
+
+- `SpeechEventType`
+- `SpeechEvent`
+- `SpeechEventListener`
+- `SpeechEventBus`
+- `InMemorySpeechEventBus`
+- `SpeechStreamChunk`
+- `SpeechStreamSession`
+- `SpeechStreamManager`
+- `createDefaultSpeechEventBus()`
+
+Event types:
+
+- `session-created`
+- `listening-started`
+- `transcript-partial`
+- `transcript-final`
+- `normalization-completed`
+- `processing-started`
+- `speaking-started`
+- `session-completed`
 - `error`
 
 ## Tests
