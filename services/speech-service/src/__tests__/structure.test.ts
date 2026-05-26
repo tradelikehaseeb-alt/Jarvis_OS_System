@@ -15,6 +15,8 @@ describe("speech-service structure", () => {
       "routing",
       "session",
       "events",
+      "conversation",
+      "actions",
     ]);
   });
 });

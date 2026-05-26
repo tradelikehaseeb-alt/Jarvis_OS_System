@@ -18,6 +18,8 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `routing/*` | Capability-based provider selection (stub metadata only, Phase 30) |
 | `session/*` | In-memory speech session orchestration (deterministic, Phase 31) |
 | `events/*` | In-memory event bus + stream session foundation (deterministic, Phase 32) |
+| `conversation/*` | In-memory conversation + interruption management (Phase 33) |
+| `actions/*` | Deterministic speech action routing + command handlers (Phase 34) |
 
 ## Pipeline
 
@@ -239,6 +241,83 @@ Event types:
 - `speaking-started`
 - `session-completed`
 - `error`
+
+## Speech Conversation Context & Interruption Manager (Phase 33)
+
+```
+Voice UI
+  ↓
+Speech Service
+  ↓
+Speech Conversation Manager
+  ↓
+Speech Event Bus
+  ↓
+Speech Session Manager
+  ↓
+Speech Adapter
+  ↓
+Speech Runtime Manager
+  ↓
+Speech Capability Router
+  ↓
+Future providers
+```
+
+Conversation module (`src/conversation/`) provides:
+
+- `SpeechConversation`
+- `SpeechConversationState`
+- `SpeechConversationTurn`
+- `SpeechConversationContext`
+- `SpeechInterruptionEvent`
+- `SpeechConversationManager`
+- `InMemorySpeechConversationManager`
+- `createDefaultSpeechConversationManager()`
+
+Supported states:
+
+- `active`
+- `interrupted`
+- `paused`
+- `completed`
+
+## Speech Action Pipeline & Voice Command Routing (Phase 34)
+
+```
+Transcript
+  ↓
+Normalizer
+  ↓
+Conversation Context
+  ↓
+Speech Action Router
+  ↓
+Action Handler
+  ↓
+Response
+```
+
+Actions module (`src/actions/`) provides:
+
+- `SpeechAction`
+- `SpeechActionType`
+- `SpeechActionRequest`
+- `SpeechActionResponse`
+- `SpeechActionHandler`
+- `SpeechActionRegistry`
+- `InMemorySpeechActionRegistry`
+- `SpeechActionRouter`
+- `createDefaultSpeechActionRouter()`
+
+Supported commands:
+
+- `stop`
+- `continue`
+- `repeat`
+- `cancel`
+- `help`
+- `open-settings`
 
 ## Tests
 

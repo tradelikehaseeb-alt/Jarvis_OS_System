@@ -116,6 +116,35 @@ export {
   createDefaultSpeechEventBus,
 } from "./events";
 
+export type {
+  SpeechConversation,
+  SpeechConversationState,
+  SpeechConversationTurn,
+  SpeechConversationContext,
+  SpeechInterruptionEvent,
+  SpeechConversationManager,
+} from "./conversation";
+export {
+  DEFAULT_SPEECH_CONVERSATION_CONTEXT,
+  InMemorySpeechConversationManager,
+  createDefaultSpeechConversationManager,
+} from "./conversation";
+
+export type {
+  SpeechAction,
+  SpeechActionType,
+  SpeechActionRequest,
+  SpeechActionResponse,
+  SpeechActionHandler,
+  RegisteredSpeechAction,
+  SpeechActionRegistry,
+} from "./actions";
+export {
+  InMemorySpeechActionRegistry,
+  SpeechActionRouter,
+  createDefaultSpeechActionRouter,
+} from "./actions";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -128,6 +157,8 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "routing",
   "session",
   "events",
+  "conversation",
+  "actions",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];
