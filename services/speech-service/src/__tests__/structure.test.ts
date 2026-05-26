@@ -10,6 +10,7 @@ describe("speech-service structure", () => {
       "transcript-correction",
       "normalization-rules",
       "speech-normalizer",
+      "adapters",
     ]);
   });
 });

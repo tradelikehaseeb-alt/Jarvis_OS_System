@@ -46,6 +46,20 @@ export {
   normalizeTranscript,
 } from "./speech-normalizer";
 
+export type {
+  SpeechProviderConfig,
+  SpeechRequest,
+  SpeechResponse,
+  SpeechToTextAdapter,
+  TextToSpeechAdapter,
+} from "./adapters";
+export {
+  DEFAULT_STUB_SPEECH_PROVIDER_CONFIG,
+  SpeechAdapterRegistry,
+  StubSpeechToTextAdapter,
+  StubTextToSpeechAdapter,
+} from "./adapters";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -53,6 +67,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "transcript-correction",
   "normalization-rules",
   "speech-normalizer",
+  "adapters",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];

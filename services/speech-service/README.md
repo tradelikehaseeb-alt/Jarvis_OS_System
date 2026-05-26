@@ -13,6 +13,7 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `TranscriptCorrection` | STT homophone fixes (e.g. trading) |
 | `NormalizationRules` | Roman Urdu phrase/word → English |
 | `SpeechNormalizer` | Orchestrates the pipeline |
+| `adapters/*` | Provider abstraction layer (stub-only in Phase 28) |
 
 ## Pipeline
 
@@ -48,6 +49,30 @@ console.log(urdu.normalized); // "open my gold chart"
 - **Text in / text out** only
 - **Deterministic** rule tables — extend `TRANSCRIPT_CORRECTION_RULES` and `NORMALIZATION_RULES`
 - Not wired to Desktop or API yet — consume from voice/STT layer in a later phase
+- Adapter layer is **stub-only** in this phase (no microphone/device permissions, no external STT/TTS APIs)
+
+## Speech Adapter Architecture (Phase 28)
+
+```
+Voice UI
+  ↓
+Speech Service
+  ↓
+Speech Adapter
+  ↓
+Future providers
+```
+
+New adapter module (`src/adapters/`) provides:
+
+- `SpeechToTextAdapter`
+- `TextToSpeechAdapter`
+- `SpeechProviderConfig`
+- `SpeechRequest`
+- `SpeechResponse`
+- `SpeechAdapterRegistry`
+- `StubSpeechToTextAdapter`
+- `StubTextToSpeechAdapter`
 
 ## Tests
 
