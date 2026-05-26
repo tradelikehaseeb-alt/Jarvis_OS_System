@@ -21,6 +21,7 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `conversation/*` | In-memory conversation + interruption management (Phase 33) |
 | `actions/*` | Deterministic speech action routing + command handlers (Phase 34) |
 | `gateway/*` | Single-entry speech provider gateway over existing layers (Phase 36) |
+| `telemetry/*` | In-memory deterministic traces + metrics (Phase 37) |
 
 ## Pipeline
 
@@ -351,6 +352,42 @@ Gateway support:
 - `processAction()`
 - `resolveProvider()`
 - `getRuntimeHealth()`
+
+## Speech Telemetry & Trace System (Phase 37)
+
+```
+Voice UI
+  ↓
+Speech Service
+  ↓
+Telemetry
+  ↓
+Gateway
+  ↓
+Adapters
+  ↓
+Runtime Manager
+  ↓
+Capability Router
+```
+
+Telemetry module (`src/telemetry/`) provides:
+
+- `SpeechTraceLevel`
+- `SpeechTraceEvent`
+- `SpeechTraceContext`
+- `SpeechMetrics`
+- `SpeechTelemetryCollector`
+- `InMemorySpeechTelemetryCollector`
+- `SpeechTraceRecorder`
+- `createDefaultSpeechTelemetry()`
+
+Supported operations:
+
+- `recordEvent()`
+- `recordMetric()`
+- `getTraceHistory()`
+- `clearHistory()`
 
 ## Tests
 

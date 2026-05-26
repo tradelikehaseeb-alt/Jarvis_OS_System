@@ -18,6 +18,7 @@ describe("speech-service structure", () => {
       "conversation",
       "actions",
       "gateway",
+      "telemetry",
     ]);
   });
 });
