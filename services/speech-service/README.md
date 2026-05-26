@@ -325,3 +325,18 @@ Supported commands:
 npm run test --workspace=@jarvis/speech-service
 npm run build --workspace=@jarvis/speech-service
 ```
+
+## Phase 35 Internal E2E Coverage
+
+`src/__tests__/speech-service-integration.test.ts` validates deterministic in-memory integration flow:
+
+1. Normal conversation flow  
+   Transcript → `SpeechNormalizer` → `ConversationManager` → `SpeechActionRouter` → `SpeechEventBus` → `SpeechSessionManager` → response/session complete
+2. Interruption flow  
+   Start conversation → interrupt → resume → complete
+3. Voice command flow  
+   `stop`, `repeat`, `open-settings`
+4. Transcript normalization flow  
+   Roman Urdu + English behavior, correction/rule application, conversation metadata preservation
+5. Failure flow  
+   Invalid action, invalid session, invalid conversation
