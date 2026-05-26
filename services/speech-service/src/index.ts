@@ -145,6 +145,14 @@ export {
   createDefaultSpeechActionRouter,
 } from "./actions";
 
+export type {
+  SpeechGatewayRequest,
+  SpeechGatewayResponse,
+  SpeechGateway,
+  SpeechGatewayFactory,
+} from "./gateway";
+export { DefaultSpeechGateway, createDefaultSpeechGateway } from "./gateway";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -159,6 +167,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "events",
   "conversation",
   "actions",
+  "gateway",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];

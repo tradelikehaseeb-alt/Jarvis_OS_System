@@ -20,6 +20,7 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `events/*` | In-memory event bus + stream session foundation (deterministic, Phase 32) |
 | `conversation/*` | In-memory conversation + interruption management (Phase 33) |
 | `actions/*` | Deterministic speech action routing + command handlers (Phase 34) |
+| `gateway/*` | Single-entry speech provider gateway over existing layers (Phase 36) |
 
 ## Pipeline
 
@@ -318,6 +319,38 @@ Supported commands:
 - `cancel`
 - `help`
 - `open-settings`
+
+## Speech Provider Gateway Layer (Phase 36)
+
+```
+SpeechConversation
+  ↓
+SpeechActionRouter
+  ↓
+SpeechGateway
+  ↓
+SpeechAdapter
+  ↓
+SpeechRuntimeManager
+  ↓
+SpeechCapabilityRouter
+```
+
+Gateway module (`src/gateway/`) provides:
+
+- `SpeechGatewayRequest`
+- `SpeechGatewayResponse`
+- `SpeechGateway`
+- `DefaultSpeechGateway`
+- `SpeechGatewayFactory`
+- `createDefaultSpeechGateway()`
+
+Gateway support:
+
+- `processTranscript()`
+- `processAction()`
+- `resolveProvider()`
+- `getRuntimeHealth()`
 
 ## Tests
 
