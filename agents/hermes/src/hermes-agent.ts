@@ -8,21 +8,43 @@ import {
   type SkillExecutor,
 } from "@jarvis/agents-shared";
 
+import type { HermesAdapter } from "../adapter/src/hermes-adapter";
+import { createHermesAdapterStub } from "../adapter/src/hermes-adapter-stub";
+import { buildHermesRequestWithContext } from "../adapter/src/build-hermes-request";
 import { HERMES_AGENT_ID, HERMES_METADATA } from "./metadata";
 
-const STUB_PLAN_STEPS = ["stub-plan", "stub-review"] as const;
-
 /**
- * Hermes agent — dispatches {@link SearchSkill} via {@link SkillExecutor} (Phase 13).
+ * Hermes agent — {@link HermesAdapter} boundary + {@link SearchSkill} via {@link SkillExecutor} (Phase 16).
  */
 export class HermesAgent extends AbstractBaseAgent {
   readonly metadata = HERMES_METADATA;
 
-  constructor(private readonly skillExecutor: SkillExecutor) {
+  constructor(
+    private readonly skillExecutor: SkillExecutor,
+    private readonly adapter: HermesAdapter = createHermesAdapterStub(),
+  ) {
     super();
   }
 
   async execute(task: AgentTask, context: AgentContext): Promise<AgentResult> {
+    const adapterResponse = await this.adapter.invoke(
+      buildHermesRequestWithContext(task, context.contextRef),
+    );
+
+    if (!adapterResponse.success) {
+      return {
+        taskId: task.taskId,
+        requestId: task.requestId,
+        agentId: HERMES_AGENT_ID,
+        success: false,
+        payload: {
+          adapter: adapterResponse,
+          stub: adapterResponse.stub,
+        },
+        error: adapterResponse.error,
+      };
+    }
+
     const skillRequest: SkillExecutionRequest = {
       executionId: `exec-${task.requestId}`,
       agentId: HERMES_AGENT_ID,
@@ -32,6 +54,7 @@ export class HermesAgent extends AbstractBaseAgent {
         query: task.intent.description,
         intent: task.intent,
         taskId: task.taskId,
+        planSteps: adapterResponse.plan.steps,
       },
       contextRef: context.contextRef,
       workflowStepId: task.workflowStepId,
@@ -46,11 +69,14 @@ export class HermesAgent extends AbstractBaseAgent {
       agentId: HERMES_AGENT_ID,
       success: skillResponse.success,
       payload: {
-        stub: true,
-        plan: {
-          steps: STUB_PLAN_STEPS,
-          intentKind: task.intent.kind,
+        stub: adapterResponse.stub,
+        adapter: adapterResponse,
+        plan: adapterResponse.plan,
+        structuredPlan: {
+          goal: adapterResponse.plan.goal,
+          steps: adapterResponse.plan.steps,
         },
+        reasoning: adapterResponse.reasoning,
         search: skillResponse.data,
         skillExecution: skillResponse,
         memoryAccess: "via-memory-service-api-only",

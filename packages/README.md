@@ -8,6 +8,8 @@
 | `logger/` | `@jarvis/logger` | Logging interfaces |
 | `config/` | `@jarvis/config` | Environment config types |
 | `shared-utils/` | `@jarvis/shared-utils` | Pure utility helpers |
+| `provider-registry/` | `@jarvis/provider-registry` | Hermes/OpenClaw provider selection (Phase 17) |
+| `runtime-manager/` | `@jarvis/runtime-manager` | Runtime detection + health (Phase 20) |
 
 ## Constraints
 

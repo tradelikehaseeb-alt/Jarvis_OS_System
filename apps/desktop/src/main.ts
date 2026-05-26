@@ -1,25 +1,34 @@
 /**
- * Jarvis OS Electron main process — Phase 0 scaffold.
- * No business logic. No OpenClaw. Renderer loads in Phase 1.
+ * Jarvis OS Electron main process (Phase 18).
+ * UI → IPC → api-gateway — never OpenClaw directly.
  */
+import path from "node:path";
+
 import { app, BrowserWindow } from "electron";
+
+import { registerApiHandlers } from "./ipc/api-handlers";
 
 function createWindow(): void {
   const win = new BrowserWindow({
-    width: 1024,
-    height: 768,
+    width: 1200,
+    height: 800,
+    minWidth: 900,
+    minHeight: 600,
+    title: "Jarvis OS",
     webPreferences: {
-      // Phase 1: configure preload, contextIsolation, sandbox
-      nodeIntegration: false,
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
     },
   });
 
-  // Phase 0: about:blank — Phase 1: ELECTRON_RENDERER_URL or local web build
-  void win.loadURL("about:blank");
+  const rendererHtml = path.join(__dirname, "renderer", "index.html");
+  void win.loadFile(rendererHtml);
 }
 
 void app.whenReady().then(() => {
+  registerApiHandlers();
   createWindow();
 
   app.on("activate", () => {

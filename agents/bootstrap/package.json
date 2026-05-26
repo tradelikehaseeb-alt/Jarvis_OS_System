@@ -13,7 +13,8 @@
   "dependencies": {
     "@jarvis/agents-shared": "*",
     "@jarvis/hermes": "*",
-    "@jarvis/openclaw": "*"
+    "@jarvis/openclaw": "*",
+    "@jarvis/provider-registry": "*"
   },
   "devDependencies": {
     "typescript": "^5.8.3",

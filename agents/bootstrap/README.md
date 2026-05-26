@@ -10,4 +10,6 @@ const { registry, pipeline, hermes, openClaw } = await registerDefaultAgents();
 
 Bindings: Hermes → `search-skill`; OpenClaw → `browser-skill`, `file-skill`.
 
+Uses `@jarvis/provider-registry` (default: `hermes-local`, `openclaw-local`).
+
 Not used from api-gateway HTTP — orchestrator wiring only.

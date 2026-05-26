@@ -1,0 +1,20 @@
+{
+  "name": "@jarvis/runtime-manager",
+  "version": "0.0.0",
+  "private": true,
+  "description": "External runtime detection and health for Hermes/OpenClaw (Phase 20)",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@jarvis/provider-registry": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.3"
+  }
+}

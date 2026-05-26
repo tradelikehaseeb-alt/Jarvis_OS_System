@@ -18,7 +18,12 @@
 | **13** | Concrete skills + agent pipeline wiring | Done |
 | **14** | End-to-end API → orchestrator → agent → skill | Done |
 | **15** | Task storage abstraction (`TaskStore`) | Done |
-| **16** | Production orchestrator transport + Memory HTTP | Planned |
+| **16** | Hermes/OpenClaw adapter boundaries | Done |
+| **17** | Provider registry (`@jarvis/provider-registry`) | Done |
+| **18** | Electron desktop UI shell | Done |
+| **19** | External integration research + plans | Done |
+| **20** | Runtime detection + health framework | Done |
+| **21** | Official adapter implementation (spikes) | Planned |
 | **17** | Plugins registry | Planned |
 | **18** | SaaS (billing, tenants) | Planned |
 | **19** | Hardening (observability, security) | Planned |

@@ -37,11 +37,13 @@ describe("OpenClawAgent", () => {
     expect(agent.metadata.executionCapable).toBe(true);
   });
 
-  it("execute runs BrowserSkill and FileSkill via SkillExecutor", async () => {
+  it("execute runs adapter then BrowserSkill and FileSkill", async () => {
     const { skillExecutor } = await createDefaultSkillPipeline();
     const agent = createOpenClawAgent(skillExecutor);
     const result = await agent.execute(task, context);
     expect(result.success).toBe(true);
+    expect(result.payload?.adapter).toBeDefined();
+    expect((result.payload?.adapter as { stub: boolean }).stub).toBe(true);
     expect(result.payload?.browser).toBeDefined();
     expect(result.payload?.file).toBeDefined();
     const executions = result.payload?.skillExecutions as { skillId: string }[];

@@ -11,6 +11,7 @@ import {
   HermesAgent,
   HERMES_AGENT_ID,
   createHermesAgent,
+  createHermesPlanningAdapter,
   registerHermesAgent,
 } from "../index";
 
@@ -36,15 +37,37 @@ describe("HermesAgent", () => {
     expect(agent.metadata.executionCapable).toBe(false);
   });
 
-  it("execute runs skill via SkillExecutor", async () => {
+  it("execute runs adapter then skill via SkillExecutor", async () => {
     const { skillExecutor } = await createDefaultSkillPipeline();
     const agent = createHermesAgent(skillExecutor);
     const result = await agent.execute(task, context);
     expect(result.success).toBe(true);
+    expect(result.payload?.adapter).toBeDefined();
+    expect((result.payload?.adapter as { stub: boolean }).stub).toBe(true);
+    expect(result.payload?.plan).toBeDefined();
     expect(result.payload?.skillExecution).toBeDefined();
     expect(
       (result.payload?.skillExecution as { skillId: string }).skillId,
     ).toBe(SEARCH_SKILL_ID);
+  });
+
+  it("execute with HermesPlanningAdapter returns structured plan (Phase 22)", async () => {
+    const { skillExecutor } = await createDefaultSkillPipeline();
+    const agent = createHermesAgent(
+      skillExecutor,
+      createHermesPlanningAdapter(),
+    );
+    const result = await agent.execute(task, context);
+
+    expect(result.success).toBe(true);
+    expect(result.payload?.stub).toBe(false);
+    const structured = result.payload?.structuredPlan as {
+      goal: string;
+      steps: string[];
+    };
+    expect(structured.goal).toBe("Plan my week");
+    expect(structured.steps.length).toBeGreaterThanOrEqual(3);
+    expect(result.payload?.memoryAccess).toBe("via-memory-service-api-only");
   });
 
   it("registers via AgentRegistryContract", async () => {

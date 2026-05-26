@@ -9,20 +9,41 @@ import {
   type SkillExecutor,
 } from "@jarvis/agents-shared";
 
+import type { OpenClawAdapter } from "../adapter/src/openclaw-adapter";
+import { createOpenClawAdapterStub } from "../adapter/src/openclaw-adapter-stub";
+import { buildOpenClawRequest } from "../adapter/src/build-openclaw-request";
 import { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
 
 /**
- * OpenClaw gateway — dispatches BrowserSkill + FileSkill via {@link SkillExecutor} (Phase 13).
- * No real automation; static skill outputs only.
+ * OpenClaw gateway — {@link OpenClawAdapter} boundary + skills via {@link SkillExecutor} (Phase 16).
+ * No real automation; adapter and skills return static data only.
  */
 export class OpenClawAgent extends AbstractBaseAgent {
   readonly metadata = OPENCLAW_METADATA;
 
-  constructor(private readonly skillExecutor: SkillExecutor) {
+  constructor(
+    private readonly skillExecutor: SkillExecutor,
+    private readonly adapter: OpenClawAdapter = createOpenClawAdapterStub(),
+  ) {
     super();
   }
 
   async execute(task: AgentTask, context: AgentContext): Promise<AgentResult> {
+    const adapterResponse = await this.adapter.invoke(
+      buildOpenClawRequest(task, context.contextRef),
+    );
+
+    if (!adapterResponse.success) {
+      return {
+        taskId: task.taskId,
+        requestId: task.requestId,
+        agentId: OPENCLAW_AGENT_ID,
+        success: false,
+        payload: { adapter: adapterResponse, stub: true },
+        error: adapterResponse.error,
+      };
+    }
+
     const base = {
       executionId: `exec-${task.requestId}`,
       agentId: OPENCLAW_AGENT_ID,
@@ -40,6 +61,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
           action: "navigate",
           url: "https://stub.local/task",
           intent: task.intent,
+          handleId: adapterResponse.execution.handleId,
         },
       },
       context,
@@ -54,6 +76,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
           operation: "read",
           path: "/stub/workspace/output.txt",
           intent: task.intent,
+          handleId: adapterResponse.execution.handleId,
         },
       },
       context,
@@ -68,10 +91,9 @@ export class OpenClawAgent extends AbstractBaseAgent {
       success,
       payload: {
         stub: true,
+        adapter: adapterResponse,
         execution: {
-          status: "accepted",
-          sandbox: true,
-          permissionsChecked: false,
+          ...adapterResponse.execution,
           workflowStepId: task.workflowStepId,
           contextRef: context.contextRef,
         },

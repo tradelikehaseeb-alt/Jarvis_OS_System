@@ -2,7 +2,14 @@
 
 Production-grade AI Operating System and SaaS platform.
 
-**Phase 15:** Task persistence via `TaskStore` abstraction (`InMemoryTaskStore`, `FileTaskStore`, `TaskStoreFactory`).
+**Phase 20:** `@jarvis/runtime-manager` — mock runtime detection/health for Hermes and OpenClaw providers.  
+**Phase 21:** Official runtime discovery adapters (`HermesRuntimeDiscoveryAdapter`, `OpenClawRuntimeDiscoveryAdapter`) — env + safe HTTP probe, integrated via `createHybridRuntimeManager` / `createDiscoveryRuntimeResolver`.  
+**Phase 22:** `HermesPlanningAdapter` — first controlled Hermes planning capability via `HermesAdapter` / `HermesAgent` (`goal` + `steps`, no LLM or autonomous execution).  
+**Phase 23:** Desktop Chat renders Hermes structured plans (`Goal`, `Steps`, collapsible Planning Details, Hermes badge) from `POST /tasks` output.  
+**Phase 24:** Desktop `IntentClassifier` — deterministic pre-submit intent (`plan`, `research`, `automate`, `search`, `conversation`) with UI badge; maps to API `intent.kind` without API changes.  
+**Phase 25:** Desktop voice shell — mock mic, listening animation, transcript panel, settings; pushes text into Chat → existing intent + task flow (no STT/TTS/device).  
+**Phase 26:** `@jarvis/speech-service` — deterministic transcript normalization (Roman Urdu + English, STT homophone rules).
+**Phase 27:** Desktop voice pipeline integrates `SpeechNormalizer` before intent classification; shows original/normalized transcripts + corrections with a Settings toggle.
 
 ## Architecture
 

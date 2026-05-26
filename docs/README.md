@@ -2,6 +2,19 @@
 
 Project documentation for Jarvis OS.
 
+## Runtime health (Phase 20)
+
+| Package | Description |
+|---------|-------------|
+| `@jarvis/runtime-manager` | `packages/runtime-manager/README.md` |
+
+## Integration plans (Phase 19)
+
+| Document | Description |
+|----------|-------------|
+| [HERMES_INTEGRATION_PLAN.md](./HERMES_INTEGRATION_PLAN.md) | Official Hermes runtime research + Jarvis adapter mapping |
+| [OPENCLAW_INTEGRATION_PLAN.md](./OPENCLAW_INTEGRATION_PLAN.md) | Official OpenClaw gateway research + sandbox/permissions |
+
 ## Checkpoint (Phase 15)
 
 | Document | Description |

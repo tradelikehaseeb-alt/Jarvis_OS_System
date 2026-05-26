@@ -7,6 +7,7 @@
 | API Gateway | `api-gateway/` | FastAPI | 0–1 (config), 3 (routes) |
 | Orchestrator | `orchestrator/` | TypeScript (`@jarvis/orchestrator`) | **4** (stubs), 5 (API wire) |
 | Memory | `memory-service/` | TypeScript (`@jarvis/memory-service`) | **5** (stubs), 6 (HTTP) |
+| Speech | `speech-service/` | TypeScript (`@jarvis/speech-service`) | **26** (normalization rules) |
 
 ## Flow
 

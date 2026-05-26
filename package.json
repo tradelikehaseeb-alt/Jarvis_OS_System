@@ -15,6 +15,7 @@
     "packages/*",
     "services/orchestrator",
     "services/memory-service",
+    "services/speech-service",
     "services/api-gateway",
     "agents/shared",
     "agents/hermes",
@@ -26,6 +27,8 @@
     "skills/browser-skill"
   ],
   "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.27.0",
     "prettier": "^3.5.3",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"

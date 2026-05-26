@@ -2,7 +2,7 @@
   "name": "@jarvis/hermes",
   "version": "0.0.0",
   "private": true,
-  "description": "Hermes agent stub — planning and reasoning (Phase 10)",
+  "description": "Hermes agent + adapter boundary (Phase 16)",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
@@ -11,7 +11,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@jarvis/agents-shared": "*"
+    "@jarvis/agents-shared": "*",
+    "@jarvis/provider-registry": "*",
+    "@jarvis/runtime-manager": "*",
+    "@jarvis/types": "*"
   },
   "devDependencies": {
     "typescript": "^5.8.3",

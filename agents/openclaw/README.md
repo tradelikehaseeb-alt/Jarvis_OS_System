@@ -1,28 +1,40 @@
 # @jarvis/openclaw
 
-**OpenClaw Gateway** — execution, browser-automation, desktop-automation (Phase 10 stub).
+**OpenClaw Gateway** — execution, browser-automation, desktop-automation.
 
-Extends `AbstractBaseAgent`. No real automation, no UI imports, no LLM.
+## Phase 16 — adapter boundary
 
-## Capabilities (stub metadata)
+| Layer | Path | Role |
+|-------|------|------|
+| Agent | `src/openclaw-agent.ts` | Orchestrator entry; calls adapter + skills |
+| Adapter | `adapter/` | `OpenClawAdapter` — official gateway plug-in point |
 
-| Id | Kind |
-|----|------|
-| openclaw-execution | execution |
-| openclaw-browser | browser-automation |
-| openclaw-desktop | desktop-automation |
+```
+Orchestrator → OpenClawAgent → OpenClawAdapter.invoke() → SkillExecutor → BrowserSkill, FileSkill
+```
+
+Stub default: `OpenClawAdapterStub` (static acceptance). Official OpenClaw replaces the adapter only.
+
+See [adapter/README.md](./adapter/README.md).
 
 ## Usage
 
 ```typescript
-import { InMemoryAgentRegistry } from "@jarvis/agents-shared";
-import { registerOpenClawAgent } from "@jarvis/openclaw";
+import { createDefaultSkillPipeline } from "@jarvis/agents-shared";
+import { createOpenClawAgent, createOpenClawAdapterStub } from "@jarvis/openclaw";
 
-const registry = new InMemoryAgentRegistry();
-await registerOpenClawAgent(registry);
+const { skillExecutor } = await createDefaultSkillPipeline();
+const openclaw = createOpenClawAgent(skillExecutor, createOpenClawAdapterStub());
 ```
 
 ## Constraints
 
 - Invoked only via orchestrator (never from `apps/`)
-- `executionCapable: true` — sandbox + permissions in Phase 11+
+- No real browser/desktop automation in stub mode
+- Frontend never calls OpenClaw directly
+
+## Tests
+
+```bash
+npm run test --workspace=@jarvis/openclaw
+```

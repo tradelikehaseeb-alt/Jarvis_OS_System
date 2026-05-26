@@ -1,28 +1,50 @@
 # @jarvis/hermes
 
-**Hermes** — planning, reasoning, memory-access, task-decomposition (Phase 10 stub).
+**Hermes** — planning, reasoning, memory-access, task-decomposition.
 
-Extends `AbstractBaseAgent` from `@jarvis/agents-shared`. No LLM, no local memory, no HTTP.
+## Phase 16 — adapter boundary
 
-## Capabilities (stub metadata)
+| Layer | Path | Role |
+|-------|------|------|
+| Agent | `src/hermes-agent.ts` | Orchestrator entry; calls adapter + skills |
+| Adapter | `adapter/` | `HermesAdapter` — official integration plug-in point |
 
-| Id | Kind |
-|----|------|
-| hermes-planning | planning |
-| hermes-reasoning | reasoning |
-| hermes-memory-access | memory-access |
-| hermes-decomposition | task-decomposition |
+```
+Orchestrator → HermesAgent → HermesAdapter.invoke() → SkillExecutor → SearchSkill
+```
+
+Stub default: `HermesAdapterStub` (static plan/reasoning). **Phase 22:** `HermesPlanningAdapter` returns structured `{ goal, steps }` via the same interface.
+
+See [adapter/README.md](./adapter/README.md) and [adapter/official/README.md](./adapter/official/README.md).
+
+## Phase 22 — planning spike
+
+```typescript
+import { createHermesAgent, createHermesPlanningAdapter } from "@jarvis/hermes";
+
+const hermes = createHermesAgent(skillExecutor, createHermesPlanningAdapter());
+```
+
+Set `HERMES_PLANNING_ADAPTER=planning` for bootstrap to use the planning adapter automatically.
 
 ## Usage
 
 ```typescript
-import { InMemoryAgentRegistry } from "@jarvis/agents-shared";
-import { registerHermesAgent } from "@jarvis/hermes";
+import { createDefaultSkillPipeline } from "@jarvis/agents-shared";
+import { createHermesAgent, createHermesAdapterStub } from "@jarvis/hermes";
 
-const registry = new InMemoryAgentRegistry();
-const hermes = await registerHermesAgent(registry);
+const { skillExecutor } = await createDefaultSkillPipeline();
+const hermes = createHermesAgent(skillExecutor, createHermesAdapterStub());
 ```
 
-## Phase 11+
+## Constraints
 
-Wire to Memory Service APIs; replace stub `execute` with real planning.
+- No LLM or external Hermes SDK in stub mode
+- Memory via Memory Service APIs only (future)
+- UI never imports Hermes directly
+
+## Tests
+
+```bash
+npm run test --workspace=@jarvis/hermes
+```
