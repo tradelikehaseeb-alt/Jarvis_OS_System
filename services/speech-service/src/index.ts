@@ -60,6 +60,20 @@ export {
   StubTextToSpeechAdapter,
 } from "./adapters";
 
+export type {
+  SpeechRuntimeStatus,
+  SpeechRuntimeProviderId,
+  SpeechRuntimeHealth,
+  SpeechRuntimeProvider,
+  SpeechRuntimeManager,
+  SpeechRuntimeResolver,
+} from "./runtime";
+export {
+  MockSpeechRuntimeProvider,
+  InMemorySpeechRuntimeManager,
+  createDefaultSpeechRuntimeResolver,
+} from "./runtime";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -68,6 +82,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "normalization-rules",
   "speech-normalizer",
   "adapters",
+  "runtime",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];

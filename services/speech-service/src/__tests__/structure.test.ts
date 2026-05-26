@@ -11,6 +11,7 @@ describe("speech-service structure", () => {
       "normalization-rules",
       "speech-normalizer",
       "adapters",
+      "runtime",
     ]);
   });
 });

@@ -14,6 +14,7 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `NormalizationRules` | Roman Urdu phrase/word → English |
 | `SpeechNormalizer` | Orchestrates the pipeline |
 | `adapters/*` | Provider abstraction layer (stub-only in Phase 28) |
+| `runtime/*` | Provider runtime status/health manager (stub-only in Phase 29) |
 
 ## Pipeline
 
@@ -73,6 +74,45 @@ New adapter module (`src/adapters/`) provides:
 - `SpeechAdapterRegistry`
 - `StubSpeechToTextAdapter`
 - `StubTextToSpeechAdapter`
+
+## Speech Runtime Manager (Phase 29)
+
+```
+Voice UI
+  ↓
+Speech Service
+  ↓
+Speech Adapter
+  ↓
+Speech Runtime Manager
+  ↓
+Future providers
+```
+
+Runtime module (`src/runtime/`) provides:
+
+- `SpeechRuntimeStatus`
+- `SpeechRuntimeHealth`
+- `SpeechRuntimeProvider`
+- `MockSpeechRuntimeProvider`
+- `SpeechRuntimeManager`
+- `InMemorySpeechRuntimeManager`
+- `SpeechRuntimeResolver`
+- `createDefaultSpeechRuntimeResolver()`
+
+Supported provider ids:
+
+- `stt-local`
+- `stt-cloud`
+- `tts-local`
+- `tts-cloud`
+
+Default deterministic mock health:
+
+- `stt-local` → `available`
+- `tts-local` → `available`
+- `stt-cloud` → `degraded`
+- `tts-cloud` → `degraded`
 
 ## Tests
 
