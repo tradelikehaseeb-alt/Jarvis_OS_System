@@ -16,6 +16,7 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `adapters/*` | Provider abstraction layer (stub-only in Phase 28) |
 | `runtime/*` | Provider runtime status/health manager (stub-only in Phase 29) |
 | `routing/*` | Capability-based provider selection (stub metadata only, Phase 30) |
+| `session/*` | In-memory speech session orchestration (deterministic, Phase 31) |
 
 ## Pipeline
 
@@ -156,6 +157,43 @@ Deterministic examples:
 - Roman Urdu → `stt-local`
 - English high-quality → `stt-cloud`
 - Low latency → local providers
+
+## Speech Session Manager (Phase 31)
+
+```
+Voice UI
+  ↓
+Speech Service
+  ↓
+Speech Session Manager
+  ↓
+Speech Adapter
+  ↓
+Speech Runtime Manager
+  ↓
+Speech Capability Router
+  ↓
+Future providers
+```
+
+Session module (`src/session/`) provides:
+
+- `SpeechSessionState`
+- `SpeechSession`
+- `SpeechSessionEvent`
+- `SpeechSessionManager`
+- `InMemorySpeechSessionManager`
+- `SpeechSessionFactory`
+- `createDefaultSpeechSessionManager()`
+
+Supported states:
+
+- `idle`
+- `listening`
+- `processing`
+- `speaking`
+- `completed`
+- `error`
 
 ## Tests
 

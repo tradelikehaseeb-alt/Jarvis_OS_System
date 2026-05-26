@@ -13,6 +13,7 @@ describe("speech-service structure", () => {
       "adapters",
       "runtime",
       "routing",
+      "session",
     ]);
   });
 });

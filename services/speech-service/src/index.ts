@@ -89,6 +89,18 @@ export {
   createDefaultSpeechCapabilityRouter,
 } from "./routing";
 
+export type {
+  SpeechSessionState,
+  SpeechSessionEvent,
+  SpeechSession,
+  SpeechSessionManager,
+} from "./session";
+export {
+  SpeechSessionFactory,
+  InMemorySpeechSessionManager,
+  createDefaultSpeechSessionManager,
+} from "./session";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -99,6 +111,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "adapters",
   "runtime",
   "routing",
+  "session",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];
