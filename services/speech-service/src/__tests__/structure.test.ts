@@ -12,6 +12,7 @@ describe("speech-service structure", () => {
       "speech-normalizer",
       "adapters",
       "runtime",
+      "routing",
     ]);
   });
 });

@@ -15,6 +15,7 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `SpeechNormalizer` | Orchestrates the pipeline |
 | `adapters/*` | Provider abstraction layer (stub-only in Phase 28) |
 | `runtime/*` | Provider runtime status/health manager (stub-only in Phase 29) |
+| `routing/*` | Capability-based provider selection (stub metadata only, Phase 30) |
 
 ## Pipeline
 
@@ -113,6 +114,48 @@ Default deterministic mock health:
 - `tts-local` → `available`
 - `stt-cloud` → `degraded`
 - `tts-cloud` → `degraded`
+
+## Speech Capability Routing (Phase 30)
+
+```
+Voice UI
+  ↓
+Speech Service
+  ↓
+Speech Adapter
+  ↓
+Speech Runtime Manager
+  ↓
+Speech Capability Router
+  ↓
+Future providers
+```
+
+Routing module (`src/routing/`) provides:
+
+- `SpeechCapability`
+- `SpeechCapabilityMatch`
+- `SpeechRoutingDecision`
+- `SpeechSelectionPolicy`
+- `DefaultSpeechSelectionPolicy`
+- `SpeechCapabilityResolver`
+- `SpeechCapabilityRouter`
+- `createDefaultSpeechCapabilityRouter()`
+
+Capabilities:
+
+- `low-latency`
+- `offline`
+- `multilingual`
+- `roman-urdu`
+- `high-quality`
+- `streaming-ready`
+
+Deterministic examples:
+
+- Roman Urdu → `stt-local`
+- English high-quality → `stt-cloud`
+- Low latency → local providers
 
 ## Tests
 

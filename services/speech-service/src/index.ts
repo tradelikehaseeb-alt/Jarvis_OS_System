@@ -74,6 +74,21 @@ export {
   createDefaultSpeechRuntimeResolver,
 } from "./runtime";
 
+export type {
+  SpeechCapability,
+  SpeechCapabilityMatch,
+  SpeechRoutingDecision,
+  SpeechSelectionContext,
+  SpeechSelectionPolicy,
+  SpeechCapabilityRouteRequest,
+} from "./routing";
+export {
+  DefaultSpeechSelectionPolicy,
+  SpeechCapabilityResolver,
+  SpeechCapabilityRouter,
+  createDefaultSpeechCapabilityRouter,
+} from "./routing";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -83,6 +98,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-normalizer",
   "adapters",
   "runtime",
+  "routing",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];
