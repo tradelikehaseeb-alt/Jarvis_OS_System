@@ -1,4 +1,9 @@
-import type { AgentRegistryContract, BaseAgent } from "@jarvis/agents-shared";
+import type {
+  AgentMetadata,
+  AgentRegistryContract,
+  BaseAgent,
+} from "@jarvis/agents-shared";
+import { assertValidAgentInstance, assertValidAgentMetadata } from "@jarvis/agents-shared";
 
 import type { AgentRegistry, RegisteredAgent } from "./contract";
 
@@ -6,11 +11,23 @@ import type { AgentRegistry, RegisteredAgent } from "./contract";
  * Maps {@link BaseAgent} metadata to orchestrator {@link RegisteredAgent} rows.
  */
 export function agentToRegistered(agent: BaseAgent): RegisteredAgent {
+  const metadata = assertValidAgentInstance(agent, "agentToRegistered");
+
   return {
-    agentId: agent.metadata.agentId,
-    displayName: agent.metadata.displayName,
-    capabilities: agent.metadata.capabilities.map((c) => c.kind),
-    executionCapable: agent.metadata.executionCapable,
+    agentId: metadata.agentId,
+    displayName: metadata.displayName,
+    capabilities: metadata.capabilities.map((c) => c.kind),
+    executionCapable: metadata.executionCapable,
+  };
+}
+
+function metadataToRegistered(metadata: AgentMetadata): RegisteredAgent {
+  assertValidAgentMetadata(metadata, "metadataToRegistered");
+  return {
+    agentId: metadata.agentId,
+    displayName: metadata.displayName,
+    capabilities: metadata.capabilities.map((c) => c.kind),
+    executionCapable: metadata.executionCapable,
   };
 }
 
@@ -25,7 +42,7 @@ export class LiveAgentRegistry implements AgentRegistry {
 
   async list(): Promise<readonly RegisteredAgent[]> {
     const agents = await this.agents.list();
-    return agents.map(agentToRegistered);
+    return agents.map(metadataToRegistered);
   }
 
   async resolve(agentId: string): Promise<RegisteredAgent | undefined> {

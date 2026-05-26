@@ -4,6 +4,7 @@
 
 import type { AgentRegistryContract } from "@jarvis/agents-shared";
 import { InMemoryAgentRegistry } from "@jarvis/agents-shared";
+import { assertValidAgentMetadata } from "@jarvis/agents-shared";
 import {
   createDefaultSkillPipeline,
   type SkillPipelineWiring,
@@ -59,6 +60,10 @@ export async function registerDefaultAgents(
     pipeline.skillExecutor,
     createOpenClawAdapterFromProvider(providerResolver),
   );
+
+  // Defensive validation before handing agents to orchestrator registry adapters.
+  assertValidAgentMetadata(hermes.metadata, "registerDefaultAgents.hermes");
+  assertValidAgentMetadata(openClaw.metadata, "registerDefaultAgents.openclaw");
 
   return { registry, pipeline, providerResolver, hermes, openClaw };
 }

@@ -27,8 +27,11 @@
     "skills/browser-skill"
   ],
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.27.0",
+    "jsdom": "^29.1.1",
     "prettier": "^3.5.3",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SettingsPage } from "../SettingsPage";
@@ -10,7 +10,6 @@ vi.mock("../../api/jarvis-client", () => ({
 describe("SettingsPage", () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.useFakeTimers();
   });
 
   afterEach(() => {
@@ -19,9 +18,9 @@ describe("SettingsPage", () => {
   });
 
   it("shows normalization toggle and persists to localStorage", async () => {
-    render(<SettingsPage />);
+    const { getByLabelText } = render(<SettingsPage />);
 
-    const toggle = await screen.findByLabelText(
+    const toggle = getByLabelText(
       /Enable speech normalization before intent classification/i,
     );
 
@@ -35,8 +34,9 @@ describe("SettingsPage", () => {
   });
 
   it("shows and clears saved indicator", async () => {
-    render(<SettingsPage />);
-    const toggle = await screen.findByLabelText(
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { getByLabelText } = render(<SettingsPage />);
+    const toggle = getByLabelText(
       /Enable speech normalization before intent classification/i,
     );
     fireEvent.click(toggle);
@@ -47,9 +47,7 @@ describe("SettingsPage", () => {
       await vi.advanceTimersByTimeAsync(2100);
     });
 
-    await waitFor(() => {
-      expect(screen.queryByText("Voice settings saved")).not.toBeInTheDocument();
-    });
+    expect(screen.queryByText("Voice settings saved")).not.toBeInTheDocument();
   });
 
   it("loads saved normalization preference from storage", async () => {
@@ -63,8 +61,8 @@ describe("SettingsPage", () => {
       }),
     );
 
-    render(<SettingsPage />);
-    const toggle = await screen.findByLabelText(
+    const { getByLabelText } = render(<SettingsPage />);
+    const toggle = getByLabelText(
       /Enable speech normalization before intent classification/i,
     );
     expect((toggle as HTMLInputElement).checked).toBe(false);

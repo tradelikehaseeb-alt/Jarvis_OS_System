@@ -1,6 +1,7 @@
 import type { BaseAgent } from "./base-agent";
 import type { AgentMetadata } from "./agent-metadata";
 import type { AgentRegistryContract } from "./agent-registry-contract";
+import { assertValidAgentInstance } from "./agent-metadata-validation";
 
 /**
  * In-memory {@link AgentRegistryContract} for development and tests (Phase 10).
@@ -12,7 +13,8 @@ export class InMemoryAgentRegistry implements AgentRegistryContract {
   private readonly agents = new Map<string, BaseAgent>();
 
   async register(agent: BaseAgent): Promise<void> {
-    this.agents.set(agent.metadata.agentId, agent);
+    const metadata = assertValidAgentInstance(agent, "InMemoryAgentRegistry.register");
+    this.agents.set(metadata.agentId, agent);
   }
 
   async unregister(agentId: string): Promise<boolean> {

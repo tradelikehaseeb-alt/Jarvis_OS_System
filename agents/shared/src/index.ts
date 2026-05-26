@@ -11,6 +11,10 @@ export type { BaseAgent } from "./base-agent";
 export { AbstractBaseAgent } from "./base-agent";
 export type { AgentRegistryContract } from "./agent-registry-contract";
 export { InMemoryAgentRegistry } from "./in-memory-agent-registry";
+export {
+  assertValidAgentMetadata,
+  assertValidAgentInstance,
+} from "./agent-metadata-validation";
 
 export type { SkillExecutionRequest } from "./skill-execution-request";
 export type {

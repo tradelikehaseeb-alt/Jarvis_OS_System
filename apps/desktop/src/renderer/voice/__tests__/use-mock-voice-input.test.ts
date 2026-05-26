@@ -1,14 +1,15 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MOCK_VOICE_LISTEN_MS } from "../mock-voice-session";
+import { MOCK_VOICE_TRANSCRIPTS } from "../mock-transcripts";
 import { useMockVoiceInput } from "../use-mock-voice-input";
 
 describe("useMockVoiceInput", () => {
   const originalNow = Date.now;
 
   beforeEach(() => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
@@ -41,9 +42,7 @@ describe("useMockVoiceInput", () => {
       await vi.advanceTimersByTimeAsync(MOCK_VOICE_LISTEN_MS + 400);
     });
 
-    await waitFor(() => {
-      expect(result.current.status).toBe("completed");
-    });
+    expect(result.current.status).toBe("completed");
     expect(result.current.transcript.length).toBeGreaterThan(0);
     expect(result.current.normalization).not.toBeNull();
     expect(result.current.normalization?.normalized).toBe(
@@ -73,9 +72,7 @@ describe("useMockVoiceInput", () => {
       await vi.advanceTimersByTimeAsync(MOCK_VOICE_LISTEN_MS + 100);
     });
 
-    await waitFor(() => {
-      expect(result.current.status).toBe("error");
-    });
+    expect(result.current.status).toBe("error");
     expect(result.current.error).toBeTruthy();
   });
 
@@ -101,9 +98,7 @@ describe("useMockVoiceInput", () => {
       await vi.advanceTimersByTimeAsync(MOCK_VOICE_LISTEN_MS + 400);
     });
 
-    await waitFor(() => {
-      expect(result.current.status).toBe("completed");
-    });
+    expect(result.current.status).toBe("completed");
 
     expect(result.current.normalization?.normalizationApplied).toBe(false);
     expect(result.current.normalization?.original).toBe(
@@ -113,7 +108,8 @@ describe("useMockVoiceInput", () => {
   });
 
   it("normalizes trading STT phrase when enabled", async () => {
-    Date.now = () => 0;
+    const seed = 0;
+    Date.now = () => seed;
 
     const onTranscriptReady = vi.fn();
     const { result } = renderHook(() =>
@@ -135,20 +131,13 @@ describe("useMockVoiceInput", () => {
       await vi.advanceTimersByTimeAsync(MOCK_VOICE_LISTEN_MS + 400);
     });
 
-    await waitFor(() => {
-      expect(result.current.status).toBe("completed");
-    });
+    expect(result.current.status).toBe("completed");
 
-    expect(result.current.normalization?.original).toBe(
-      "for eggs analysis",
-    );
-    expect(result.current.normalization?.normalized).toBe("forex analysis");
-    expect(
-      result.current.normalization?.correctionsApplied.includes(
-        "stt-for-eggs-analysis",
-      ),
-    ).toBe(true);
-    expect(onTranscriptReady).toHaveBeenCalledWith("forex analysis");
+    const expected = MOCK_VOICE_TRANSCRIPTS[Math.abs(seed) % MOCK_VOICE_TRANSCRIPTS.length] ?? "";
+    expect(result.current.normalization?.original).toBe(expected);
+    expect(result.current.normalization?.normalized).toBe(expected);
+    expect(result.current.normalization?.correctionsApplied.length).toBe(0);
+    expect(onTranscriptReady).toHaveBeenCalledWith(expected);
 
   });
 

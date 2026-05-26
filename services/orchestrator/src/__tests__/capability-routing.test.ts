@@ -66,6 +66,30 @@ describe("DefaultAgentSelectionPolicy", () => {
     );
     expect(selected?.agentId).toBe("openclaw-gateway");
   });
+
+  it("prefers execution-capable automate agent even with lower score", () => {
+    const policy = new DefaultAgentSelectionPolicy();
+    const selected = policy.select(
+      [
+        {
+          agentId: "hermes",
+          displayName: "Hermes",
+          matchedCapabilities: ["planning", "reasoning"],
+          score: 1,
+          executionCapable: false,
+        },
+        {
+          agentId: "openclaw-gateway",
+          displayName: "OpenClaw",
+          matchedCapabilities: ["execution"],
+          score: 0.34,
+          executionCapable: true,
+        },
+      ],
+      { kind: "automate", description: "open app" },
+    );
+    expect(selected?.agentId).toBe("openclaw-gateway");
+  });
 });
 
 describe("CapabilityRouterStub", () => {

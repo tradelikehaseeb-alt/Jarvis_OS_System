@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MOCK_VOICE_LISTEN_MS } from "../../voice/mock-voice-session";
+import * as mockVoiceSession from "../../voice/mock-voice-session";
 
 import type { JarvisDesktopApi } from "../../global";
 import { ChatPage } from "../ChatPage";
@@ -147,7 +148,9 @@ describe("ChatPage", () => {
       }),
     );
 
-    Date.now = () => 0;
+    vi.spyOn(mockVoiceSession, "runMockVoiceCapture").mockResolvedValue({
+      transcript: "for eggs analysis",
+    });
 
     render(<ChatPage />);
     fireEvent.click(screen.getByTestId("voice-mic-button"));
@@ -166,7 +169,9 @@ describe("ChatPage", () => {
   });
 
   it("shows normalized transcript when normalization is enabled", async () => {
-    Date.now = () => 0;
+    vi.spyOn(mockVoiceSession, "runMockVoiceCapture").mockResolvedValue({
+      transcript: "for eggs analysis",
+    });
 
     render(<ChatPage />);
     fireEvent.click(screen.getByTestId("voice-mic-button"));

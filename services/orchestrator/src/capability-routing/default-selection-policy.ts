@@ -27,11 +27,11 @@ export class DefaultAgentSelectionPolicy implements AgentSelectionPolicy {
     );
 
     const sorted = [...matches].sort((a, b) => {
+      if (needsExecution && a.executionCapable !== b.executionCapable) {
+        return Number(b.executionCapable) - Number(a.executionCapable);
+      }
       if (b.score !== a.score) {
         return b.score - a.score;
-      }
-      if (needsExecution) {
-        return Number(b.executionCapable) - Number(a.executionCapable);
       }
       return a.agentId.localeCompare(b.agentId);
     });

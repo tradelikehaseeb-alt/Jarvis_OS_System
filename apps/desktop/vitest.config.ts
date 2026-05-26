@@ -14,7 +14,7 @@ export default defineConfig({
       "@renderer": path.join(__dirname, "src/renderer"),
       "@jarvis/speech-service": path.join(
         __dirname,
-        "../speech-service/src/index.ts",
+        "../../services/speech-service/src/index.ts",
       ),
     },
   },
