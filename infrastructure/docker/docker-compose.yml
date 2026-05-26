@@ -1,0 +1,49 @@
+# Jarvis OS — local development stack (Phase 1: infrastructure config only)
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jarvis-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jarvis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jarvis}
+      POSTGRES_DB: ${POSTGRES_DB:-jarvis}
+    ports:
+      - "5432:5432"
+    volumes:
+      - jarvis_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jarvis}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Phase 2: uncomment when app.main exists
+  # api-gateway:
+  #   build:
+  #     context: ../../services/api-gateway
+  #     dockerfile: Dockerfile
+  #   container_name: jarvis-api-gateway
+  #   ports:
+  #     - "${API_PORT:-8000}:8000"
+  #   env_file:
+  #     - ../../.env
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+
+  # Phase 2: uncomment when Next.js production build is configured
+  # web:
+  #   build:
+  #     context: ../../apps/web
+  #     dockerfile: Dockerfile
+  #   container_name: jarvis-web
+  #   ports:
+  #     - "3000:3000"
+  #   env_file:
+  #     - ../../.env
+  #   depends_on:
+  #     - api-gateway
+
+volumes:
+  jarvis_pg_data:

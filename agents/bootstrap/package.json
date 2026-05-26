@@ -1,0 +1,22 @@
+{
+  "name": "@jarvis/agents-bootstrap",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Register default Jarvis agents and Phase 13 skill pipeline",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@jarvis/agents-shared": "*",
+    "@jarvis/hermes": "*",
+    "@jarvis/openclaw": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.3"
+  }
+}

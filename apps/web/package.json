@@ -1,0 +1,27 @@
+{
+  "name": "@jarvis/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Jarvis OS web UI (Next.js)",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@jarvis/config": "*",
+    "@jarvis/logger": "*",
+    "@jarvis/shared-utils": "*",
+    "@jarvis/types": "*",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "typescript": "^5.8.3"
+  }
+}

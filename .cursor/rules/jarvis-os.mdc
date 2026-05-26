@@ -1,0 +1,58 @@
+---
+description: Jarvis OS product context, layered architecture, and agent boundaries
+alwaysApply: true
+---
+
+# Jarvis OS
+
+Production-grade AI Operating System and SaaS platform — **not** a simple chatbot.
+
+Combines: AI conversations, desktop/workflow automation, long-term memory, multi-agent orchestration, plugins, skills, adaptive learning, knowledge retrieval, APIs, and subscriptions.
+
+**Goal:** Turn AI into an operating layer that thinks, plans, and executes — reducing friction across browser, email, notes, spreadsheets, automation, and files.
+
+**Users:** freelancers, traders, travel agencies, content creators, developers, SMBs, enterprise.
+
+**Target value:** 1–4 hours/day saved (5–8+ heavy users).
+
+## Architecture (strict)
+
+UI → API → Orchestrator → Agents → Skills
+
+- **Hermes** — planning, reasoning, memory access, task decomposition
+- **OpenClaw** — browser/desktop automation, execution (behind API/Orchestrator only)
+
+## Memory ownership
+
+- **Jarvis Memory Service** owns persistent memory
+- **Hermes** reads/writes through memory APIs only
+- **Hermes must not** directly store persistent memory
+
+## Non-negotiable rules
+
+1. User only sees **Jarvis** UI — never expose Hermes/OpenClaw as separate products in the client.
+2. **Frontend must never** import, configure, or call OpenClaw (or bypass API/Orchestrator/Agents).
+3. **No duplicate** code, folders, or near-identical logic — extract to shared modules.
+4. **Scan the repo** before creating files; reuse existing components and modules.
+5. **TypeScript strict**; document non-obvious APIs; **tests for every new module**.
+6. Production-ready, modular, SOLID-friendly design.
+7. **OpenClaw execution** requires permission checks and sandbox boundaries.
+
+## Examples
+
+```typescript
+// BAD — UI bypasses API/Orchestrator
+import { openClaw } from "@jarvis/openclaw";
+await openClaw.run(task);
+
+// GOOD — UI → API only
+await jarvisApi.post("/tasks", { intent });
+
+// BAD — Hermes persists memory directly
+await hermesLocalStore.save(userId, facts);
+
+// GOOD — Hermes via Jarvis Memory Service
+await memoryApi.store({ userId, facts });
+```
+
+For PRs, scaffolding, or cross-layer changes: use project skills `architecture-review` and `review-before-create`.

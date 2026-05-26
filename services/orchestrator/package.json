@@ -1,0 +1,22 @@
+{
+  "name": "@jarvis/orchestrator",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Jarvis OS orchestrator — workflow composition and agent routing (skeleton)",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@jarvis/agents-bootstrap": "*",
+    "@jarvis/agents-shared": "*",
+    "@jarvis/types": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.3"
+  }
+}

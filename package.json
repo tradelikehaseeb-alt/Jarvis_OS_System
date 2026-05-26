@@ -1,0 +1,37 @@
+{
+  "name": "jarvis-os",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Jarvis OS — production AI operating system monorepo",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/orchestrator",
+    "services/memory-service",
+    "services/api-gateway",
+    "agents/shared",
+    "agents/hermes",
+    "agents/openclaw",
+    "agents/bootstrap",
+    "skills/shared",
+    "skills/search-skill",
+    "skills/file-skill",
+    "skills/browser-skill"
+  ],
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=20"
+  }
+}

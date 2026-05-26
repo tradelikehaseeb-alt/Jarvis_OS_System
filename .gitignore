@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+out/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Phase 14 dev task store (local CLI bridge)
+services/api-gateway/.jarvis-task-store/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Electron
+apps/desktop/release/
+
+# Docker
+*.log
+
+# Test / coverage
+coverage/
+.nyc_output/

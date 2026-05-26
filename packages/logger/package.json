@@ -1,0 +1,15 @@
+{
+  "name": "@jarvis/logger",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Logging interfaces and adapters for Jarvis OS",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
