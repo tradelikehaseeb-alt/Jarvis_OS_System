@@ -13,6 +13,7 @@
   "dependencies": {
     "@jarvis/agents-bootstrap": "*",
     "@jarvis/agents-shared": "*",
+    "@jarvis/hermes": "*",
     "@jarvis/local-memory": "*",
     "@jarvis/speech-service": "*",
     "@jarvis/types": "*"

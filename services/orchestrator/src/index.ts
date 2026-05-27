@@ -36,6 +36,7 @@ export * from "./runtime-startup";
 export * from "./runtime-health";
 export * from "./timeline";
 export * from "./conversation-workspace";
+export * from "./task-chain";
 export * from "./streaming";
 export * from "./storage-runtime";
 export * from "./transport";
@@ -61,6 +62,7 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "runtime-health",
   "timeline",
   "conversation-workspace",
+  "task-chain",
   "streaming",
   "storage-runtime",
   "transport",

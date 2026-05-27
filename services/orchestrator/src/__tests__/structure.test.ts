@@ -28,6 +28,7 @@ describe("orchestrator structure", () => {
       "runtime-health",
       "timeline",
       "conversation-workspace",
+      "task-chain",
       "streaming",
       "storage-runtime",
       "transport",

@@ -4,6 +4,7 @@ import type {
   AgentResult,
   AgentTask,
 } from "@jarvis/agents-shared";
+import type { HermesOpenClawTaskDescriptor } from "@jarvis/hermes";
 import type { TaskIntent } from "@jarvis/types";
 import type {
   CreateTaskRequest,
@@ -39,6 +40,11 @@ import {
   createDefaultTimelineRuntime,
   type TimelineRuntime,
 } from "../timeline";
+import {
+  createDefaultTaskChainRuntime,
+  type TaskChainExecuteResult,
+  type TaskChainRuntime,
+} from "../task-chain";
 import {
   completeExecutionStream,
   createDefaultStreamManager,
@@ -82,6 +88,7 @@ export interface CreateTaskExecutionOptions {
   readonly contextRankingRuntime?: ContextRankingRuntime;
   readonly memoryRecallRuntime?: MemoryRecallRuntime;
   readonly localMemoryRuntime?: LocalMemoryRuntime;
+  readonly taskChainRuntime?: TaskChainRuntime;
 }
 
 function resolveConversationId(
@@ -137,6 +144,22 @@ function buildTaskStatus(
   };
 }
 
+function buildUserTaskFromDescriptor(
+  descriptor: HermesOpenClawTaskDescriptor,
+  userId: string,
+  correlationId?: string,
+): UserTask {
+  const now = new Date().toISOString();
+  return {
+    id: descriptor.taskId,
+    userId,
+    intent: descriptor.intent,
+    createdAt: now,
+    correlationId,
+    metadata: descriptor.metadata,
+  };
+}
+
 function intentRequiresExecutionHandshake(intent: TaskIntent): boolean {
   return intent.kind === "automate";
 }
@@ -170,9 +193,14 @@ async function runExecutionHandshake(
   task: UserTask,
   requestId: string,
   agentContext: AgentContext,
+  chainOptions: {
+    readonly taskChainRuntime: TaskChainRuntime;
+    readonly timelineId: string;
+  },
 ): Promise<{
   agentResult: AgentResult;
   planningResult?: AgentResult;
+  taskChainResult?: TaskChainExecuteResult;
 }> {
   lifecycle.transition(sessionId, "planning", "Hermes planning phase");
 
@@ -207,27 +235,58 @@ async function runExecutionHandshake(
 
   lifecycle.transition(sessionId, "executing", "OpenClaw execution phase");
 
-  const executionResult = await executeAgent(
-    registry,
-    OPENCLAW_AGENT_ID,
-    task,
+  const chainResult = await chainOptions.taskChainRuntime.executeTaskChain({
+    chainId: `chain-${task.id}`,
+    parentTaskId: task.id,
     requestId,
+    userId: task.userId,
+    correlationId: task.correlationId,
+    planningResult,
     agentContext,
-  );
+    sessionId,
+    timelineId: chainOptions.timelineId,
+  });
+
+  const executionResult =
+    chainResult.executionResults[chainResult.executionResults.length - 1];
 
   if (!executionResult) {
-    return {
-      agentResult: {
-        taskId: task.id,
-        requestId,
-        agentId: OPENCLAW_AGENT_ID,
-        success: false,
-        error: {
-          code: "AGENT_NOT_FOUND",
-          message: `Agent ${OPENCLAW_AGENT_ID} is not registered for execution`,
+    const fallbackResult = await executeAgent(
+      registry,
+      OPENCLAW_AGENT_ID,
+      task,
+      requestId,
+      agentContext,
+    );
+
+    if (!fallbackResult) {
+      return {
+        agentResult: {
+          taskId: task.id,
+          requestId,
+          agentId: OPENCLAW_AGENT_ID,
+          success: false,
+          error: {
+            code: "AGENT_NOT_FOUND",
+            message: `Agent ${OPENCLAW_AGENT_ID} is not registered for execution`,
+          },
         },
-      },
+        planningResult,
+        taskChainResult: chainResult,
+      };
+    }
+
+    emitOpenClawExecutionActivities(
+      lifecycle,
+      sessionId,
+      task.id,
+      fallbackResult,
+    );
+
+    return {
+      agentResult: fallbackResult,
       planningResult,
+      taskChainResult: chainResult,
     };
   }
 
@@ -238,7 +297,11 @@ async function runExecutionHandshake(
     executionResult,
   );
 
-  return { agentResult: executionResult, planningResult };
+  return {
+    agentResult: executionResult,
+    planningResult,
+    taskChainResult: chainResult,
+  };
 }
 
 /**
@@ -371,7 +434,27 @@ export async function executeCreateTask(
 
   let agentResult: AgentResult;
   let planningResult: AgentResult | undefined;
+  let taskChainResult: TaskChainExecuteResult | undefined;
   let handshake = false;
+
+  const taskChainRuntime =
+    options.taskChainRuntime ??
+    createDefaultTaskChainRuntime({
+      executeOpenClawStep: async (descriptor, stepRequestId, stepContext) =>
+        executeAgent(
+          executableRegistry,
+          OPENCLAW_AGENT_ID,
+          buildUserTaskFromDescriptor(
+            descriptor,
+            task.userId,
+            task.correlationId,
+          ),
+          stepRequestId,
+          stepContext,
+        ),
+      lifecycle,
+      timelineRuntime,
+    });
 
   if (intentRequiresExecutionHandshake(task.intent)) {
     handshake = true;
@@ -382,9 +465,11 @@ export async function executeCreateTask(
       task,
       requestId,
       agentContext,
+      { taskChainRuntime, timelineId },
     );
     agentResult = handshakeResult.agentResult;
     planningResult = handshakeResult.planningResult;
+    taskChainResult = handshakeResult.taskChainResult;
   } else {
     const selectedAgentId = routing.selectedAgentId;
     const initialState =
@@ -578,6 +663,18 @@ export async function executeCreateTask(
     agentPayload: agentResult.payload,
     ...(planningResult
       ? { planningPayload: planningResult.payload }
+      : {}),
+    ...(taskChainResult
+      ? {
+          taskChain: {
+            chainId: taskChainResult.chainId,
+            success: taskChainResult.success,
+            stepCount: taskChainResult.executionResults.length,
+            stub: taskChainResult.stub,
+            plan: taskChainResult.plan,
+            events: taskChainResult.events,
+          },
+        }
       : {}),
     executionLifecycle: toExecutionLifecycleSnapshot(
       finalSession,
