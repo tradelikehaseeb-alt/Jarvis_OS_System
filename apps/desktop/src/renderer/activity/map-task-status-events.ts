@@ -5,6 +5,7 @@ import {
   type ActivityEvent,
   type ActivityEventKind,
 } from "./activity-event";
+import { mapActivityStreamToEvents } from "./map-activity-stream-events";
 
 let eventCounter = 0;
 
@@ -218,6 +219,32 @@ export function mapTaskStatusToActivityEvents(
         status.updatedAt,
       ),
     );
+  }
+
+  const activityStream = output.activityStream as
+    | {
+        events?: readonly {
+          eventId?: string;
+          type?: string;
+          message?: string;
+          timestamp?: string;
+          source?: string;
+        }[];
+      }
+    | undefined;
+
+  if (activityStream?.events?.length) {
+    for (const event of mapActivityStreamToEvents(
+      activityStream.events.map((entry) => ({
+        eventId: entry.eventId,
+        type: String(entry.type ?? ""),
+        timestamp: entry.timestamp ?? status.updatedAt,
+        message: entry.message,
+        source: entry.source,
+      })),
+    )) {
+      push(event);
+    }
   }
 
   const streamEvents = output.streamEvents as

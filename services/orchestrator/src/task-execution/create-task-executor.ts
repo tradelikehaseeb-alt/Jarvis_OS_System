@@ -32,7 +32,10 @@ import {
   type MemoryPersistenceManager,
 } from "../memory";
 import {
-  attachExecutionStream,
+  createDefaultActivityRuntime,
+  type ActivityStreamRuntime,
+} from "../activity";
+import {
   completeExecutionStream,
   createDefaultStreamManager,
   publishStreamFailed,
@@ -68,6 +71,7 @@ export interface CreateTaskExecutionOptions {
   readonly lifecycleManager?: ExecutionLifecycleManager;
   readonly memoryPersistenceManager?: MemoryPersistenceManager;
   readonly streamManager?: StreamManager;
+  readonly activityStreamRuntime?: ActivityStreamRuntime;
   readonly contextRuntime?: ContextRuntime;
   readonly conversationHistoryRuntime?: ConversationHistoryRuntime;
   readonly contextRankingRuntime?: ContextRankingRuntime;
@@ -249,6 +253,9 @@ export async function executeCreateTask(
     options.lifecycleManager ?? createDefaultExecutionLifecycleManager();
   const stream =
     options.streamManager ?? createDefaultStreamManager();
+  const activityRuntime =
+    options.activityStreamRuntime ??
+    createDefaultActivityRuntime({ streamManager: stream });
   const sharedLocalMemory =
     options.localMemoryRuntime ??
     (!options.memoryPersistenceManager && !options.contextRuntime
@@ -309,7 +316,10 @@ export async function executeCreateTask(
   };
 
   const detachMemory = memory.attachLifecycle(lifecycle, memoryContext);
-  const detachStream = attachExecutionStream(stream, lifecycle, streamContext);
+  const detachActivity = activityRuntime.startStream({
+    ...streamContext,
+    lifecycle,
+  });
 
   memory.persistConversationTurn({
     conversationId,
@@ -431,9 +441,11 @@ export async function executeCreateTask(
       conversationId,
     });
     detachMemory();
-    detachStream();
+    detachActivity();
+    activityRuntime.stopStream(streamSessionId);
     publishStreamFailed(stream, streamContext, agentResult.error.message);
 
+    const activityEvents = activityRuntime.getEvents(streamSessionId);
     const failedStatus = buildTaskStatus(
       task,
       "failed",
@@ -453,6 +465,15 @@ export async function executeCreateTask(
           streamSessionId,
           activeSessions: stream.getActiveSessions().length,
         },
+        activityStream: {
+          streamSessionId,
+          events: activityEvents,
+        },
+        streamEvents: activityEvents.map((event) => ({
+          type: event.type,
+          message: event.message,
+          timestamp: event.timestamp,
+        })),
         context: {
           contextId: contextRecord.contextId,
           source: contextRecord.source,
@@ -502,9 +523,11 @@ export async function executeCreateTask(
     intentKind: task.intent.kind,
   });
   detachMemory();
-  detachStream();
+  detachActivity();
   completeExecutionStream(stream, streamContext, agentResult.success);
+  activityRuntime.stopStream(streamSessionId);
 
+  const activityEvents = activityRuntime.getEvents(streamSessionId);
   const skillOutput = extractSkillOutput(agentResult.payload);
   const output: Readonly<Record<string, unknown>> = {
     stub: true,
@@ -545,6 +568,15 @@ export async function executeCreateTask(
       streamSessionId,
       activeSessions: stream.getActiveSessions().length,
     },
+    activityStream: {
+      streamSessionId,
+      events: activityEvents,
+    },
+    streamEvents: activityEvents.map((event) => ({
+      type: event.type,
+      message: event.message,
+      timestamp: event.timestamp,
+    })),
     context: {
       contextId: contextRecord.contextId,
       source: contextRecord.source,

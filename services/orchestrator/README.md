@@ -160,6 +160,22 @@ executeCreateTask()
 
 Public interfaces unchanged. `createFileBackedMemoryPersistenceManager()` retained for `storage-runtime` consumers.
 
+## Phase 71 — live activity stream
+
+```
+Execution Lifecycle → ActivityStreamRuntime → task output.activityStream → Desktop ActivityPanel
+```
+
+| Export | Role |
+|--------|------|
+| `ActivityStreamEvent` | Live activity event for Desktop |
+| `ActivityStreamRuntime` | Stream contract — start/stop/subscribe |
+| `createDefaultActivityRuntime()` | Bridges lifecycle + `StreamManager` |
+
+Operations: `startStream()`, `stopStream()`, `subscribe()`, `unsubscribe()`.
+
+Task output includes `activityStream.events` and legacy `streamEvents` for Desktop timeline ingestion.
+
 Static/mock only — no LLM, database, or external APIs.
 
 ## Modules
@@ -172,6 +188,7 @@ Static/mock only — no LLM, database, or external APIs.
 | `execution/` | **Phase 45** — lifecycle + activity streaming |
 | `memory/` | **Phase 46** — execution + conversation memory |
 | `shared/history-utils/` | **Phase 67** — shared `matchesHistoryQuery`, `summarizeTurns`, `extractKeywords` |
+| `activity/` | **Phase 71** — live activity stream runtime for Desktop |
 | `streaming/` | **Phase 47** — real-time event stream |
 | `execution-manager/` | Step lifecycle (stub) |
 | `context-manager/` | Session context |

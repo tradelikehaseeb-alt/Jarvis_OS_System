@@ -1,11 +1,13 @@
-# Activity timeline (Phase 48)
+# Activity timeline (Phase 48, 71)
 
-Desktop live activity UI for Jarvis planning, execution, and memory updates.
+Desktop live activity UI for Hermes/OpenClaw planning, execution, and memory updates.
 
 ```
 ChatPage → useActivityStream → ActivityPanel → ActivityTimeline
                 ↓
-        Task status output (executionLifecycle + memory)
+        task output.activityStream (Phase 71)
+                ↓
+        executionLifecycle + memory (fallback)
 ```
 
 ## Components
@@ -16,7 +18,15 @@ ChatPage → useActivityStream → ActivityPanel → ActivityTimeline
 | `ActivityPanel` | Sidebar panel wrapper |
 | `ActivityTimeline` | Ordered event list |
 | `ActivityTimelineItem` | Single timeline row |
-| `useActivityStream()` | Hook — staged loading + task status ingest |
+| `useActivityStream()` | Hook — staged loading + live stream ingest |
+| `mapActivityStreamToEvents()` | Maps orchestrator `activityStream.events` |
+
+## Hook API (Phase 71)
+
+- `startStream()` — begin staged progress while task runs
+- `stopStream()` — end staged streaming
+- `subscribe()` / `unsubscribe()` — panel/runtime listeners
+- `ingestTaskStatus()` — merge real orchestrator activity stream events
 
 ## Event kinds
 
@@ -25,6 +35,6 @@ ChatPage → useActivityStream → ActivityPanel → ActivityTimeline
 - `memory_saved` / `conversation_updated`
 - `failed`
 
-While a task runs, the hook plays a deterministic staged progression. When the orchestrator response arrives, events are merged from `executionLifecycle` and `memory` output fields.
+While a task runs, the hook plays a deterministic staged progression. When the orchestrator response arrives, events merge from `activityStream`, `executionLifecycle`, and `memory` output fields.
 
-No WebSockets yet — consumes existing task status payload only.
+No WebSockets yet — consumes task status payload from API runtime.
