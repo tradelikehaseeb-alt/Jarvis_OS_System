@@ -67,6 +67,13 @@ import {
   type FeedbackSignal,
 } from "../user-feedback";
 import {
+  createDefaultLlmProviderRuntime,
+  resolveDefaultLlmProviderId,
+  type LlmProviderResponse,
+  type LlmProviderRuntime,
+  type LlmProviderValidation,
+} from "../llm-provider";
+import {
   completeExecutionStream,
   createDefaultStreamManager,
   publishStreamFailed,
@@ -113,6 +120,7 @@ export interface CreateTaskExecutionOptions {
   readonly adaptiveExecutionRuntime?: AdaptiveExecutionRuntime;
   readonly learningRuntime?: LearningRuntime;
   readonly feedbackRuntime?: FeedbackRuntime;
+  readonly llmProviderRuntime?: LlmProviderRuntime;
 }
 
 function resolveConversationId(
@@ -483,6 +491,8 @@ export async function executeCreateTask(
   let learningSignals: readonly LearningSignal[] = [];
   let feedbackInsights: FeedbackInsight | undefined;
   let feedbackSignals: readonly FeedbackSignal[] = [];
+  let llmProviderResponse: LlmProviderResponse | undefined;
+  let llmProviderValidation: LlmProviderValidation | undefined;
   let learnedRules: readonly AdaptiveExecutionRule[] = DEFAULT_STUB_ADAPTIVE_RULES;
   let handshake = false;
 
@@ -535,6 +545,34 @@ export async function executeCreateTask(
         })
       : undefined);
 
+  const llmProviderRuntime =
+    options.llmProviderRuntime ?? createDefaultLlmProviderRuntime();
+
+  let enrichedAgentContext = agentContext;
+
+  if (intentRequiresExecutionHandshake(task.intent)) {
+    const llmProviderId = resolveDefaultLlmProviderId(task.metadata);
+    llmProviderValidation =
+      await llmProviderRuntime.validateProvider(llmProviderId);
+    llmProviderResponse = await llmProviderRuntime.executePrompt({
+      providerId: llmProviderId,
+      prompt: `Hermes planning context for: ${task.intent.description}`,
+      userId: task.userId,
+      taskId: task.id,
+      systemPrompt:
+        "You are the Jarvis planning assistant. Provide concise execution planning context.",
+    });
+    enrichedAgentContext = {
+      ...agentContext,
+      metadata: {
+        ...agentContext.metadata,
+        llmProviderId,
+        llmPlanningContext: llmProviderResponse.content,
+        llmProviderStub: llmProviderResponse.stub,
+      },
+    };
+  }
+
   const pendingUserFeedback = parseUserFeedbackFromMetadata(task.metadata);
 
   if (
@@ -581,7 +619,7 @@ export async function executeCreateTask(
       session.sessionId,
       task,
       requestId,
-      agentContext,
+      enrichedAgentContext,
       { adaptiveExecutionRuntime, timelineId, learnedRules },
     );
     agentResult = handshakeResult.agentResult;
@@ -865,6 +903,20 @@ export async function executeCreateTask(
           feedback: {
             signals: feedbackSignals,
             appliedRules: learnedRules,
+          },
+        }
+      : {}),
+    ...(llmProviderResponse
+      ? {
+          llmProvider: {
+            providerId: llmProviderResponse.providerId,
+            kind: llmProviderResponse.kind,
+            stub: llmProviderResponse.stub,
+            success: llmProviderResponse.success,
+            model: llmProviderResponse.model,
+            validated: llmProviderValidation?.valid ?? false,
+            streamed: llmProviderResponse.streamed,
+            contentPreview: llmProviderResponse.content.slice(0, 240),
           },
         }
       : {}),

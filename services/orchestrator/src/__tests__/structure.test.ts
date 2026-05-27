@@ -32,6 +32,7 @@ describe("orchestrator structure", () => {
       "adaptive-execution",
       "execution-learning",
       "user-feedback",
+      "llm-provider",
       "streaming",
       "storage-runtime",
       "transport",

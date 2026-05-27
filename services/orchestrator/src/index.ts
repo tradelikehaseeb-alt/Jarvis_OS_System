@@ -40,6 +40,7 @@ export * from "./task-chain";
 export * from "./adaptive-execution";
 export * from "./execution-learning";
 export * from "./user-feedback";
+export * from "./llm-provider";
 export * from "./streaming";
 export * from "./storage-runtime";
 export * from "./transport";
@@ -69,6 +70,7 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "adaptive-execution",
   "execution-learning",
   "user-feedback",
+  "llm-provider",
   "streaming",
   "storage-runtime",
   "transport",
