@@ -11,7 +11,8 @@
   "include": [
     "src/renderer/**/*.ts",
     "src/renderer/**/*.tsx",
-    "src/ipc/runtime-health-snapshot.ts"
+    "src/ipc/runtime-health-snapshot.ts",
+    "src/ipc/runtime-action.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

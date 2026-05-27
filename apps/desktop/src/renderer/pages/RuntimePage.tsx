@@ -1,8 +1,14 @@
 import { RuntimeDashboard, useRuntimeHealth } from "../runtime";
+import { RuntimeActionPanel, useRuntimeActions } from "../runtime-actions";
 
-/** Runtime dashboard page — process manager health (Phase 56). */
+/** Runtime dashboard page — process manager health and controls (Phase 56–57). */
 export function RuntimePage() {
   const runtime = useRuntimeHealth();
+  const actions = useRuntimeActions({
+    onActionComplete: () => {
+      void runtime.refresh();
+    },
+  });
 
   return (
     <div className="page-card runtime-page">
@@ -16,6 +22,7 @@ export function RuntimePage() {
           void runtime.refresh();
         }}
       />
+      <RuntimeActionPanel statuses={runtime.statuses} actions={actions} />
     </div>
   );
 }

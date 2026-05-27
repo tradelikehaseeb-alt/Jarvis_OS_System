@@ -13,6 +13,7 @@ import {
   getEmbeddedApiHealth,
   initializeRuntimeProcesses,
 } from "./api-runtime-lifecycle";
+import { executeRuntimeAction } from "./execute-runtime-action";
 
 /** Fallback when external Python gateway is used explicitly. */
 export const LEGACY_API_GATEWAY_URL = "http://127.0.0.1:8000";
@@ -159,6 +160,10 @@ export function registerApiHandlers(): void {
   );
 
   ipcMain.handle("jarvis:getRuntimeHealth", () => buildRuntimeHealthSnapshot());
+
+  ipcMain.handle("jarvis:executeRuntimeAction", (_event, request) =>
+    executeRuntimeAction(request),
+  );
 }
 
 export async function initializeApiRuntime(): Promise<string> {
