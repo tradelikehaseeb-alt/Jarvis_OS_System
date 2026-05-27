@@ -19,6 +19,7 @@ describe("orchestrator structure", () => {
       "task-execution",
       "execution",
       "memory",
+      "conversation-history",
       "streaming",
       "storage-runtime",
       "transport",

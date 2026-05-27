@@ -27,6 +27,7 @@ export * from "./agent-registry";
 export * from "./capability-routing";
 export * from "./execution";
 export * from "./memory";
+export * from "./conversation-history";
 export * from "./streaming";
 export * from "./storage-runtime";
 export * from "./transport";
@@ -43,6 +44,7 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "task-execution",
   "execution",
   "memory",
+  "conversation-history",
   "streaming",
   "storage-runtime",
   "transport",
