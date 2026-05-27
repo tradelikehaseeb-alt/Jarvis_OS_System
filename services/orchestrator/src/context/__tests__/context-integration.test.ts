@@ -11,7 +11,7 @@ import {
 
 describe("context injection integration", () => {
   it("injects conversation history into task execution output", async () => {
-    const { contextRuntime, conversationHistory } =
+    const { contextRuntime, conversationHistory, contextRankingRuntime } =
       createDefaultContextRuntimeBundle();
 
     conversationHistory.saveConversation({
@@ -33,6 +33,7 @@ describe("context injection integration", () => {
         memoryPersistenceManager: memory,
         contextRuntime,
         conversationHistoryRuntime: conversationHistory,
+        contextRankingRuntime,
       },
     );
 
@@ -50,7 +51,7 @@ describe("context injection integration", () => {
   });
 
   it("uses fallback context when conversation history is empty", async () => {
-    const { contextRuntime, conversationHistory } =
+    const { contextRuntime, conversationHistory, contextRankingRuntime } =
       createDefaultContextRuntimeBundle();
 
     const service = await createTestOrchestratorService();
@@ -63,6 +64,7 @@ describe("context injection integration", () => {
       {
         contextRuntime,
         conversationHistoryRuntime: conversationHistory,
+        contextRankingRuntime,
       },
     );
 

@@ -1,6 +1,9 @@
 import type { ConversationHistoryRuntime } from "../conversation-history";
 import { createDefaultConversationHistoryRuntime } from "../conversation-history";
+import type { ContextBuilder } from "./default-context-builder";
 import { DefaultContextBuilder } from "./default-context-builder";
+import { createDefaultContextRankingRuntime } from "./create-default-context-ranking-runtime";
+import type { ContextRankingRuntime } from "./context-ranking-runtime";
 import type { ContextQuery } from "./context-query";
 import type { ContextRecord } from "./context-record";
 import type { ContextRuntime } from "./context-runtime";
@@ -51,6 +54,7 @@ export function createDefaultContextRuntime(
 export interface ContextRuntimeBundle {
   readonly contextRuntime: ContextRuntime;
   readonly conversationHistory: ConversationHistoryRuntime;
+  readonly contextRankingRuntime: ContextRankingRuntime;
 }
 
 /**
@@ -71,5 +75,6 @@ export function createDefaultContextRuntimeBundle(
       ...options,
       conversationHistory,
     }),
+    contextRankingRuntime: createDefaultContextRankingRuntime(),
   };
 }

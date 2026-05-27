@@ -36,6 +36,8 @@ import type { ConversationHistoryRuntime } from "../conversation-history";
 import {
   buildAgentContextWithInjection,
   createDefaultContextRuntimeBundle,
+  createDefaultContextRankingRuntime,
+  type ContextRankingRuntime,
   type ContextRuntime,
 } from "../context";
 import type { OrchestratorComponents } from "../orchestrator";
@@ -60,6 +62,7 @@ export interface CreateTaskExecutionOptions {
   readonly streamManager?: StreamManager;
   readonly contextRuntime?: ContextRuntime;
   readonly conversationHistoryRuntime?: ConversationHistoryRuntime;
+  readonly contextRankingRuntime?: ContextRankingRuntime;
 }
 
 function resolveConversationId(
@@ -246,6 +249,10 @@ export async function executeCreateTask(
     options.contextRuntime ?? contextBundle!.contextRuntime;
   const conversationHistory =
     options.conversationHistoryRuntime ?? contextBundle!.conversationHistory;
+  const contextRankingRuntime =
+    options.contextRankingRuntime ??
+    contextBundle?.contextRankingRuntime ??
+    createDefaultContextRankingRuntime();
 
   const taskId = `task-${Date.now()}`;
   const task = buildUserTask(taskId, input);
@@ -312,6 +319,7 @@ export async function executeCreateTask(
     intentDescription: task.intent.description,
     metadata: task.metadata,
     contextRuntime,
+    contextRankingRuntime,
   });
 
   let agentResult: AgentResult;
