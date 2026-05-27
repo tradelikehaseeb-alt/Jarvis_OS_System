@@ -5,6 +5,7 @@ import {
 import type { TaskIntent } from "@jarvis/types";
 
 import type { TaskLifecycleOperations } from "../orchestrator-service-impl";
+import type { CreateTaskExecutionOptions } from "../task-execution/create-task-executor";
 import {
   createDefaultExecutionLifecycleManager,
   type ExecutionLifecycleManager,
@@ -39,6 +40,7 @@ export interface DefaultJarvisExecutionFlowDeps {
   readonly streamManager?: StreamManager;
   readonly lifecycleManager?: ExecutionLifecycleManager;
   readonly memoryPersistenceManager?: MemoryPersistenceManager;
+  readonly taskExecutionOptions?: CreateTaskExecutionOptions;
   readonly normalizeTranscript?: (
     text: string,
   ) => NormalizationResult | Promise<NormalizationResult>;
@@ -80,6 +82,7 @@ export class DefaultJarvisExecutionFlow implements JarvisExecutionFlow {
     message: string,
     classification: IntentClassification,
   ) => TaskIntent;
+  private readonly taskExecutionOptions?: CreateTaskExecutionOptions;
 
   constructor(deps: DefaultJarvisExecutionFlowDeps) {
     this.orchestrator = deps.orchestrator;
@@ -95,6 +98,7 @@ export class DefaultJarvisExecutionFlow implements JarvisExecutionFlow {
     this.classifyIntent = deps.classifyIntent ?? classifyChatIntent;
     this.buildTaskIntent =
       deps.buildTaskIntent ?? buildTaskIntentFromClassification;
+    this.taskExecutionOptions = deps.taskExecutionOptions;
   }
 
   async executeFlow(
@@ -172,6 +176,7 @@ export class DefaultJarvisExecutionFlow implements JarvisExecutionFlow {
           lifecycleManager: this.lifecycleManager,
           memoryPersistenceManager: this.memoryPersistenceManager,
           streamManager: this.streamManager,
+          ...this.taskExecutionOptions,
         },
       );
 

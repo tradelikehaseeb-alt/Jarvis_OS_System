@@ -37,6 +37,7 @@ describe("orchestrator structure", () => {
       "storage-runtime",
       "transport",
       "e2e",
+      "live-execution",
       "storage",
     ]);
   });
