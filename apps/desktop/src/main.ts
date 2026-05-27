@@ -6,7 +6,7 @@ import path from "node:path";
 
 import { app, BrowserWindow } from "electron";
 
-import { registerApiHandlers } from "./ipc/api-handlers";
+import { registerApiHandlers, initializeApiRuntime } from "./ipc/api-handlers";
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -27,7 +27,8 @@ function createWindow(): void {
   void win.loadFile(rendererHtml);
 }
 
-void app.whenReady().then(() => {
+void app.whenReady().then(async () => {
+  await initializeApiRuntime();
   registerApiHandlers();
   createWindow();
 

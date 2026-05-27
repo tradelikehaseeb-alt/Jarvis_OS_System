@@ -5,12 +5,64 @@ import type {
   CreateTaskResponse,
   TaskStatusResponse,
 } from "@jarvis/types";
+import type { ApiHealth } from "@jarvis/api-runtime";
 
-/** Default API gateway URL (override with JARVIS_API_URL). */
-export const DEFAULT_API_URL = "http://127.0.0.1:8000";
+import {
+  getEmbeddedApiBaseUrl,
+  getEmbeddedApiHealth,
+  startEmbeddedApiRuntime,
+} from "./api-runtime-lifecycle";
+
+/** Fallback when external Python gateway is used explicitly. */
+export const LEGACY_API_GATEWAY_URL = "http://127.0.0.1:8000";
+
+const DEFAULT_RETRY_COUNT = 3;
+const RETRY_BASE_DELAY_MS = 150;
+
+export interface ApiErrorEnvelope {
+  readonly error?: {
+    readonly code: string;
+    readonly message: string;
+    readonly details?: Readonly<Record<string, unknown>>;
+  };
+}
+
+export class JarvisApiTransportError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code?: string,
+  ) {
+    super(message);
+    this.name = "JarvisApiTransportError";
+  }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 export function getApiBaseUrl(): string {
-  return process.env.JARVIS_API_URL ?? DEFAULT_API_URL;
+  return getEmbeddedApiBaseUrl() ?? process.env.JARVIS_API_URL ?? LEGACY_API_GATEWAY_URL;
+}
+
+function parseErrorBody(text: string, status: number): JarvisApiTransportError {
+  try {
+    const body = JSON.parse(text) as ApiErrorEnvelope;
+    if (body.error) {
+      return new JarvisApiTransportError(
+        body.error.message,
+        status,
+        body.error.code,
+      );
+    }
+  } catch {
+    /* fall through */
+  }
+
+  return new JarvisApiTransportError(`API ${status}: ${text}`, status);
 }
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
@@ -25,29 +77,87 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`API ${response.status}: ${text}`);
+    throw parseErrorBody(text, response.status);
   }
 
   return (await response.json()) as T;
 }
 
+async function apiFetchWithRetry<T>(
+  path: string,
+  init?: RequestInit,
+  retries: number = DEFAULT_RETRY_COUNT,
+): Promise<T> {
+  let lastError: Error | undefined;
+
+  for (let attempt = 1; attempt <= retries; attempt += 1) {
+    try {
+      return await apiFetch<T>(path, init);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      const transportError =
+        error instanceof JarvisApiTransportError ? error : undefined;
+
+      if (transportError && transportError.status < 500 && transportError.status !== 429) {
+        throw transportError;
+      }
+
+      if (attempt < retries) {
+        await sleep(RETRY_BASE_DELAY_MS * attempt);
+      }
+    }
+  }
+
+  throw lastError ?? new JarvisApiTransportError("API request failed", 500);
+}
+
+async function fetchApiHealth(): Promise<ApiHealth> {
+  return apiFetchWithRetry<ApiHealth>("/health", { method: "GET" }, 2);
+}
+
 /**
- * Register IPC handlers — main process calls api-gateway (Phase 18).
- * Avoids renderer CORS when loading from file://.
+ * Register IPC handlers — main process calls Jarvis API runtime (Phase 54).
  */
 export function registerApiHandlers(): void {
   ipcMain.handle("jarvis:getApiUrl", () => getApiBaseUrl());
 
+  ipcMain.handle("jarvis:checkApiHealth", async () => {
+    try {
+      return await fetchApiHealth();
+    } catch (error) {
+      const embedded = await getEmbeddedApiHealth();
+      if (embedded) {
+        return embedded;
+      }
+
+      const message = error instanceof Error ? error.message : "Health check failed";
+      return {
+        status: "down",
+        service: "jarvis-api-runtime",
+        orchestrator: "down",
+        checkedAt: new Date().toISOString(),
+        message,
+      } satisfies ApiHealth & { message?: string };
+    }
+  });
+
   ipcMain.handle(
     "jarvis:createTask",
     (_event, body: CreateTaskRequest) =>
-      apiFetch<CreateTaskResponse>("/tasks", {
+      apiFetchWithRetry<CreateTaskResponse>("/tasks", {
         method: "POST",
         body: JSON.stringify(body),
       }),
   );
 
   ipcMain.handle("jarvis:getTaskStatus", (_event, taskId: string) =>
-    apiFetch<TaskStatusResponse>(`/tasks/${encodeURIComponent(taskId)}`),
+    apiFetchWithRetry<TaskStatusResponse>(
+      `/tasks/${encodeURIComponent(taskId)}`,
+      { method: "GET" },
+    ),
   );
+}
+
+export async function initializeApiRuntime(): Promise<string> {
+  return startEmbeddedApiRuntime();
 }

@@ -16,13 +16,13 @@ export default defineConfig({
         __dirname,
         "../../services/speech-service/src/index.ts",
       ),
-      "@jarvis/orchestrator": path.join(
+      "@jarvis/api-runtime": path.join(
         __dirname,
-        "../../services/orchestrator/src/index.ts",
+        "../../services/api-runtime/src/index.ts",
       ),
       "@jarvis/desktop-intent": path.join(
         __dirname,
-        "src/renderer/intent/index.ts",
+        "../../apps/desktop/src/renderer/intent/index.ts",
       ),
     },
   },
