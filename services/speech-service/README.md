@@ -22,6 +22,8 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `actions/*` | Deterministic speech action routing + command handlers (Phase 34) |
 | `gateway/*` | Single-entry speech provider gateway over existing layers (Phase 36) |
 | `telemetry/*` | In-memory deterministic traces + metrics (Phase 37) |
+| `recovery/*` | Deterministic failure recovery + fallback selection (Phase 39) |
+| `contracts/*` | Frozen provider contract + compatibility validation (Phase 40) |
 
 ## Pipeline
 
@@ -388,6 +390,77 @@ Supported operations:
 - `recordMetric()`
 - `getTraceHistory()`
 - `clearHistory()`
+
+## Speech Recovery & Fallback System (Phase 39)
+
+```
+SpeechGateway
+  ↓
+RecoveryManager
+  ↓
+RuntimeManager
+  ↓
+Fallback provider
+  ↓
+Response
+```
+
+Recovery module (`src/recovery/`) provides:
+
+- `SpeechRecoveryReason`
+- `SpeechRecoveryAction`
+- `SpeechRecoveryEvent`
+- `SpeechFallbackProvider`
+- `SpeechRecoveryManager`
+- `InMemorySpeechRecoveryManager`
+- `createDefaultSpeechRecoveryManager()`
+
+Recovery reasons:
+
+- `provider-unavailable`
+- `timeout`
+- `invalid-response`
+- `routing-failure`
+- `interrupted-session`
+
+Actions:
+
+- `retry`
+- `fallback`
+- `continue`
+- `terminate`
+
+Supported operations:
+
+- `handleFailure()`
+- `selectFallback()`
+- `retryOperation()`
+- `getRecoveryHistory()`
+
+## Speech Provider Contracts & Compatibility Matrix (Phase 40)
+
+Contract module (`src/contracts/`) provides:
+
+- `SpeechContractVersion`
+- `SpeechProviderContract`
+- `SpeechProviderCapabilities`
+- `SpeechCompatibilityResult`
+- `SpeechContractValidator`
+- `createDefaultSpeechContractValidator()`
+
+Provider metadata:
+
+- `providerId`
+- `version`
+- `capabilities`
+- `runtimeRequirements`
+- `stub`
+
+Supported operations:
+
+- `validateProvider()`
+- `validateCompatibility()`
+- `getSupportedVersions()`
 
 ## Tests
 

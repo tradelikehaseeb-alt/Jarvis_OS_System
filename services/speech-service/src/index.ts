@@ -166,6 +166,34 @@ export {
   createDefaultSpeechTelemetry,
 } from "./telemetry";
 
+export type {
+  SpeechRecoveryReason,
+  SpeechRecoveryAction,
+  SpeechRecoveryEvent,
+  SpeechFallbackProvider,
+  SpeechFailureContext,
+  SpeechRecoveryResult,
+  SpeechRecoveryManager,
+} from "./recovery";
+export {
+  InMemorySpeechRecoveryManager,
+  createDefaultSpeechRecoveryManager,
+} from "./recovery";
+
+export type {
+  SpeechContractVersion,
+  SpeechProviderContract,
+  SpeechProviderCapabilities,
+  SpeechCompatibilityResult,
+  SpeechCompatibilityRequest,
+  SpeechContractValidator,
+} from "./contracts";
+export {
+  SUPPORTED_SPEECH_CONTRACT_VERSIONS,
+  DefaultSpeechContractValidator,
+  createDefaultSpeechContractValidator,
+} from "./contracts";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -182,6 +210,8 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "actions",
   "gateway",
   "telemetry",
+  "recovery",
+  "contracts",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];

@@ -19,6 +19,8 @@ describe("speech-service structure", () => {
       "actions",
       "gateway",
       "telemetry",
+      "recovery",
+      "contracts",
     ]);
   });
 });
