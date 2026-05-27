@@ -46,6 +46,12 @@ import {
   type TaskChainRuntime,
 } from "../task-chain";
 import {
+  createDefaultAdaptiveExecutionRuntime,
+  toTaskChainOutputFromAdaptive,
+  type AdaptiveExecuteResult,
+  type AdaptiveExecutionRuntime,
+} from "../adaptive-execution";
+import {
   completeExecutionStream,
   createDefaultStreamManager,
   publishStreamFailed,
@@ -89,6 +95,7 @@ export interface CreateTaskExecutionOptions {
   readonly memoryRecallRuntime?: MemoryRecallRuntime;
   readonly localMemoryRuntime?: LocalMemoryRuntime;
   readonly taskChainRuntime?: TaskChainRuntime;
+  readonly adaptiveExecutionRuntime?: AdaptiveExecutionRuntime;
 }
 
 function resolveConversationId(
@@ -194,13 +201,14 @@ async function runExecutionHandshake(
   requestId: string,
   agentContext: AgentContext,
   chainOptions: {
-    readonly taskChainRuntime: TaskChainRuntime;
+    readonly adaptiveExecutionRuntime: AdaptiveExecutionRuntime;
     readonly timelineId: string;
   },
 ): Promise<{
   agentResult: AgentResult;
   planningResult?: AgentResult;
   taskChainResult?: TaskChainExecuteResult;
+  adaptiveResult?: AdaptiveExecuteResult;
 }> {
   lifecycle.transition(sessionId, "planning", "Hermes planning phase");
 
@@ -235,20 +243,33 @@ async function runExecutionHandshake(
 
   lifecycle.transition(sessionId, "executing", "OpenClaw execution phase");
 
-  const chainResult = await chainOptions.taskChainRuntime.executeTaskChain({
-    chainId: `chain-${task.id}`,
-    parentTaskId: task.id,
-    requestId,
-    userId: task.userId,
-    correlationId: task.correlationId,
-    planningResult,
-    agentContext,
-    sessionId,
-    timelineId: chainOptions.timelineId,
-  });
+  const adaptiveResult =
+    await chainOptions.adaptiveExecutionRuntime.executeAdaptively({
+      chainId: `chain-${task.id}`,
+      executionId: `adaptive-${task.id}`,
+      parentTaskId: task.id,
+      requestId,
+      userId: task.userId,
+      correlationId: task.correlationId,
+      planningResult,
+      agentContext,
+      sessionId,
+      timelineId: chainOptions.timelineId,
+    });
+
+  const chainResult = toTaskChainOutputFromAdaptive(adaptiveResult);
+  const taskChainResult: TaskChainExecuteResult = {
+    chainId: chainResult.chainId,
+    success: chainResult.success,
+    plan: chainResult.plan,
+    tasks: adaptiveResult.tasks,
+    events: chainResult.events,
+    executionResults: adaptiveResult.executionResults,
+    stub: chainResult.stub,
+  };
 
   const executionResult =
-    chainResult.executionResults[chainResult.executionResults.length - 1];
+    adaptiveResult.executionResults[adaptiveResult.executionResults.length - 1];
 
   if (!executionResult) {
     const fallbackResult = await executeAgent(
@@ -272,7 +293,8 @@ async function runExecutionHandshake(
           },
         },
         planningResult,
-        taskChainResult: chainResult,
+        taskChainResult,
+        adaptiveResult,
       };
     }
 
@@ -286,7 +308,8 @@ async function runExecutionHandshake(
     return {
       agentResult: fallbackResult,
       planningResult,
-      taskChainResult: chainResult,
+      taskChainResult,
+      adaptiveResult,
     };
   }
 
@@ -300,7 +323,8 @@ async function runExecutionHandshake(
   return {
     agentResult: executionResult,
     planningResult,
-    taskChainResult: chainResult,
+    taskChainResult,
+    adaptiveResult,
   };
 }
 
@@ -435,23 +459,39 @@ export async function executeCreateTask(
   let agentResult: AgentResult;
   let planningResult: AgentResult | undefined;
   let taskChainResult: TaskChainExecuteResult | undefined;
+  let adaptiveResult: AdaptiveExecuteResult | undefined;
   let handshake = false;
+
+  const executeOpenClawStep = async (
+    descriptor: HermesOpenClawTaskDescriptor,
+    stepRequestId: string,
+    stepContext: AgentContext,
+  ) =>
+    executeAgent(
+      executableRegistry,
+      OPENCLAW_AGENT_ID,
+      buildUserTaskFromDescriptor(
+        descriptor,
+        task.userId,
+        task.correlationId,
+      ),
+      stepRequestId,
+      stepContext,
+    );
 
   const taskChainRuntime =
     options.taskChainRuntime ??
     createDefaultTaskChainRuntime({
-      executeOpenClawStep: async (descriptor, stepRequestId, stepContext) =>
-        executeAgent(
-          executableRegistry,
-          OPENCLAW_AGENT_ID,
-          buildUserTaskFromDescriptor(
-            descriptor,
-            task.userId,
-            task.correlationId,
-          ),
-          stepRequestId,
-          stepContext,
-        ),
+      executeOpenClawStep,
+      lifecycle,
+      timelineRuntime,
+    });
+
+  const adaptiveExecutionRuntime =
+    options.adaptiveExecutionRuntime ??
+    createDefaultAdaptiveExecutionRuntime({
+      taskChainRuntime,
+      executeOpenClawStep,
       lifecycle,
       timelineRuntime,
     });
@@ -465,11 +505,12 @@ export async function executeCreateTask(
       task,
       requestId,
       agentContext,
-      { taskChainRuntime, timelineId },
+      { adaptiveExecutionRuntime, timelineId },
     );
     agentResult = handshakeResult.agentResult;
     planningResult = handshakeResult.planningResult;
     taskChainResult = handshakeResult.taskChainResult;
+    adaptiveResult = handshakeResult.adaptiveResult;
   } else {
     const selectedAgentId = routing.selectedAgentId;
     const initialState =
@@ -673,6 +714,19 @@ export async function executeCreateTask(
             stub: taskChainResult.stub,
             plan: taskChainResult.plan,
             events: taskChainResult.events,
+          },
+        }
+      : {}),
+    ...(adaptiveResult
+      ? {
+          adaptiveExecution: {
+            executionId: adaptiveResult.executionId,
+            success: adaptiveResult.success,
+            stepCount: adaptiveResult.executionResults.length,
+            stub: adaptiveResult.stub,
+            plan: adaptiveResult.plan,
+            decisions: adaptiveResult.decisions,
+            events: adaptiveResult.events,
           },
         }
       : {}),
