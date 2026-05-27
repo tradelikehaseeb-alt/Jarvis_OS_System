@@ -32,6 +32,22 @@ Supported operations:
 
 Stub mode remains default (`OPENCLAW_MODE=stub`). No browser/device control in this phase.
 
+## Phase 44 — runtime wiring
+
+Gateway runtime resolution uses `@jarvis/provider-registry` and `@jarvis/runtime-manager`:
+
+```
+OpenClawAgent → OpenClawGateway → ProviderResolver → RuntimeResolver → Runtime Discovery
+```
+
+Runtime wiring module (`openclaw-gateway-runtime-wiring.ts`):
+
+- `resolveProviderMetadata()` — configured OpenClaw provider from registry
+- `resolveConfiguredRuntime()` — detection via runtime-manager
+- `getRuntimeHealth()` — health probe via runtime-manager
+
+Stub execution preserved; discovery only (no browser/device control).
+
 ## Phase 16 — adapter boundary
 
 | Layer | Path | Role |

@@ -6,7 +6,16 @@ export type {
 } from "./hermes-gateway-response";
 export type { HermesGateway } from "./hermes-gateway";
 export type { DefaultHermesGatewayOptions } from "./default-hermes-gateway";
+export type {
+  HermesGatewayRuntimeWiringOptions,
+} from "./hermes-gateway-runtime-wiring";
 
 export { DefaultHermesGateway } from "./default-hermes-gateway";
 export { createDefaultHermesGateway } from "./create-default-hermes-gateway";
 export { buildHermesGatewayRequest } from "./build-hermes-gateway-request";
+export {
+  HermesGatewayRuntimeWiring,
+  createHermesGatewayRuntimeWiring,
+  mapHermesHealthStatus,
+  validationFromHermesRuntimeHealth,
+} from "./hermes-gateway-runtime-wiring";

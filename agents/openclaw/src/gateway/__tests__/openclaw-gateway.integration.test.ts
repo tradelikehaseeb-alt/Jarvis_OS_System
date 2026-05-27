@@ -1,8 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { createDefaultProviderResolver } from "@jarvis/provider-registry";
+import {
+  MockRuntimeProvider,
+  createDiscoveryRuntimeResolver,
+} from "@jarvis/runtime-manager";
 
 import {
   DefaultOpenClawGateway,
   createDefaultOpenClawGateway,
+  createOpenClawGatewayRuntimeWiring,
 } from "../index";
 
 const request = {
@@ -60,6 +66,77 @@ describe("OpenClaw gateway", () => {
     const response = await gateway.execute(request);
     expect(response.success).toBe(false);
     expect(response.error?.code).toBe("RUNTIME_UNAVAILABLE");
+  });
+});
+
+describe("OpenClaw gateway runtime wiring", () => {
+  it("resolveProviderMetadata returns configured OpenClaw provider", async () => {
+    const gateway = createDefaultOpenClawGateway({
+      env: { OPENCLAW_MODE: "stub" },
+    });
+    const metadata = await gateway.resolveProviderMetadata();
+
+    expect(metadata.providerId).toBe("openclaw-local");
+    expect(metadata.family).toBe("openclaw");
+  });
+
+  it("resolveConfiguredRuntime uses runtime-manager discovery", async () => {
+    const provider = new MockRuntimeProvider("openclaw-local", {
+      endpoint: "http://wired.local/openclaw",
+    });
+    const runtimeResolver = createDiscoveryRuntimeResolver([
+      {
+        runtimeId: "openclaw-local",
+        detect: () => provider.detect(),
+        checkHealth: () => provider.checkHealth(),
+      },
+    ]);
+
+    const wiring = createOpenClawGatewayRuntimeWiring({
+      env: { OPENCLAW_MODE: "local" },
+      runtimeResolver,
+    });
+
+    const detection = await wiring.resolveConfiguredRuntime();
+    expect(detection.runtimeId).toBe("openclaw-local");
+    expect(detection.endpoint).toBe("http://wired.local/openclaw");
+  });
+
+  it("getRuntimeHealth delegates to runtime resolver", async () => {
+    const checkHealth = vi.fn().mockResolvedValue({
+      runtimeId: "openclaw-local",
+      status: "degraded",
+      available: true,
+      lastCheckedAt: new Date().toISOString(),
+      message: "degraded probe",
+      endpoint: "http://127.0.0.1:18789",
+      stub: false,
+    });
+
+    const runtimeResolver = createDiscoveryRuntimeResolver([
+      {
+        runtimeId: "openclaw-local",
+        detect: async () => ({
+          runtimeId: "openclaw-local",
+          configured: true,
+          endpoint: "http://127.0.0.1:18789",
+          stub: false,
+          message: "configured",
+        }),
+        checkHealth,
+      },
+    ]);
+
+    const gateway = createDefaultOpenClawGateway({
+      env: { OPENCLAW_MODE: "local" },
+      runtimeResolver,
+      providerResolver: createDefaultProviderResolver(),
+    });
+
+    const health = await gateway.getRuntimeHealth();
+    expect(health.status).toBe("degraded");
+    expect(health.available).toBe(true);
+    expect(checkHealth).toHaveBeenCalled();
   });
 });
 

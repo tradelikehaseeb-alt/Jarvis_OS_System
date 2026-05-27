@@ -1,43 +1,19 @@
 import type { HermesAdapter } from "../../adapter/src/hermes-adapter";
 import { createHermesAdapterStub } from "../../adapter/src/hermes-adapter-stub";
-import {
-  createHermesRuntimeDiscoveryAdapter,
-} from "../../adapter/official/src/hermes-runtime-discovery-adapter";
-import {
-  readHermesRuntimeEnv,
-  type EnvSource,
-} from "../../adapter/official/src/hermes-runtime-env";
 import type { HermesGateway } from "./hermes-gateway";
 import type { HermesGatewayRequest } from "./hermes-gateway-request";
 import type {
   HermesGatewayResponse,
   HermesRuntimeValidation,
 } from "./hermes-gateway-response";
-import type { HermesRuntimeStatus } from "./hermes-runtime-status";
+import {
+  createHermesGatewayRuntimeWiring,
+  validationFromHermesRuntimeHealth,
+  type HermesGatewayRuntimeWiringOptions,
+} from "./hermes-gateway-runtime-wiring";
 
-export interface DefaultHermesGatewayOptions {
+export interface DefaultHermesGatewayOptions extends HermesGatewayRuntimeWiringOptions {
   readonly adapter?: HermesAdapter;
-  readonly env?: EnvSource;
-  readonly allowNetworkProbe?: boolean;
-}
-
-function mapHealthStatus(
-  status: string,
-  stubMode: boolean,
-): HermesRuntimeStatus {
-  if (stubMode) {
-    return "stub";
-  }
-  switch (status) {
-    case "available":
-      return "available";
-    case "degraded":
-      return "degraded";
-    case "unavailable":
-      return "unavailable";
-    default:
-      return "unknown";
-  }
 }
 
 function emptyPlan(intentKind: string): HermesGatewayResponse["plan"] {
@@ -50,19 +26,17 @@ function emptyPlan(intentKind: string): HermesGatewayResponse["plan"] {
 }
 
 /**
- * Default Hermes gateway — stub planning with runtime validation boundary (Phase 43).
+ * Default Hermes gateway — stub planning with runtime validation boundary (Phase 43–44).
  *
  * No LLM execution; delegates to {@link HermesAdapter} stub/planning path only.
  */
 export class DefaultHermesGateway implements HermesGateway {
   private readonly adapter: HermesAdapter;
-  private readonly env: EnvSource;
-  private readonly allowNetworkProbe: boolean;
+  private readonly runtimeWiring: HermesGatewayRuntimeWiring;
 
   constructor(options: DefaultHermesGatewayOptions = {}) {
     this.adapter = options.adapter ?? createHermesAdapterStub();
-    this.env = options.env ?? process.env;
-    this.allowNetworkProbe = options.allowNetworkProbe ?? false;
+    this.runtimeWiring = createHermesGatewayRuntimeWiring(options);
   }
 
   async execute(request: HermesGatewayRequest): Promise<HermesGatewayResponse> {
@@ -105,15 +79,13 @@ export class DefaultHermesGateway implements HermesGateway {
     };
   }
 
-  async getRuntimeStatus(): Promise<HermesRuntimeStatus> {
+  async getRuntimeStatus(): Promise<HermesGatewayResponse["runtimeStatus"]> {
     const validation = await this.validateRuntime();
     return validation.status;
   }
 
   async validateRuntime(): Promise<HermesRuntimeValidation> {
-    const env = readHermesRuntimeEnv(this.env);
-
-    if (env.mode === "stub") {
+    if (this.runtimeWiring.isStubMode()) {
       return {
         valid: true,
         status: "stub",
@@ -121,22 +93,18 @@ export class DefaultHermesGateway implements HermesGateway {
       };
     }
 
-    const discovery = createHermesRuntimeDiscoveryAdapter({
-      env: this.env,
-      allowNetworkProbe: this.allowNetworkProbe,
-    });
-    const health = await discovery.checkHealth();
-    const status = mapHealthStatus(health.status, false);
-    const reasons: string[] = [];
+    return validationFromHermesRuntimeHealth(await this.runtimeWiring.getRuntimeHealth());
+  }
 
-    if (!health.available) {
-      reasons.push(health.message);
-    }
+  resolveConfiguredRuntime() {
+    return this.runtimeWiring.resolveConfiguredRuntime();
+  }
 
-    return {
-      valid: health.available || status === "degraded",
-      status,
-      reasons,
-    };
+  resolveProviderMetadata() {
+    return this.runtimeWiring.resolveProviderMetadata();
+  }
+
+  getRuntimeHealth() {
+    return this.runtimeWiring.getRuntimeHealth();
   }
 }

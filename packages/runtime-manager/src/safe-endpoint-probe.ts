@@ -74,7 +74,7 @@ export async function safeEndpointProbe(
       signal: controller.signal,
       redirect: "follow",
     });
-    if (head.ok || head.status < 500) {
+    if (head.ok) {
       return { reachable: true, statusCode: head.status, probe: "head" };
     }
     if (head.status !== 405 && head.status !== 501) {

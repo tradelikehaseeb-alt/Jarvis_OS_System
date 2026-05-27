@@ -1,59 +1,32 @@
 import type { OpenClawAdapter } from "../../adapter/src/openclaw-adapter";
 import { createOpenClawAdapterStub } from "../../adapter/src/openclaw-adapter-stub";
-import {
-  createOpenClawRuntimeDiscoveryAdapter,
-} from "../../adapter/official/src/openclaw-runtime-discovery-adapter";
-import {
-  readOpenClawRuntimeEnv,
-  type EnvSource,
-} from "../../adapter/official/src/openclaw-runtime-env";
 import type { OpenClawGateway } from "./openclaw-gateway";
 import type { OpenClawGatewayRequest } from "./openclaw-gateway-request";
-import type {
-  OpenClawGatewayResponse,
-  OpenClawRuntimeValidation,
-} from "./openclaw-gateway-response";
+import type { OpenClawRuntimeValidation } from "./openclaw-gateway-response";
+import type { OpenClawGatewayResponse } from "./openclaw-gateway-response";
 import type { OpenClawRuntimeStatus } from "./openclaw-runtime-status";
+import {
+  createOpenClawGatewayRuntimeWiring,
+  validationFromOpenClawRuntimeHealth,
+  type OpenClawGatewayRuntimeWiringOptions,
+} from "./openclaw-gateway-runtime-wiring";
 
-export interface DefaultOpenClawGatewayOptions {
+export interface DefaultOpenClawGatewayOptions extends OpenClawGatewayRuntimeWiringOptions {
   readonly adapter?: OpenClawAdapter;
-  readonly env?: EnvSource;
-  readonly allowNetworkProbe?: boolean;
-}
-
-function mapHealthStatus(
-  status: string,
-  stubMode: boolean,
-): OpenClawRuntimeStatus {
-  if (stubMode) {
-    return "stub";
-  }
-  switch (status) {
-    case "available":
-      return "available";
-    case "degraded":
-      return "degraded";
-    case "unavailable":
-      return "unavailable";
-    default:
-      return "unknown";
-  }
 }
 
 /**
- * Default OpenClaw gateway — stub execution with runtime validation boundary (Phase 42).
+ * Default OpenClaw gateway — stub execution with runtime validation boundary (Phase 42–44).
  *
  * No browser/device control; delegates to {@link OpenClawAdapter} stub path only.
  */
 export class DefaultOpenClawGateway implements OpenClawGateway {
   private readonly adapter: OpenClawAdapter;
-  private readonly env: EnvSource;
-  private readonly allowNetworkProbe: boolean;
+  private readonly runtimeWiring: ReturnType<typeof createOpenClawGatewayRuntimeWiring>;
 
   constructor(options: DefaultOpenClawGatewayOptions = {}) {
     this.adapter = options.adapter ?? createOpenClawAdapterStub();
-    this.env = options.env ?? process.env;
-    this.allowNetworkProbe = options.allowNetworkProbe ?? false;
+    this.runtimeWiring = createOpenClawGatewayRuntimeWiring(options);
   }
 
   async execute(request: OpenClawGatewayRequest): Promise<OpenClawGatewayResponse> {
@@ -107,9 +80,7 @@ export class DefaultOpenClawGateway implements OpenClawGateway {
   }
 
   async validateRuntime(): Promise<OpenClawRuntimeValidation> {
-    const env = readOpenClawRuntimeEnv(this.env);
-
-    if (env.mode === "stub") {
+    if (this.runtimeWiring.isStubMode()) {
       return {
         valid: true,
         status: "stub",
@@ -117,22 +88,18 @@ export class DefaultOpenClawGateway implements OpenClawGateway {
       };
     }
 
-    const discovery = createOpenClawRuntimeDiscoveryAdapter({
-      env: this.env,
-      allowNetworkProbe: this.allowNetworkProbe,
-    });
-    const health = await discovery.checkHealth();
-    const status = mapHealthStatus(health.status, false);
-    const reasons: string[] = [];
+    return validationFromOpenClawRuntimeHealth(await this.runtimeWiring.getRuntimeHealth());
+  }
 
-    if (!health.available) {
-      reasons.push(health.message);
-    }
+  resolveConfiguredRuntime() {
+    return this.runtimeWiring.resolveConfiguredRuntime();
+  }
 
-    return {
-      valid: health.available || status === "degraded",
-      status,
-      reasons,
-    };
+  resolveProviderMetadata() {
+    return this.runtimeWiring.resolveProviderMetadata();
+  }
+
+  getRuntimeHealth() {
+    return this.runtimeWiring.getRuntimeHealth();
   }
 }

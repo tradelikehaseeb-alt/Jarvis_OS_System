@@ -33,6 +33,22 @@ Supported operations:
 
 Stub mode remains default (`HERMES_MODE=stub`). No LLM execution in this phase.
 
+## Phase 44 — runtime wiring
+
+Gateway runtime resolution uses `@jarvis/provider-registry` and `@jarvis/runtime-manager`:
+
+```
+HermesAgent → HermesGateway → ProviderResolver → RuntimeResolver → Runtime Discovery
+```
+
+Runtime wiring module (`hermes-gateway-runtime-wiring.ts`):
+
+- `resolveProviderMetadata()` — configured Hermes provider from registry
+- `resolveConfiguredRuntime()` — detection via runtime-manager
+- `getRuntimeHealth()` — health probe via runtime-manager
+
+Stub execution preserved; discovery only (no LLM).
+
 ## Phase 16 — adapter boundary
 
 | Layer | Path | Role |
