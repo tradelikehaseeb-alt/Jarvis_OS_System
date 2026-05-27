@@ -24,6 +24,11 @@ Prepares transcripts **before** future STT integration. No STT, TTS, microphone 
 | `telemetry/*` | In-memory deterministic traces + metrics (Phase 37) |
 | `recovery/*` | Deterministic failure recovery + fallback selection (Phase 39) |
 | `contracts/*` | Frozen provider contract + compatibility validation (Phase 40) |
+| `voice-execution/*` | Voice → speech → task execution runtime (Phase 72) |
+
+## Phase 72 — voice execution runtime
+
+Voice input flows through speech gateway/normalizer, then optional task delegate (`createDefaultVoiceExecutionRuntime`).
 
 ## Pipeline
 

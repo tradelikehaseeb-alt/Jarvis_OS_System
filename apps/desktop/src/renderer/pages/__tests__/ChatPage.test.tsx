@@ -25,6 +25,7 @@ describe("ChatPage", () => {
         pushToChatInput: true,
         simulateCaptureError: false,
         enableNormalization: true,
+        autoExecuteVoicePipeline: false,
       }),
     );
     window.jarvis = {
@@ -197,6 +198,59 @@ describe("ChatPage", () => {
       expect(
         screen.getByTestId("voice-transcript-normalized"),
       ).toHaveTextContent("forex analysis");
+    });
+  });
+
+  it("runs voice transcript through execution pipeline when autoExecute is enabled", async () => {
+    localStorage.setItem(
+      "jarvis.desktop.voiceSettings",
+      JSON.stringify({
+        showTranscriptPanel: true,
+        pushToChatInput: true,
+        simulateCaptureError: false,
+        enableNormalization: true,
+        autoExecuteVoicePipeline: true,
+      }),
+    );
+
+    vi.spyOn(mockVoiceSession, "runMockVoiceCapture").mockResolvedValue({
+      transcript: "Plan my week",
+    });
+
+    vi.mocked(submitChatAsTask).mockResolvedValue({
+      create: {
+        taskId: "task-voice-1",
+        status: "completed",
+        createdAt: "2026-01-01T00:00:00.000Z",
+      },
+      classification: {
+        intent: "plan",
+        ruleId: "plan-keywords",
+        reason: "planning",
+        confidence: 0.9,
+      },
+      status: {
+        taskId: "task-voice-1",
+        status: "completed",
+        updatedAt: "2026-01-01T00:00:01.000Z",
+        output: {
+          activityStream: {
+            events: [{ type: "planning_started", timestamp: "2026-01-01T00:00:01.000Z" }],
+          },
+          routing: { selectedAgentId: "hermes" },
+        },
+      },
+    });
+
+    render(<ChatPage />);
+    fireEvent.click(screen.getByTestId("voice-mic-button"));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(MOCK_VOICE_LISTEN_MS + 500);
+    });
+
+    await waitFor(() => {
+      expect(submitChatAsTask).toHaveBeenCalled();
+      expect(screen.getByTestId("activity-panel")).toBeInTheDocument();
     });
   });
 });

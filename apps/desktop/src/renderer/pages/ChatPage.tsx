@@ -18,6 +18,7 @@ import type { HermesPlanMessageData } from "../types/hermes-plan";
 import {
   loadVoiceSettings,
   useMockVoiceInput,
+  useVoiceExecution,
   type VoiceSettings,
 } from "../voice";
 import type { CreateTaskResponse, TaskStatusResponse } from "@jarvis/types";
@@ -85,11 +86,82 @@ export function ChatPage() {
     isStreaming: activity.isStreaming,
   });
 
+  const handleVoiceExecutionComplete = useCallback(
+    (result: {
+      status?: TaskStatusResponse;
+      normalizedInput: string;
+      success: boolean;
+    }) => {
+      if (!result.status) {
+        return;
+      }
+
+      setCreateResult({
+        taskId: result.status.taskId,
+        status: result.status.status,
+        createdAt: result.status.updatedAt,
+      });
+      setStatusResult(result.status);
+
+      const hermesPlan = buildHermesPlanMessageData(result.status);
+      const reply = hermesPlan ? "" : formatAssistantReply(result.status);
+
+      setMessages((prev) => [
+        ...prev.filter((m) => m.role !== "loading"),
+        {
+          id: nextMessageId(),
+          role: "assistant",
+          text: reply,
+          ...(hermesPlan ? { hermesPlan } : {}),
+        },
+      ]);
+    },
+    [],
+  );
+
+  const voiceExecution = useVoiceExecution({
+    activity,
+    onComplete: (result) => {
+      if (result.status) {
+        handleVoiceExecutionComplete(result);
+        return;
+      }
+      if (!result.success) {
+        const message = result.error?.message ?? "Voice execution failed";
+        setTaskError(message);
+        setMessages((prev) => [
+          ...prev.filter((m) => m.role !== "loading"),
+          { id: nextMessageId(), role: "error", text: message },
+        ]);
+      }
+    },
+  });
+
   const voice = useMockVoiceInput({
     settings: voiceSettings,
     onTranscriptReady: (normalized) => {
       setVoiceNormalizerError(null);
       setInput(normalized);
+      if (voiceSettings.autoExecuteVoicePipeline) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: nextMessageId(),
+            role: "user",
+            text: normalized,
+            detectedIntent: classifyChatIntent(normalized).intent,
+          },
+          {
+            id: nextMessageId(),
+            role: "loading",
+            text: loadingMessageForIntent(classifyChatIntent(normalized).intent),
+          },
+        ]);
+        setLoading(true);
+        void voiceExecution.processVoiceInput(normalized).finally(() => {
+          setLoading(false);
+        });
+      }
     },
     onNormalizationReady: (view) => {
       if (voiceSettings.enableNormalization && view.normalized.trim().length === 0) {

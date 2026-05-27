@@ -10,6 +10,8 @@ export interface VoiceSettings {
   readonly simulateCaptureError: boolean;
   /** Normalize transcript text with speech-service before classification. */
   readonly enableNormalization: boolean;
+  /** Run voice transcript through Jarvis execution pipeline (Phase 72). */
+  readonly autoExecuteVoicePipeline: boolean;
 }
 
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
@@ -17,6 +19,7 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   pushToChatInput: true,
   simulateCaptureError: false,
   enableNormalization: true,
+  autoExecuteVoicePipeline: true,
 };
 
 const STORAGE_KEY = "jarvis.desktop.voiceSettings";

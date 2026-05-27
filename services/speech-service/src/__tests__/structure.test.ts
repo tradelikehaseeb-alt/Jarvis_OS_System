@@ -21,6 +21,7 @@ describe("speech-service structure", () => {
       "telemetry",
       "recovery",
       "contracts",
+      "voice-execution",
     ]);
   });
 });

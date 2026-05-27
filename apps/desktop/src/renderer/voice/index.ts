@@ -17,6 +17,11 @@ export {
   type UseMockVoiceInputOptions,
   type UseMockVoiceInputResult,
 } from "./use-mock-voice-input";
+export {
+  useVoiceExecution,
+  type UseVoiceExecutionOptions,
+  type UseVoiceExecutionResult,
+} from "./use-voice-execution";
 export type {
   TranscriptNormalizationView,
   SpeechMetadataView,

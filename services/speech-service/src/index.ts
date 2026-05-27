@@ -194,6 +194,18 @@ export {
   createDefaultSpeechContractValidator,
 } from "./contracts";
 
+export type {
+  VoiceExecutionRequest,
+  VoiceExecutionResult,
+  VoiceExecutionClassification,
+  VoiceExecutionSpeechMetadata,
+  VoiceExecutionRuntime,
+  VoiceExecutionTaskExecutor,
+  VoiceExecutionTaskExecutorInput,
+  VoiceExecutionTaskExecutorOutput,
+} from "./voice-execution";
+export { createDefaultVoiceExecutionRuntime } from "./voice-execution";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -212,6 +224,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "telemetry",
   "recovery",
   "contracts",
+  "voice-execution",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];

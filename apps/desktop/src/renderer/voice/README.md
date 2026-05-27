@@ -1,24 +1,22 @@
-# Desktop voice shell (Phase 25–38)
+# Desktop voice shell (Phase 25–38, 72)
 
 UI-only mock voice capture — **no STT, TTS, or microphone APIs**.
 
 ## Flow (Chat)
 
 ```
-Mic click → listening animation → mock transcript
-  → SpeechGateway.processTranscript() (provider + runtime, stub-only)
-  → SpeechNormalizer (Roman Urdu + trading corrections)
-  → ConversationManager (in-memory turn + lifecycle)
-  → SpeechActionRouter (detected voice command)
-  → SpeechTelemetry (trace + metrics summary)
-  → IntentClassifier → ChatInput → POST /tasks (unchanged API)
+Voice Input → Speech Runtime → Intent Classification → API → Orchestrator
+  → Hermes/OpenClaw → Execution Lifecycle → Activity Stream → Desktop Response
 ```
+
+Legacy path preserved: mock capture → chat input → manual Send.
 
 ## Components
 
 | Piece | Role |
 |-------|------|
 | `useMockVoiceInput` | Timer-based mock capture state |
+| `useVoiceExecution` | Voice → speech → API task pipeline (Phase 72) |
 | `runMockVoiceCapture` | Produces static transcript lines |
 | `VoiceButton` | Microphone toggle |
 | `VoiceStatusIndicator` | idle / listening / processing / error |
@@ -30,6 +28,7 @@ Mic click → listening animation → mock transcript
 - Show transcript panel in Chat
 - Push transcript to chat input
 - Enable speech normalization before intent classification
+- Auto-execute voice pipeline through Jarvis runtime (Phase 72, default on)
 - Simulate capture error (UI testing)
 
 ## Normalization (Phase 27)
@@ -52,6 +51,15 @@ Voice transcript panel now also shows deterministic gateway metadata:
 - **conversation state**
 - **provider decision**
 - **trace summary**
+
+## Voice execution (Phase 72)
+
+`useVoiceExecution()` supports:
+
+- `startVoiceExecution()` / `stopVoiceExecution()`
+- `processVoiceInput()` — speech normalize + `submitChatAsTask` + activity stream ingest
+
+When `autoExecuteVoicePipeline` is enabled, voice completion triggers the full chain automatically.
 
 ## Future integration
 

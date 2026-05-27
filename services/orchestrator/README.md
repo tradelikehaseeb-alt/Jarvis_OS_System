@@ -176,6 +176,16 @@ Operations: `startStream()`, `stopStream()`, `subscribe()`, `unsubscribe()`.
 
 Task output includes `activityStream.events` and legacy `streamEvents` for Desktop timeline ingestion.
 
+## Phase 72 — voice execution chain
+
+```
+Voice Input → Speech Runtime → Intent → Orchestrator → Activity Stream
+```
+
+| Export | Role |
+|--------|------|
+| `createOrchestratorVoiceExecutionRuntime()` | Wires `VoiceExecutionRuntime` to `executeCreateTask` |
+
 Static/mock only — no LLM, database, or external APIs.
 
 ## Modules
