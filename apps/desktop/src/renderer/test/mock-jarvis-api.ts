@@ -46,6 +46,48 @@ const defaultAggregatedHealthResponse = {
   events: [] as const,
 };
 
+const defaultProviderSettingsSnapshot = {
+  settings: {
+    userId: "desktop-user",
+    selectedProviderId: "openai",
+    selectedModels: { openai: "gpt-4o-mini" },
+    updatedAt: "2026-05-27T12:00:00.000Z",
+  },
+  providers: [
+    {
+      providerId: "openai",
+      label: "OpenAI",
+      kind: "openai" as const,
+      configured: false,
+      valid: false,
+      stub: true,
+      active: true,
+      message: "OpenAI API key not configured — stub fallback active",
+      selectedModel: "gpt-4o-mini",
+      availableModels: ["gpt-4o-mini", "gpt-4o"],
+    },
+    {
+      providerId: "groq",
+      label: "Groq",
+      kind: "groq" as const,
+      configured: false,
+      valid: false,
+      stub: true,
+      active: false,
+      message: "Groq API key not configured — stub fallback active",
+      selectedModel: "llama-3.3-70b-versatile",
+      availableModels: ["llama-3.3-70b-versatile"],
+    },
+  ],
+};
+
+const defaultApiKeyValidation = {
+  valid: true,
+  providerId: "openai",
+  stub: false,
+  message: "OpenAI API key configured",
+};
+
 const defaultStartupResponse = {
   state: defaultReadyState,
   events: [] as const,
@@ -87,6 +129,11 @@ export function createMockJarvisApi(
       .mockResolvedValue(defaultAggregatedHealthResponse),
     createTask: vi.fn(),
     getTaskStatus: vi.fn(),
+    getProviderSettings: vi.fn().mockResolvedValue(defaultProviderSettingsSnapshot),
+    saveProviderApiKey: vi.fn().mockResolvedValue(defaultApiKeyValidation),
+    validateProviderApiKey: vi.fn().mockResolvedValue(defaultApiKeyValidation),
+    selectProvider: vi.fn().mockResolvedValue(defaultProviderSettingsSnapshot.settings),
+    selectProviderModel: vi.fn().mockResolvedValue(defaultProviderSettingsSnapshot.settings),
     ...overrides,
   };
 }

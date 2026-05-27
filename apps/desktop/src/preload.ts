@@ -14,6 +14,14 @@ import type {
 } from "./runtime-action";
 import type { RuntimeStartupResponse } from "./runtime-startup-snapshot";
 import type { AggregatedRuntimeHealthResponse } from "./aggregated-runtime-health-response";
+import type {
+  ApiKeyValidationResult,
+  ProviderSettings,
+  ProviderSettingsSnapshot,
+  SaveProviderApiKeyRequest,
+  SelectProviderModelRequest,
+  SelectProviderRequest,
+} from "./ipc/provider-settings-types";
 
 /**
  * Renderer-safe API — delegates to main process IPC (Phase 54).
@@ -33,6 +41,19 @@ export interface JarvisDesktopApi {
   getAggregatedRuntimeHealthSnapshot(): Promise<AggregatedRuntimeHealthResponse>;
   createTask(body: CreateTaskRequest): Promise<CreateTaskResponse>;
   getTaskStatus(taskId: string): Promise<TaskStatusResponse>;
+  getProviderSettings(userId: string): Promise<ProviderSettingsSnapshot>;
+  saveProviderApiKey(
+    request: SaveProviderApiKeyRequest,
+  ): Promise<ApiKeyValidationResult>;
+  validateProviderApiKey(payload: {
+    userId: string;
+    providerId: string;
+    apiKey?: string;
+  }): Promise<ApiKeyValidationResult>;
+  selectProvider(request: SelectProviderRequest): Promise<ProviderSettings>;
+  selectProviderModel(
+    request: SelectProviderModelRequest,
+  ): Promise<ProviderSettings>;
 }
 
 const jarvisApi: JarvisDesktopApi = {
@@ -51,6 +72,15 @@ const jarvisApi: JarvisDesktopApi = {
     ipcRenderer.invoke("jarvis:getAggregatedRuntimeHealthSnapshot"),
   createTask: (body) => ipcRenderer.invoke("jarvis:createTask", body),
   getTaskStatus: (taskId) => ipcRenderer.invoke("jarvis:getTaskStatus", taskId),
+  getProviderSettings: (userId) =>
+    ipcRenderer.invoke("jarvis:getProviderSettings", userId),
+  saveProviderApiKey: (request) =>
+    ipcRenderer.invoke("jarvis:saveProviderApiKey", request),
+  validateProviderApiKey: (payload) =>
+    ipcRenderer.invoke("jarvis:validateProviderApiKey", payload),
+  selectProvider: (request) => ipcRenderer.invoke("jarvis:selectProvider", request),
+  selectProviderModel: (request) =>
+    ipcRenderer.invoke("jarvis:selectProviderModel", request),
 };
 
 contextBridge.exposeInMainWorld("jarvis", jarvisApi);

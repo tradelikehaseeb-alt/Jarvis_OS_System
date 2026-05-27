@@ -38,7 +38,7 @@ export async function executeOpenAiCompatiblePrompt(
 ): Promise<LlmProviderResponse> {
   const { configuration } = options;
   const model = options.resolveModel(request);
-  const key = apiKey ?? readEnvApiKey(configuration.apiKeyEnvVars);
+  const key = apiKey ?? request.providerApiKey ?? readEnvApiKey(configuration.apiKeyEnvVars);
 
   if (!key && configuration.kind !== "ollama") {
     return createStubLlmResponse(request, configuration.kind, configuration.providerId, {

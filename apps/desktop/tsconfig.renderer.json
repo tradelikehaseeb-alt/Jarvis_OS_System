@@ -12,7 +12,8 @@
     "src/renderer/**/*.ts",
     "src/renderer/**/*.tsx",
     "src/ipc/runtime-health-snapshot.ts",
-    "src/ipc/runtime-action.ts"
+    "src/ipc/runtime-action.ts",
+    "src/ipc/provider-settings-types.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

@@ -12,6 +12,14 @@ import type {
 } from "../ipc/runtime-action";
 import type { RuntimeStartupResponse } from "./runtime/runtime-startup-types";
 import type { AggregatedRuntimeHealthResponse } from "./runtime/aggregated-runtime-health-types";
+import type {
+  ApiKeyValidationResult,
+  ProviderSettings,
+  ProviderSettingsSnapshot,
+  SaveProviderApiKeyRequest,
+  SelectProviderModelRequest,
+  SelectProviderRequest,
+} from "./providers/provider-settings-types";
 
 /** Mirrors preload bridge (Phase 54). */
 export interface JarvisDesktopApi {
@@ -29,6 +37,19 @@ export interface JarvisDesktopApi {
   getAggregatedRuntimeHealthSnapshot(): Promise<AggregatedRuntimeHealthResponse>;
   createTask(body: CreateTaskRequest): Promise<CreateTaskResponse>;
   getTaskStatus(taskId: string): Promise<TaskStatusResponse>;
+  getProviderSettings(userId: string): Promise<ProviderSettingsSnapshot>;
+  saveProviderApiKey(
+    request: SaveProviderApiKeyRequest,
+  ): Promise<ApiKeyValidationResult>;
+  validateProviderApiKey(payload: {
+    userId: string;
+    providerId: string;
+    apiKey?: string;
+  }): Promise<ApiKeyValidationResult>;
+  selectProvider(request: SelectProviderRequest): Promise<ProviderSettings>;
+  selectProviderModel(
+    request: SelectProviderModelRequest,
+  ): Promise<ProviderSettings>;
 }
 
 declare global {

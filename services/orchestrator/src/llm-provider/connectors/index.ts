@@ -32,3 +32,27 @@ export { OpenRouterProvider, createOpenRouterProvider } from "./openrouter-provi
 export { OllamaProvider, createOllamaProvider } from "./ollama-provider";
 export { DeepSeekProvider, createDeepSeekProvider } from "./deepseek-provider";
 export { MinimaxProvider, createMinimaxProvider } from "./minimax-provider";
+export type {
+  ProviderSettings,
+  ProviderStatus,
+} from "./provider-settings-types";
+export {
+  DEFAULT_DESKTOP_USER_ID,
+  PROVIDER_CREDENTIALS_NAMESPACE,
+  PROVIDER_SETTINGS_NAMESPACE,
+} from "./provider-settings-types";
+export type { ProviderCredentialStore } from "./provider-credential-store";
+export {
+  InMemoryProviderCredentialStore,
+  StorageBackedProviderCredentialStore,
+  __createEmptyProviderSettingsForTest,
+} from "./provider-credential-store";
+export { resolveProviderApiKey } from "./resolve-provider-api-key";
+export type {
+  ProviderSettingsRuntime,
+  CreateDefaultProviderSettingsRuntimeOptions,
+} from "./create-default-provider-settings-runtime";
+export {
+  createDefaultProviderSettingsRuntime,
+  createTestProviderSettingsRuntime,
+} from "./create-default-provider-settings-runtime";

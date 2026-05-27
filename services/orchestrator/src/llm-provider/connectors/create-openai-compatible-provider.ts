@@ -37,6 +37,7 @@ export function createOpenAiCompatibleProvider(
             resolveModelFromRequest(input, configuration, modelEnvVars),
         },
         request,
+        request.providerApiKey,
       );
     },
 
@@ -52,6 +53,7 @@ export function createOpenAiCompatibleProvider(
         },
         request,
         subscriber,
+        request.providerApiKey,
       );
     },
   };

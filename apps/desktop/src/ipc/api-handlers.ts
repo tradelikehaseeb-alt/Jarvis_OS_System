@@ -23,6 +23,13 @@ import {
   getAggregatedRuntimeHealthSnapshot,
 } from "./runtime-health-lifecycle";
 import { executeRuntimeAction } from "./execute-runtime-action";
+import {
+  getProviderSettingsSnapshot,
+  saveProviderApiKeyForUser,
+  selectProviderForUser,
+  selectProviderModelForUser,
+  validateProviderApiKeyForUser,
+} from "./provider-settings-lifecycle";
 
 /** Fallback when external Python gateway is used explicitly. */
 export const LEGACY_API_GATEWAY_URL = "http://127.0.0.1:8000";
@@ -188,6 +195,32 @@ export function registerApiHandlers(): void {
 
   ipcMain.handle("jarvis:getAggregatedRuntimeHealthSnapshot", () =>
     getAggregatedRuntimeHealthSnapshot(),
+  );
+
+  ipcMain.handle("jarvis:getProviderSettings", (_event, userId: string) =>
+    getProviderSettingsSnapshot(userId),
+  );
+
+  ipcMain.handle("jarvis:saveProviderApiKey", (_event, request) =>
+    saveProviderApiKeyForUser(request),
+  );
+
+  ipcMain.handle(
+    "jarvis:validateProviderApiKey",
+    (_event, payload: { userId: string; providerId: string; apiKey?: string }) =>
+      validateProviderApiKeyForUser(
+        payload.userId,
+        payload.providerId,
+        payload.apiKey,
+      ),
+  );
+
+  ipcMain.handle("jarvis:selectProvider", (_event, request) =>
+    selectProviderForUser(request),
+  );
+
+  ipcMain.handle("jarvis:selectProviderModel", (_event, request) =>
+    selectProviderModelForUser(request),
   );
 }
 

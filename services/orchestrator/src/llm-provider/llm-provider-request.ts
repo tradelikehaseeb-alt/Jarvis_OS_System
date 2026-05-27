@@ -9,4 +9,6 @@ export interface LlmProviderRequest {
   readonly taskId?: string;
   readonly systemPrompt?: string;
   readonly metadata?: Readonly<Record<string, unknown>>;
+  /** Internal credential — never log or expose in API responses (Phase 83). */
+  readonly providerApiKey?: string;
 }

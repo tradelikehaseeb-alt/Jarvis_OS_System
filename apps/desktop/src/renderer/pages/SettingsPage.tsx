@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { getApiUrl } from "../api/jarvis-client";
+import { ProviderSettingsPage } from "../providers";
 import {
   DEFAULT_VOICE_SETTINGS,
   loadVoiceSettings,
@@ -151,6 +152,8 @@ export function SettingsPage() {
           Reset voice defaults
         </button>
       </section>
+
+      <ProviderSettingsPage />
     </div>
   );
 }

@@ -1,11 +1,11 @@
-# LLM Provider Runtime (Phase 81, 82)
+# LLM Provider Runtime (Phase 81, 82, 83)
 
 Connects the orchestrator to real LLM providers for Hermes planning context, with deterministic stub fallback.
 
 ## Flow
 
 ```
-Desktop Settings → Provider Runtime → Selected Provider → Hermes planning → OpenClaw execution
+Desktop Settings → ProviderSettingsRuntime → ProviderValidationRuntime → Hermes planning → OpenClaw execution
 ```
 
 ## Providers
@@ -33,6 +33,7 @@ See [connectors/README.md](./connectors/README.md) for multi-provider connector 
 | `createDefaultLlmProviderRuntime()` | Factory with all default providers |
 | `ProviderRegistry` | `registerProvider()` + configuration lookup (Phase 82) |
 | `ProviderValidationRuntime` | `validateApiKey()`, `getAvailableModels()` (Phase 82) |
+| `ProviderSettingsRuntime` | `saveApiKey()`, `selectProvider()`, `getProviderStatus()` (Phase 83) |
 
 ## Configuration
 

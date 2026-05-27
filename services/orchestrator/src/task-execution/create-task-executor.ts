@@ -67,11 +67,11 @@ import {
   type FeedbackSignal,
 } from "../user-feedback";
 import {
-  createDefaultLlmProviderRuntime,
-  resolveDefaultLlmProviderId,
+  createDefaultProviderSettingsRuntime,
   type LlmProviderResponse,
   type LlmProviderRuntime,
   type LlmProviderValidation,
+  type ProviderSettingsRuntime,
 } from "../llm-provider";
 import {
   completeExecutionStream,
@@ -121,6 +121,7 @@ export interface CreateTaskExecutionOptions {
   readonly learningRuntime?: LearningRuntime;
   readonly feedbackRuntime?: FeedbackRuntime;
   readonly llmProviderRuntime?: LlmProviderRuntime;
+  readonly providerSettingsRuntime?: ProviderSettingsRuntime;
 }
 
 function resolveConversationId(
@@ -545,22 +546,42 @@ export async function executeCreateTask(
         })
       : undefined);
 
-  const llmProviderRuntime =
-    options.llmProviderRuntime ?? createDefaultLlmProviderRuntime();
+  const providerSettingsRuntime =
+    options.providerSettingsRuntime ?? createDefaultProviderSettingsRuntime();
 
   let enrichedAgentContext = agentContext;
 
   if (intentRequiresExecutionHandshake(task.intent)) {
-    const llmProviderId = resolveDefaultLlmProviderId(task.metadata);
-    llmProviderValidation =
-      await llmProviderRuntime.validateProvider(llmProviderId);
-    llmProviderResponse = await llmProviderRuntime.executePrompt({
+    const llmProviderId = providerSettingsRuntime.resolveProviderId(
+      task.userId,
+      task.metadata,
+    );
+    const providerStatus = await providerSettingsRuntime.getProviderStatus(
+      task.userId,
+      llmProviderId,
+    );
+    llmProviderValidation = {
+      valid: providerStatus.valid,
+      stub: providerStatus.stub,
+      providerId: providerStatus.providerId,
+      kind: providerStatus.kind,
+      message: providerStatus.message,
+    };
+
+    const llmExecutor = options.llmProviderRuntime ?? providerSettingsRuntime;
+    llmProviderResponse = await llmExecutor.executePrompt({
       providerId: llmProviderId,
+      model: providerStatus.selectedModel,
       prompt: `Hermes planning context for: ${task.intent.description}`,
       userId: task.userId,
       taskId: task.id,
       systemPrompt:
         "You are the Jarvis planning assistant. Provide concise execution planning context.",
+      metadata: task.metadata,
+      providerApiKey: providerSettingsRuntime.resolveApiKeyForExecution(
+        task.userId,
+        llmProviderId,
+      ),
     });
     enrichedAgentContext = {
       ...agentContext,

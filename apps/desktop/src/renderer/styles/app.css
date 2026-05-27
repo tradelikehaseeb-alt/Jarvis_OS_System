@@ -996,6 +996,128 @@ body {
   margin-top: 0.25rem;
 }
 
+.settings-providers-section {
+  margin-top: 1.5rem;
+}
+
+.settings-providers-note,
+.settings-providers-loading,
+.settings-providers-error {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.settings-providers-error {
+  color: #f87171;
+}
+
+.settings-providers-active {
+  margin: 0 0 1rem;
+}
+
+.provider-card-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.provider-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.provider-card-active {
+  border-color: var(--accent);
+}
+
+.provider-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.provider-card-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.provider-card-id {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.provider-card-message {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 0.75rem;
+}
+
+.provider-status-badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.provider-status-ok {
+  color: var(--success);
+}
+
+.provider-status-stub {
+  color: var(--warning);
+}
+
+.provider-model-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.provider-model-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.provider-model-select,
+.provider-api-key-input {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.provider-api-key-manager {
+  margin-bottom: 0.75rem;
+}
+
+.provider-api-key-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.provider-api-key-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.provider-api-key-status,
+.provider-api-key-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0.5rem 0 0;
+}
+
 .spinner {
   display: inline-block;
   width: 1rem;
