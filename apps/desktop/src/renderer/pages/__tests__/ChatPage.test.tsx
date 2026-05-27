@@ -81,7 +81,7 @@ describe("ChatPage", () => {
     await waitFor(() => {
       expect(screen.getByTestId("intent-badge")).toHaveTextContent("Plan");
       expect(screen.getByTestId("hermes-plan-card")).toBeInTheDocument();
-      expect(screen.getByTestId("activity-panel")).toBeInTheDocument();
+      expect(screen.getByTestId("task-progress-panel")).toBeInTheDocument();
       expect(screen.getByTestId("agent-status-panel")).toBeInTheDocument();
     });
     expect(screen.getByTestId("hermes-plan-goal")).toHaveTextContent(
@@ -248,7 +248,7 @@ describe("ChatPage", () => {
 
     await waitFor(() => {
       expect(submitChatAsTask).toHaveBeenCalled();
-      expect(screen.getByTestId("activity-panel")).toBeInTheDocument();
+      expect(screen.getByTestId("task-progress-panel")).toBeInTheDocument();
     });
   });
 });

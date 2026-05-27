@@ -219,6 +219,22 @@ Runtime Startup → RuntimeHealthRuntime → Desktop Runtime Dashboard
 
 See `src/runtime-health/README.md`.
 
+## Phase 75 — execution timeline
+
+```
+Activity Stream → TimelineRuntime → executionTimeline → Task Progress View
+```
+
+| Export | Role |
+|--------|------|
+| `TimelineEvent` | Execution timeline event |
+| `TimelineRuntime` | Timeline contract |
+| `createDefaultTimelineRuntime()` | Activity-stream-backed factory |
+
+Task output includes `executionTimeline.events` alongside `activityStream.events`.
+
+See `src/timeline/README.md`.
+
 ## Modules
 
 | Module | Role |
@@ -232,6 +248,7 @@ See `src/runtime-health/README.md`.
 | `voice-execution/` | **Phase 72** — orchestrator voice execution bridge |
 | `runtime-startup/` | **Phase 73** — bootstrap, validation, recovery |
 | `runtime-health/` | **Phase 74** — aggregated health for Desktop dashboard |
+| `timeline/` | **Phase 75** — execution timeline runtime |
 | `streaming/` | **Phase 47** — real-time event stream |
 | `execution-manager/` | Step lifecycle (stub) |
 | `context-manager/` | Session context |

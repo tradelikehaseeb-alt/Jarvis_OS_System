@@ -5,8 +5,8 @@ import {
   extractHermesPlanningDetails,
 } from "../api/extract-hermes-plan";
 import { submitChatAsTask } from "../api/jarvis-client";
-import { ActivityPanel, useActivityStream } from "../activity";
 import { AgentStatusPanel, useAgentStatus } from "../agent-status";
+import { TaskProgressPanel, useExecutionTimeline } from "../timeline";
 import { ChatInput } from "../components/ChatInput";
 import { ChatMessages, type ChatMessage } from "../components/ChatMessages";
 import { TaskPanel } from "../components/TaskPanel";
@@ -80,10 +80,10 @@ export function ChatPage() {
   const [voiceNormalizerError, setVoiceNormalizerError] = useState<string | null>(
     null,
   );
-  const activity = useActivityStream();
+  const timeline = useExecutionTimeline();
   const agentStatus = useAgentStatus({
-    events: activity.events,
-    isStreaming: activity.isStreaming,
+    events: timeline.events,
+    isStreaming: timeline.isStreaming,
   });
 
   const handleVoiceExecutionComplete = useCallback(
@@ -120,7 +120,7 @@ export function ChatPage() {
   );
 
   const voiceExecution = useVoiceExecution({
-    activity,
+    activity: timeline,
     onComplete: (result) => {
       if (result.status) {
         handleVoiceExecutionComplete(result);
@@ -199,7 +199,7 @@ export function ChatPage() {
       },
     ]);
     setLoading(true);
-    activity.startStream(classification.intent);
+    timeline.startStream(classification.intent);
 
     try {
       const { create, status } = await submitChatAsTask(text, {
@@ -207,7 +207,7 @@ export function ChatPage() {
       });
       setCreateResult(create);
       setStatusResult(status);
-      activity.ingestTaskStatus(status);
+      timeline.ingestTaskStatus(status);
 
       const hermesPlan = buildHermesPlanMessageData(status);
       const reply = hermesPlan ? "" : formatAssistantReply(status);
@@ -230,7 +230,7 @@ export function ChatPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Request failed";
       setTaskError(message);
-      activity.reportError(message);
+      timeline.reportError(message);
       setMessages((prev) => [
         ...prev.filter((m) => m.role !== "loading"),
         { id: nextMessageId(), role: "error", text: message },
@@ -238,7 +238,7 @@ export function ChatPage() {
     } finally {
       setLoading(false);
     }
-  }, [activity, input, loading, voice]);
+  }, [timeline, input, loading, voice]);
 
   const voiceComposerActions = useMemo(
     () => (
@@ -283,9 +283,10 @@ export function ChatPage() {
           events={agentStatus.events}
           loading={agentStatus.loading}
         />
-        <ActivityPanel
-          events={activity.events}
-          loading={activity.isStreaming}
+        <TaskProgressPanel
+          steps={timeline.steps}
+          progress={timeline.progress}
+          loading={timeline.isStreaming}
         />
         <TaskPanel
           loading={loading}

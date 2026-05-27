@@ -26,6 +26,7 @@ describe("orchestrator structure", () => {
       "voice-execution",
       "runtime-startup",
       "runtime-health",
+      "timeline",
       "streaming",
       "storage-runtime",
       "transport",

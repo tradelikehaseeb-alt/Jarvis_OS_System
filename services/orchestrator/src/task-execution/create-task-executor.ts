@@ -36,6 +36,10 @@ import {
   type ActivityStreamRuntime,
 } from "../activity";
 import {
+  createDefaultTimelineRuntime,
+  type TimelineRuntime,
+} from "../timeline";
+import {
   completeExecutionStream,
   createDefaultStreamManager,
   publishStreamFailed,
@@ -72,6 +76,7 @@ export interface CreateTaskExecutionOptions {
   readonly memoryPersistenceManager?: MemoryPersistenceManager;
   readonly streamManager?: StreamManager;
   readonly activityStreamRuntime?: ActivityStreamRuntime;
+  readonly timelineRuntime?: TimelineRuntime;
   readonly contextRuntime?: ContextRuntime;
   readonly conversationHistoryRuntime?: ConversationHistoryRuntime;
   readonly contextRankingRuntime?: ContextRankingRuntime;
@@ -256,6 +261,9 @@ export async function executeCreateTask(
   const activityRuntime =
     options.activityStreamRuntime ??
     createDefaultActivityRuntime({ streamManager: stream });
+  const timelineRuntime =
+    options.timelineRuntime ??
+    createDefaultTimelineRuntime({ activityRuntime });
   const sharedLocalMemory =
     options.localMemoryRuntime ??
     (!options.memoryPersistenceManager && !options.contextRuntime
@@ -319,6 +327,12 @@ export async function executeCreateTask(
   const detachActivity = activityRuntime.startStream({
     ...streamContext,
     lifecycle,
+  });
+  const timelineId = streamSessionId;
+  timelineRuntime.startTimeline({
+    timelineId,
+    streamSessionId,
+    taskId: task.id,
   });
 
   memory.persistConversationTurn({
@@ -443,9 +457,15 @@ export async function executeCreateTask(
     detachMemory();
     detachActivity();
     activityRuntime.stopStream(streamSessionId);
+    timelineRuntime.completeTimeline(
+      timelineId,
+      false,
+      agentResult.error.message,
+    );
     publishStreamFailed(stream, streamContext, agentResult.error.message);
 
     const activityEvents = activityRuntime.getEvents(streamSessionId);
+    const timelineEvents = timelineRuntime.getEvents(timelineId);
     const failedStatus = buildTaskStatus(
       task,
       "failed",
@@ -468,6 +488,10 @@ export async function executeCreateTask(
         activityStream: {
           streamSessionId,
           events: activityEvents,
+        },
+        executionTimeline: {
+          timelineId,
+          events: timelineEvents,
         },
         streamEvents: activityEvents.map((event) => ({
           type: event.type,
@@ -526,8 +550,14 @@ export async function executeCreateTask(
   detachActivity();
   completeExecutionStream(stream, streamContext, agentResult.success);
   activityRuntime.stopStream(streamSessionId);
+  timelineRuntime.completeTimeline(
+    timelineId,
+    agentResult.success,
+    agentResult.success ? "Task completed" : "Task failed",
+  );
 
   const activityEvents = activityRuntime.getEvents(streamSessionId);
+  const timelineEvents = timelineRuntime.getEvents(timelineId);
   const skillOutput = extractSkillOutput(agentResult.payload);
   const output: Readonly<Record<string, unknown>> = {
     stub: true,
@@ -571,6 +601,10 @@ export async function executeCreateTask(
     activityStream: {
       streamSessionId,
       events: activityEvents,
+    },
+    executionTimeline: {
+      timelineId,
+      events: timelineEvents,
     },
     streamEvents: activityEvents.map((event) => ({
       type: event.type,
