@@ -13,13 +13,14 @@ import {
 } from "./openclaw-gateway-runtime-wiring";
 import { createOpenClawRuntimeSession } from "../runtime/create-openclaw-runtime-session";
 import type { OpenClawRuntimeProcessBinding } from "../runtime/openclaw-runtime-process-binding";
-import type { ProviderRuntime } from "@jarvis/provider-runtime";
+import type { BrowserRuntimeSession } from "../browser-runtime/browser-runtime-session";
 
 export interface DefaultOpenClawGatewayOptions extends OpenClawGatewayRuntimeWiringOptions {
   readonly adapter?: OpenClawAdapter;
   readonly processBinding?: OpenClawRuntimeProcessBinding;
   readonly providerRuntime?: ProviderRuntime;
   readonly providerId?: string;
+  readonly browserRuntimeSession?: BrowserRuntimeSession;
 }
 
 /**
@@ -33,6 +34,7 @@ export class DefaultOpenClawGateway implements OpenClawGateway {
   private readonly processBinding?: OpenClawRuntimeProcessBinding;
   private readonly providerRuntime?: ProviderRuntime;
   private readonly providerId?: string;
+  private readonly browserRuntimeSession?: BrowserRuntimeSession;
 
   constructor(options: DefaultOpenClawGatewayOptions = {}) {
     this.adapter = options.adapter ?? createOpenClawAdapterStub();
@@ -40,6 +42,7 @@ export class DefaultOpenClawGateway implements OpenClawGateway {
     this.processBinding = options.processBinding;
     this.providerRuntime = options.providerRuntime;
     this.providerId = options.providerId;
+    this.browserRuntimeSession = options.browserRuntimeSession;
   }
 
   async execute(request: OpenClawGatewayRequest): Promise<OpenClawGatewayResponse> {
@@ -49,6 +52,7 @@ export class DefaultOpenClawGateway implements OpenClawGateway {
       processBinding: this.processBinding,
       providerRuntime: this.providerRuntime,
       providerId: this.providerId,
+      browserRuntimeSession: this.browserRuntimeSession,
     });
 
     await session.initializeSession();

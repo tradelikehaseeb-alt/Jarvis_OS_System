@@ -75,6 +75,24 @@ Session operations:
 the default fallback. Optional `OpenClawRuntimeProcessBinding` connects to Jarvis
 runtime process manager without changing gateway interfaces.
 
+## Phase 61 — browser runtime path
+
+Browser runtime module (`src/browser-runtime/`):
+
+```
+OpenClaw Runtime → Browser Runtime → Execution Result
+```
+
+| Export | Role |
+|--------|------|
+| `BrowserRuntimeSession` | Browser session contract |
+| `BrowserExecutionRequest` | Browser task request |
+| `BrowserExecutionResult` | Stub execution result |
+| `BrowserRuntimeHealth` | Browser validation snapshot |
+| `createBrowserRuntimeSession()` | Stub session factory |
+
+Stub validation and execution only — no real browsing automation.
+
 ## Phase 16 — adapter boundary
 
 | Layer | Path | Role |

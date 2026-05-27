@@ -17,6 +17,11 @@ import type { OpenClawExecutionState } from "./openclaw-execution-state";
 import type { OpenClawRuntimeHealth } from "./openclaw-runtime-health";
 import type { OpenClawRuntimeProcessBinding } from "./openclaw-runtime-process-binding";
 import type { OpenClawRuntimeSession } from "./openclaw-runtime-session";
+import {
+  buildBrowserExecutionRequest,
+  createBrowserRuntimeSession,
+  type BrowserRuntimeSession,
+} from "../browser-runtime";
 
 export interface CreateOpenClawRuntimeSessionOptions {
   readonly adapter: OpenClawAdapter;
@@ -24,6 +29,7 @@ export interface CreateOpenClawRuntimeSessionOptions {
   readonly processBinding?: OpenClawRuntimeProcessBinding;
   readonly providerRuntime?: ProviderRuntime;
   readonly providerId?: string;
+  readonly browserRuntimeSession?: BrowserRuntimeSession;
   readonly sessionId?: string;
 }
 
@@ -77,6 +83,25 @@ function buildUnavailableResponse(
       message,
     },
   };
+}
+
+function includesBrowserAction(request: OpenClawGatewayRequest): boolean {
+  return request.requestedActions?.includes("browser") ?? false;
+}
+
+async function runBrowserExecutionPath(
+  request: OpenClawGatewayRequest,
+  handleId: string,
+  browserRuntimeSession?: BrowserRuntimeSession,
+) {
+  const session = browserRuntimeSession ?? createBrowserRuntimeSession();
+  await session.initializeSession();
+  await session.validateBrowser();
+  const result = await session.executeBrowserTask(
+    buildBrowserExecutionRequest(request, handleId),
+  );
+  await session.terminateSession();
+  return result;
 }
 
 async function applyProviderConnectionValidation(
@@ -242,6 +267,35 @@ class DefaultOpenClawRuntimeSession implements OpenClawRuntimeSession {
       workflowStepId: request.workflowStepId,
       requestedActions: request.requestedActions,
     });
+
+    if (includesBrowserAction(request)) {
+      const browserResult = await runBrowserExecutionPath(
+        request,
+        adapterResponse.execution.handleId,
+        this.options.browserRuntimeSession,
+      );
+
+      if (!browserResult.success) {
+        this.state = "failed";
+        const response = buildUnavailableResponse(
+          request,
+          this.options.adapter,
+          health.status,
+          browserResult.message,
+        );
+
+        return {
+          sessionId: this.sessionId,
+          state: this.state,
+          runtimeHealth: health,
+          initializedAt: this.initializedAt,
+          validatedAt: this.validatedAt,
+          completedAt: nowIso(),
+          response,
+          error: response.error,
+        };
+      }
+    }
 
     const response = buildGatewayResponse(
       request,

@@ -16,6 +16,11 @@ import {
   createDefaultOpenClawGateway,
   type OpenClawGateway,
 } from "./gateway";
+import {
+  buildBrowserExecutionRequest,
+  createBrowserRuntimeSession,
+  type BrowserRuntimeSession,
+} from "./browser-runtime";
 import { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
 
 /**
@@ -31,6 +36,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
     private readonly gateway: OpenClawGateway = createDefaultOpenClawGateway({
       adapter,
     }),
+    private readonly browserRuntimeSession?: BrowserRuntimeSession,
   ) {
     super();
   }
@@ -78,6 +84,36 @@ export class OpenClawAgent extends AbstractBaseAgent {
       correlationId: task.correlationId,
     };
 
+    const browserSession = this.browserRuntimeSession ?? createBrowserRuntimeSession();
+    await browserSession.initializeSession();
+    await browserSession.validateBrowser();
+    const browserRuntimeResult = await browserSession.executeBrowserTask(
+      buildBrowserExecutionRequest(
+        buildOpenClawGatewayRequest(task, context.contextRef),
+        gatewayResponse.executionHandleId,
+      ),
+    );
+    await browserSession.terminateSession();
+
+    if (!browserRuntimeResult.success) {
+      return {
+        taskId: task.taskId,
+        requestId: task.requestId,
+        agentId: OPENCLAW_AGENT_ID,
+        success: false,
+        payload: {
+          adapter: adapterResponse,
+          gateway: gatewayResponse,
+          browserRuntime: browserRuntimeResult,
+          stub: true,
+        },
+        error: {
+          code: "BROWSER_RUNTIME_FAILED",
+          message: browserRuntimeResult.message,
+        },
+      };
+    }
+
     const browserResponse = await this.skillExecutor.execute(
       {
         ...base,
@@ -124,6 +160,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
           workflowStepId: task.workflowStepId,
           contextRef: context.contextRef,
         },
+        browserRuntime: browserRuntimeResult,
         browser: browserResponse.data,
         file: fileResponse.data,
         skillExecutions: [browserResponse, fileResponse],
