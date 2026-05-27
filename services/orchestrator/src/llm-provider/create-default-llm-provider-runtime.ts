@@ -13,8 +13,7 @@ import {
 } from "./llm-provider";
 import type { LlmProviderRuntime } from "./llm-provider-runtime";
 import { createStubLlmResponse } from "./llm-provider-utils";
-import { OllamaLlmProvider } from "./providers/ollama-llm-provider";
-import { OpenAiLlmProvider } from "./providers/openai-llm-provider";
+import { createDefaultProviderValidationRuntime } from "./connectors";
 import { StubLlmProvider } from "./providers/stub-llm-provider";
 import type { LlmStreamSubscriber } from "./llm-stream-subscriber";
 
@@ -29,12 +28,7 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
   private readonly fallbackProviderId: string;
 
   constructor(private readonly options: CreateDefaultLlmProviderRuntimeOptions) {
-    const defaults: LlmProvider[] = [
-      new StubLlmProvider(),
-      new OpenAiLlmProvider(),
-      new OllamaLlmProvider(),
-    ];
-    for (const provider of options.providers ?? defaults) {
+    for (const provider of options.providers ?? []) {
       this.providers.set(provider.providerId, provider);
     }
     this.fallbackProviderId =
@@ -127,11 +121,26 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
   }
 }
 
-/** Factory for orchestrator LLM provider runtime (Phase 81). */
+/** Factory for orchestrator LLM provider runtime (Phase 81, 82). */
+export function createLlmProviderRuntimeFromProviders(
+  providers: readonly LlmProvider[],
+  options: Omit<CreateDefaultLlmProviderRuntimeOptions, "providers"> = {},
+): LlmProviderRuntime {
+  return new DefaultLlmProviderRuntime({ ...options, providers });
+}
+
+/** Factory for orchestrator LLM provider runtime (Phase 81, 82). */
 export function createDefaultLlmProviderRuntime(
   options: CreateDefaultLlmProviderRuntimeOptions = {},
 ): LlmProviderRuntime {
-  return new DefaultLlmProviderRuntime(options);
+  if (!options.providers) {
+    return createDefaultProviderValidationRuntime({
+      providerRuntime: options.providerRuntime,
+      fallbackProviderId: options.fallbackProviderId,
+    }).asLlmProviderRuntime();
+  }
+
+  return createLlmProviderRuntimeFromProviders(options.providers, options);
 }
 
 /** @internal test helper */

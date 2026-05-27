@@ -10,12 +10,17 @@ import { createDefaultLlmProviderRuntime } from "../create-default-llm-provider-
 describe("LlmProviderRuntime", () => {
   const runtime = createDefaultLlmProviderRuntime();
 
-  it("lists stub, OpenAI, and Ollama providers", () => {
+  it("lists all default multi-provider connectors", () => {
     const providers = runtime.listProviders();
     expect(providers.map((entry) => entry.providerId)).toEqual([
       DEFAULT_STUB_LLM_PROVIDER_ID,
       DEFAULT_OPENAI_LLM_PROVIDER_ID,
+      "gemini",
+      "groq",
+      "openrouter",
       DEFAULT_OLLAMA_LLM_PROVIDER_ID,
+      "deepseek",
+      "minimax",
     ]);
   });
 

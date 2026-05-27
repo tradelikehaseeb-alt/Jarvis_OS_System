@@ -10,6 +10,7 @@ export type { LlmStreamSubscriber } from "./llm-stream-subscriber";
 export type { LlmProviderRuntime } from "./llm-provider-runtime";
 export {
   createDefaultLlmProviderRuntime,
+  createLlmProviderRuntimeFromProviders,
   type CreateDefaultLlmProviderRuntimeOptions,
 } from "./create-default-llm-provider-runtime";
 export {
@@ -18,3 +19,4 @@ export {
   resolveDefaultLlmProviderId,
   readOpenAiApiKey,
 } from "./llm-provider-utils";
+export * from "./connectors";

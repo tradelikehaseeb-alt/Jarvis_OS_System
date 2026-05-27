@@ -2,8 +2,16 @@ import type { LlmProviderRequest } from "./llm-provider-request";
 import type { LlmProviderResponse } from "./llm-provider-response";
 import type { LlmStreamSubscriber } from "./llm-stream-subscriber";
 
-/** Supported LLM provider kinds (Phase 81). */
-export type LlmProviderKind = "openai" | "ollama" | "stub";
+/** Supported LLM provider kinds (Phase 81, 82). */
+export type LlmProviderKind =
+  | "openai"
+  | "gemini"
+  | "groq"
+  | "openrouter"
+  | "ollama"
+  | "deepseek"
+  | "minimax"
+  | "stub";
 
 export interface LlmProviderValidation {
   readonly valid: boolean;
