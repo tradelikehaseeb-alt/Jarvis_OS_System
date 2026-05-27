@@ -82,6 +82,7 @@ describe("ChatPage", () => {
     await waitFor(() => {
       expect(screen.getByTestId("intent-badge")).toHaveTextContent("Plan");
       expect(screen.getByTestId("hermes-plan-card")).toBeInTheDocument();
+      expect(screen.getByTestId("activity-panel")).toBeInTheDocument();
     });
     expect(screen.getByTestId("hermes-plan-goal")).toHaveTextContent(
       "Plan my week",

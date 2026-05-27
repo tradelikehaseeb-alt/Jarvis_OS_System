@@ -5,6 +5,7 @@ import {
   extractHermesPlanningDetails,
 } from "../api/extract-hermes-plan";
 import { submitChatAsTask } from "../api/jarvis-client";
+import { ActivityPanel, useActivityStream } from "../activity";
 import { ChatInput } from "../components/ChatInput";
 import { ChatMessages, type ChatMessage } from "../components/ChatMessages";
 import { TaskPanel } from "../components/TaskPanel";
@@ -77,6 +78,7 @@ export function ChatPage() {
   const [voiceNormalizerError, setVoiceNormalizerError] = useState<string | null>(
     null,
   );
+  const activity = useActivityStream();
 
   const voice = useMockVoiceInput({
     settings: voiceSettings,
@@ -120,6 +122,7 @@ export function ChatPage() {
       },
     ]);
     setLoading(true);
+    activity.startStream(classification.intent);
 
     try {
       const { create, status } = await submitChatAsTask(text, {
@@ -127,6 +130,7 @@ export function ChatPage() {
       });
       setCreateResult(create);
       setStatusResult(status);
+      activity.ingestTaskStatus(status);
 
       const hermesPlan = buildHermesPlanMessageData(status);
       const reply = hermesPlan ? "" : formatAssistantReply(status);
@@ -149,6 +153,7 @@ export function ChatPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Request failed";
       setTaskError(message);
+      activity.reportError(message);
       setMessages((prev) => [
         ...prev.filter((m) => m.role !== "loading"),
         { id: nextMessageId(), role: "error", text: message },
@@ -156,7 +161,7 @@ export function ChatPage() {
     } finally {
       setLoading(false);
     }
-  }, [input, loading, voice]);
+  }, [activity, input, loading, voice]);
 
   const voiceComposerActions = useMemo(
     () => (
@@ -195,12 +200,18 @@ export function ChatPage() {
           leadingAction={voiceComposerActions}
         />
       </div>
-      <TaskPanel
-        loading={loading}
-        create={createResult}
-        status={statusResult}
-        error={taskError}
-      />
+      <div className="chat-sidebar">
+        <ActivityPanel
+          events={activity.events}
+          loading={activity.isStreaming}
+        />
+        <TaskPanel
+          loading={loading}
+          create={createResult}
+          status={statusResult}
+          error={taskError}
+        />
+      </div>
     </div>
   );
 }
