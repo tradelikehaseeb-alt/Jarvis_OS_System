@@ -52,6 +52,22 @@ Event types: `execution_started`, `planning_started`, `planning_completed`, `exe
 
 No WebSockets yet — internal subscribers only.
 
+## Phase 51 — storage runtime
+
+```
+MemoryPersistenceManager → StorageBackedMemoryStore → StorageRuntime → StorageProvider
+```
+
+| Export | Role |
+|--------|------|
+| `StorageRuntime` | Pluggable save/get/query/delete boundary |
+| `InMemoryStorageProvider` | Default in-memory backend |
+| `FileStorageProvider` | JSON file persistence |
+| `createDefaultStorageRuntime()` | In-memory default factory |
+| `createFileBackedMemoryPersistenceManager()` | File-backed memory option |
+
+See `src/storage-runtime/README.md`.
+
 ## Phase 50 — end-to-end execution flow
 
 ```

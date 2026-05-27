@@ -28,6 +28,7 @@ export * from "./capability-routing";
 export * from "./execution";
 export * from "./memory";
 export * from "./streaming";
+export * from "./storage-runtime";
 export * from "./e2e";
 
 /** Orchestrator module identifiers for structure tests. */
@@ -42,6 +43,7 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "execution",
   "memory",
   "streaming",
+  "storage-runtime",
   "e2e",
   "storage",
 ] as const;

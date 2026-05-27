@@ -10,9 +10,14 @@ export type {
 export type { MemoryStore } from "./memory-store";
 
 export { InMemoryMemoryStore } from "./in-memory-memory-store";
+export { StorageBackedMemoryStore } from "./storage-backed-memory-store";
+export { MEMORY_STORAGE_NAMESPACE } from "./memory-storage-namespace";
 export {
   MemoryPersistenceManager,
   type AttachLifecycleContext,
   type PersistConversationTurnInput,
 } from "./memory-persistence-manager";
-export { createDefaultMemoryPersistenceManager } from "./create-default-memory-persistence-manager";
+export {
+  createDefaultMemoryPersistenceManager,
+  createFileBackedMemoryPersistenceManager,
+} from "./create-default-memory-persistence-manager";
