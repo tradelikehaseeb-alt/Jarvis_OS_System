@@ -30,10 +30,27 @@ export function isDesktopValidationPrompt(
   return (DESKTOP_VALIDATION_PROMPTS as readonly string[]).includes(prompt);
 }
 
+/** Phase 88 real AI response validation prompts. */
+export const REAL_AI_RESPONSE_PROMPTS = [
+  "What is the gold price today?",
+  "Summarize AI news",
+  "Plan a Dubai trip",
+  "Explain Bitcoin trend",
+] as const;
+
+export type RealAiResponsePrompt = (typeof REAL_AI_RESPONSE_PROMPTS)[number];
+
+export function isRealAiResponsePrompt(
+  prompt: string,
+): prompt is RealAiResponsePrompt {
+  return (REAL_AI_RESPONSE_PROMPTS as readonly string[]).includes(prompt);
+}
+
 export function matchesDesktopValidationPrompt(normalizedMessage: string): boolean {
   const candidates = [
     ...REAL_USER_SESSION_PROMPTS,
     ...DESKTOP_VALIDATION_PROMPTS,
+    ...REAL_AI_RESPONSE_PROMPTS,
   ] as readonly string[];
 
   return candidates.some(

@@ -6,4 +6,7 @@ export {
   isDesktopValidationPrompt,
   matchesDesktopValidationPrompt,
   type DesktopValidationPrompt,
+  REAL_AI_RESPONSE_PROMPTS,
+  isRealAiResponsePrompt,
+  type RealAiResponsePrompt,
 } from "./real-user-session-prompts";
