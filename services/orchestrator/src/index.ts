@@ -26,6 +26,8 @@ export * from "./workflow-manager";
 export * from "./agent-registry";
 export * from "./capability-routing";
 export * from "./execution";
+export * from "./memory";
+export * from "./streaming";
 
 /** Orchestrator module identifiers for structure tests. */
 export const ORCHESTRATOR_MODULE_IDS = [
@@ -37,6 +39,8 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "capability-router",
   "task-execution",
   "execution",
+  "memory",
+  "streaming",
   "storage",
 ] as const;
 

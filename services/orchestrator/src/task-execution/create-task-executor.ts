@@ -21,6 +21,17 @@ import {
   toExecutionLifecycleSnapshot,
   type ExecutionLifecycleManager,
 } from "../execution";
+import {
+  createDefaultMemoryPersistenceManager,
+  type MemoryPersistenceManager,
+} from "../memory";
+import {
+  attachExecutionStream,
+  completeExecutionStream,
+  createDefaultStreamManager,
+  publishStreamFailed,
+  type StreamManager,
+} from "../streaming";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -39,6 +50,19 @@ export interface CreateTaskExecutionResult {
 
 export interface CreateTaskExecutionOptions {
   readonly lifecycleManager?: ExecutionLifecycleManager;
+  readonly memoryPersistenceManager?: MemoryPersistenceManager;
+  readonly streamManager?: StreamManager;
+}
+
+function resolveConversationId(
+  userId: string,
+  metadata?: Readonly<Record<string, unknown>>,
+): string {
+  const fromMetadata = metadata?.conversationId;
+  if (typeof fromMetadata === "string" && fromMetadata.trim().length > 0) {
+    return fromMetadata.trim();
+  }
+  return `conv-${userId}`;
 }
 
 function buildUserTask(
@@ -194,16 +218,47 @@ export async function executeCreateTask(
 ): Promise<CreateTaskExecutionResult> {
   const lifecycle =
     options.lifecycleManager ?? createDefaultExecutionLifecycleManager();
+  const stream =
+    options.streamManager ?? createDefaultStreamManager();
+  const memory =
+    options.memoryPersistenceManager ??
+    createDefaultMemoryPersistenceManager(undefined, stream);
 
   const taskId = `task-${Date.now()}`;
   const task = buildUserTask(taskId, input);
   const requestId = mockRequestId(taskId);
   const contextRef = mockContextRef(taskId);
+  const conversationId = resolveConversationId(task.userId, task.metadata);
+  const streamSessionId = `stream-${taskId}`;
 
   const session = lifecycle.startSession({
     taskId: task.id,
     requestId,
     userId: task.userId,
+  });
+
+  const memoryContext = {
+    userId: task.userId,
+    taskId: task.id,
+    sessionId: session.sessionId,
+    conversationId,
+  };
+
+  const streamContext = {
+    ...memoryContext,
+    streamSessionId,
+  };
+
+  const detachMemory = memory.attachLifecycle(lifecycle, memoryContext);
+  const detachStream = attachExecutionStream(stream, lifecycle, streamContext);
+
+  memory.persistConversationTurn({
+    conversationId,
+    userId: task.userId,
+    role: "user",
+    message: task.intent.description,
+    taskId: task.id,
+    intentKind: task.intent.kind,
   });
 
   await components.taskRouter.route({ task });
@@ -291,6 +346,28 @@ export async function executeCreateTask(
 
   if (agentResult.error?.code === "AGENT_NOT_FOUND") {
     lifecycle.transition(session.sessionId, "failed", agentResult.error.message);
+    const lifecycleSnapshot = toExecutionLifecycleSnapshot(
+      lifecycle.getSession(session.sessionId)!,
+      handshake
+        ? {
+            planningAgentId: HERMES_AGENT_ID,
+            executionAgentId: OPENCLAW_AGENT_ID,
+          }
+        : undefined,
+    );
+    memory.persistExecutionSession(
+      lifecycle.getSession(session.sessionId)!,
+      conversationId,
+    );
+    const summary = memory.generateSummary({
+      userId: task.userId,
+      taskId: task.id,
+      conversationId,
+    });
+    detachMemory();
+    detachStream();
+    publishStreamFailed(stream, streamContext, agentResult.error.message);
+
     const failedStatus = buildTaskStatus(
       task,
       "failed",
@@ -300,15 +377,16 @@ export async function executeCreateTask(
           selectedAgentId: routing.selectedAgentId,
           reason: routing.reason,
         },
-        executionLifecycle: toExecutionLifecycleSnapshot(
-          lifecycle.getSession(session.sessionId)!,
-          handshake
-            ? {
-                planningAgentId: HERMES_AGENT_ID,
-                executionAgentId: OPENCLAW_AGENT_ID,
-              }
-            : undefined,
-        ),
+        executionLifecycle: lifecycleSnapshot,
+        memory: {
+          summary: summary.text,
+          recentActivity: memory.getRecentActivity(task.userId, 5),
+          historyCount: memory.queryHistory({ userId: task.userId }).length,
+        },
+        stream: {
+          streamSessionId,
+          activeSessions: stream.getActiveSessions().length,
+        },
       },
       agentResult.error,
     );
@@ -330,10 +408,29 @@ export async function executeCreateTask(
     agentResult.success ? "Task completed" : "Task failed",
   );
 
+  const finalSession = lifecycle.getSession(session.sessionId)!;
+  memory.persistExecutionSession(finalSession, conversationId);
+  const summary = memory.generateSummary({
+    userId: task.userId,
+    taskId: task.id,
+    conversationId,
+  });
+  memory.persistConversationTurn({
+    conversationId,
+    userId: task.userId,
+    role: "assistant",
+    message: summary.text,
+    taskId: task.id,
+    intentKind: task.intent.kind,
+  });
+  detachMemory();
+  detachStream();
+  completeExecutionStream(stream, streamContext, agentResult.success);
+
   const skillOutput = extractSkillOutput(agentResult.payload);
   const output: Readonly<Record<string, unknown>> = {
     stub: true,
-    phase: 45,
+    phase: 47,
     routing: {
       selectedAgentId: handshake ? OPENCLAW_AGENT_ID : routing.selectedAgentId,
       reason: routing.reason,
@@ -352,7 +449,7 @@ export async function executeCreateTask(
       ? { planningPayload: planningResult.payload }
       : {}),
     executionLifecycle: toExecutionLifecycleSnapshot(
-      lifecycle.getSession(session.sessionId)!,
+      finalSession,
       handshake
         ? {
             planningAgentId: HERMES_AGENT_ID,
@@ -360,6 +457,16 @@ export async function executeCreateTask(
           }
         : undefined,
     ),
+    memory: {
+      summary: summary.text,
+      conversationId,
+      recentActivity: memory.getRecentActivity(task.userId, 5),
+      historyCount: memory.queryHistory({ userId: task.userId }).length,
+    },
+    stream: {
+      streamSessionId,
+      activeSessions: stream.getActiveSessions().length,
+    },
   };
 
   const taskStatus = buildTaskStatus(

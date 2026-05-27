@@ -20,6 +20,38 @@ Execution states: `queued`, `planning`, `executing`, `waiting`, `completed`, `fa
 
 Automate intents run Hermes planning handshake → OpenClaw execution. Task output includes `executionLifecycle` snapshot.
 
+## Phase 46 — memory persistence
+
+```
+Execution Lifecycle → MemoryPersistenceManager → InMemoryMemoryStore → History / Summary
+```
+
+| Export | Role |
+|--------|------|
+| `MemoryStore` / `InMemoryMemoryStore` | Record storage |
+| `MemoryPersistenceManager` | Conversation + execution persistence |
+| `createDefaultMemoryPersistenceManager()` | Factory |
+
+Memory types: `conversation`, `execution`, `activity`, `summary`.
+
+Task execution automatically stores lifecycle events, conversation turns, and generates deterministic summaries. In-memory only (no DB).
+
+## Phase 47 — real-time event streaming
+
+```
+Execution Lifecycle / Memory → StreamManager → Subscribers
+```
+
+| Export | Role |
+|--------|------|
+| `StreamManager` / `InMemoryStreamManager` | In-memory pub/sub |
+| `createDefaultStreamManager()` | Factory |
+| `attachExecutionStream()` | Lifecycle → stream bridge |
+
+Event types: `execution_started`, `planning_started`, `planning_completed`, `execution_completed`, `memory_saved`, `conversation_updated`, `failed`.
+
+No WebSockets yet — internal subscribers only.
+
 ## Phase 14 — end-to-end task lifecycle
 
 ```
@@ -59,6 +91,8 @@ Static/mock only — no LLM, database, or external APIs.
 | `capability-routing/` | Intent → agent selection |
 | `task-execution/` | **Phase 14** — create + status store |
 | `execution/` | **Phase 45** — lifecycle + activity streaming |
+| `memory/` | **Phase 46** — execution + conversation memory |
+| `streaming/` | **Phase 47** — real-time event stream |
 | `execution-manager/` | Step lifecycle (stub) |
 | `context-manager/` | Session context |
 | `workflow-manager/` | Build workflows |

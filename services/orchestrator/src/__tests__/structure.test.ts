@@ -18,6 +18,8 @@ describe("orchestrator structure", () => {
       "capability-router",
       "task-execution",
       "execution",
+      "memory",
+      "streaming",
       "storage",
     ]);
   });
