@@ -23,18 +23,17 @@ Automate intents run Hermes planning handshake → OpenClaw execution. Task outp
 ## Phase 46 — memory persistence
 
 ```
-Execution Lifecycle → MemoryPersistenceManager → InMemoryMemoryStore → History / Summary
+Execution Lifecycle → MemoryPersistenceManager → LocalMemoryBackedMemoryStore → @jarvis/local-memory
 ```
 
 | Export | Role |
 |--------|------|
-| `MemoryStore` / `InMemoryMemoryStore` | Record storage |
+| `MemoryStore` / `InMemoryMemoryStore` | Record storage (tests / direct use) |
+| `LocalMemoryBackedMemoryStore` | Canonical adapter to `@jarvis/local-memory` |
 | `MemoryPersistenceManager` | Conversation + execution persistence |
-| `createDefaultMemoryPersistenceManager()` | Factory |
-
-Memory types: `conversation`, `execution`, `activity`, `summary`.
-
-Task execution automatically stores lifecycle events, conversation turns, and generates deterministic summaries. In-memory only (no DB).
+| `createDefaultMemoryPersistenceManager()` | Default factory (`@jarvis/local-memory`, in-memory) |
+| `createLocalBackedMemoryPersistenceManager()` | Explicit local memory (file or shared runtime) |
+| `createFileBackedMemoryPersistenceManager()` | Legacy file option via `storage-runtime` |
 
 ## Phase 47 — real-time event streaming
 
@@ -79,7 +78,7 @@ MemoryPersistenceManager → LocalMemoryBackedMemoryStore → LocalMemoryRuntime
 | `LocalMemoryBackedMemoryStore` | Adapts `@jarvis/local-memory` to `MemoryStore` |
 | `createLocalBackedMemoryPersistenceManager()` | File-backed local memory option |
 
-Default `createDefaultMemoryPersistenceManager()` remains in-memory. See `@jarvis/local-memory` README.
+Default `createDefaultMemoryPersistenceManager()` uses `@jarvis/local-memory` (in-memory backend). See `@jarvis/local-memory` README.
 
 ## Phase 52 — transport runtime
 
@@ -140,6 +139,27 @@ POST /tasks (api-gateway)
 
 See [`storage/README.md`](./storage/README.md).
 
+## Phase 67 — architecture consolidation
+
+Single source of truth for conversation and memory persistence:
+
+```
+executeCreateTask()
+  → shared LocalMemoryRuntime (default)
+  → MemoryPersistenceManager.persistConversationTurn()
+  → ConversationHistoryRuntime reads same LocalMemoryRuntime
+```
+
+| Change | Detail |
+|--------|--------|
+| Unified writes | Task execution persists conversation turns once via memory; no duplicate `saveConversation` |
+| Canonical backend | `createDefaultMemoryPersistenceManager()` → `@jarvis/local-memory` |
+| Shared runtime | Default task path creates one `LocalMemoryRuntime` for memory + context bundle |
+| Circular dep removed | `createDefaultContextRuntimeBundle` lives in separate module from `createDefaultContextRuntime` |
+| Shared utilities | `shared/history-utils/` — query matching, turn summaries, keyword extraction |
+
+Public interfaces unchanged. `createFileBackedMemoryPersistenceManager()` retained for `storage-runtime` consumers.
+
 Static/mock only — no LLM, database, or external APIs.
 
 ## Modules
@@ -151,6 +171,7 @@ Static/mock only — no LLM, database, or external APIs.
 | `task-execution/` | **Phase 14** — create + status store |
 | `execution/` | **Phase 45** — lifecycle + activity streaming |
 | `memory/` | **Phase 46** — execution + conversation memory |
+| `shared/history-utils/` | **Phase 67** — shared `matchesHistoryQuery`, `summarizeTurns`, `extractKeywords` |
 | `streaming/` | **Phase 47** — real-time event stream |
 | `execution-manager/` | Step lifecycle (stub) |
 | `context-manager/` | Session context |

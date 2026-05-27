@@ -1,18 +1,25 @@
 import { describe, expect, it } from "vitest";
 
+import { createDefaultLocalMemoryRuntime } from "@jarvis/local-memory";
+
 import {
   createDefaultContextRuntimeBundle,
   JARVIS_CONTEXT_METADATA_KEY,
 } from "../index";
 import {
-  createDefaultMemoryPersistenceManager,
+  createLocalBackedMemoryPersistenceManager,
   createTestOrchestratorService,
 } from "../../index";
 
 describe("context injection integration", () => {
   it("injects conversation history into task execution output", async () => {
-    const { contextRuntime, conversationHistory, contextRankingRuntime } =
-      createDefaultContextRuntimeBundle();
+    const sharedRuntime = createDefaultLocalMemoryRuntime({ useFileBackend: false });
+    const { contextRuntime, conversationHistory, contextRankingRuntime, memoryRecallRuntime } =
+      createDefaultContextRuntimeBundle({ localMemoryRuntime: sharedRuntime });
+    const memory = createLocalBackedMemoryPersistenceManager(undefined, undefined, {
+      runtime: sharedRuntime,
+      useFileBackend: false,
+    });
 
     conversationHistory.saveConversation({
       conversationId: "conv-context-1",
@@ -22,7 +29,6 @@ describe("context injection integration", () => {
     });
 
     const service = await createTestOrchestratorService();
-    const memory = createDefaultMemoryPersistenceManager();
 
     const { record } = await service.executeCreateTask(
       {
@@ -34,6 +40,7 @@ describe("context injection integration", () => {
         contextRuntime,
         conversationHistoryRuntime: conversationHistory,
         contextRankingRuntime,
+        memoryRecallRuntime,
       },
     );
 
@@ -50,21 +57,13 @@ describe("context injection integration", () => {
     expect(contextOutput.summary).toContain("turn");
   });
 
-  it("uses fallback context when conversation history is empty", async () => {
-    const { contextRuntime, conversationHistory, contextRankingRuntime } =
-      createDefaultContextRuntimeBundle();
-
+  it("builds context from persisted turn when conversation has no prior history", async () => {
     const service = await createTestOrchestratorService();
 
     const { record } = await service.executeCreateTask(
       {
         intent: { kind: "research", description: "Find API docs" },
         metadata: { conversationId: "conv-empty-1" },
-      },
-      {
-        contextRuntime,
-        conversationHistoryRuntime: conversationHistory,
-        contextRankingRuntime,
       },
     );
 

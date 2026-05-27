@@ -1,27 +1,10 @@
+import { summarizeTurns } from "../shared/history-utils";
 import type { ContextQuery } from "./context-query";
 import type { ContextRecord, ContextTurn } from "./context-record";
 import type { ContextScore } from "./context-score";
 import type { ContextScorer } from "./context-scorer";
 import type { ContextRankingRuntime } from "./context-ranking-runtime";
 import { DefaultContextScorer } from "./default-context-scorer";
-
-function summarizeTurns(
-  turns: readonly ContextTurn[],
-  intentDescription?: string,
-): string {
-  if (turns.length === 0) {
-    return intentDescription
-      ? `No prior conversation context for: ${intentDescription}`
-      : "No prior conversation context";
-  }
-
-  const preview = turns
-    .slice(-3)
-    .map((turn) => `${turn.role}: ${turn.message}`)
-    .join(" | ");
-
-  return `${turns.length} relevant turn(s). Recent: ${preview}`;
-}
 
 function refineContextRecord(
   record: ContextRecord,
@@ -31,7 +14,7 @@ function refineContextRecord(
     ...record,
     contextId: `${record.contextId}-ranked-${turns.length}`,
     turns,
-    summary: summarizeTurns(turns, record.intentDescription),
+    summary: summarizeTurns(turns, record.intentDescription, "relevant"),
     builtAt: new Date().toISOString(),
     source: turns.length > 0 ? record.source : "fallback",
   };

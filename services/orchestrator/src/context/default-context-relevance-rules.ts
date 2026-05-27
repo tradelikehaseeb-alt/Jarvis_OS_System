@@ -1,14 +1,5 @@
+import { extractKeywords } from "../shared/history-utils";
 import type { ContextRelevanceRule } from "./context-relevance-rule";
-
-function extractKeywords(text?: string): string[] {
-  if (!text) {
-    return [];
-  }
-  return text
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 3);
-}
 
 /** Intent keyword overlap rule (Phase 65). */
 export const INTENT_KEYWORD_RULE: ContextRelevanceRule = {

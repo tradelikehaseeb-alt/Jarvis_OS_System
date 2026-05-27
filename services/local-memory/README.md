@@ -1,12 +1,15 @@
 # @jarvis/local-memory
 
-Local memory persistence for Jarvis OS (Phase 62).
+Local memory persistence for Jarvis OS (Phase 62). **Canonical persistence layer** for orchestrator conversation and memory records (Phase 67).
 
 ## Flow
 
 ```
-Orchestrator → MemoryPersistenceManager → LocalMemoryBackedMemoryStore
+executeCreateTask()
+  → MemoryPersistenceManager → LocalMemoryBackedMemoryStore
   → LocalMemoryRuntime → LocalMemoryRepository → file (SQLite-ready JSON)
+
+ConversationHistoryRuntime → same LocalMemoryRuntime (shared instance)
 ```
 
 ## Exports
@@ -35,12 +38,22 @@ runtime.saveMemory({ /* LocalMemoryRecord */ });
 const history = runtime.queryMemory({ userId: "user-1" });
 ```
 
-Orchestrator wiring:
+Orchestrator wiring (default — in-memory):
+
+```typescript
+import { createDefaultMemoryPersistenceManager } from "@jarvis/orchestrator";
+
+const memory = createDefaultMemoryPersistenceManager();
+```
+
+File-backed or shared runtime:
 
 ```typescript
 import { createLocalBackedMemoryPersistenceManager } from "@jarvis/orchestrator";
+import { createDefaultLocalMemoryRuntime } from "@jarvis/local-memory";
 
-const memory = createLocalBackedMemoryPersistenceManager("/path/to/local-memory.json");
+const runtime = createDefaultLocalMemoryRuntime({ filePath: "/path/to/local-memory.json" });
+const memory = createLocalBackedMemoryPersistenceManager(undefined, undefined, { runtime });
 ```
 
-Default in-memory orchestrator behavior is unchanged via `createDefaultMemoryPersistenceManager()`.
+Pass the same `runtime` to `createDefaultContextRuntimeBundle({ localMemoryRuntime: runtime })` when wiring conversation history separately.

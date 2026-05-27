@@ -1,5 +1,6 @@
 import type { ConversationHistoryRuntime } from "../conversation-history/conversation-history-runtime";
 import type { ConversationMemory } from "../memory/conversation-memory";
+import { extractKeywords, summarizeTurns } from "../shared/history-utils";
 import type { ContextQuery } from "./context-query";
 import type { ContextRecord, ContextTurn } from "./context-record";
 
@@ -20,24 +21,6 @@ function toContextTurn(turn: ConversationMemory): ContextTurn {
     taskId: turn.taskId,
     intentKind: turn.intentKind,
   };
-}
-
-function summarizeTurns(
-  turns: readonly ContextTurn[],
-  intentDescription?: string,
-): string {
-  if (turns.length === 0) {
-    return intentDescription
-      ? `No prior conversation context for: ${intentDescription}`
-      : "No prior conversation context";
-  }
-
-  const preview = turns
-    .slice(-3)
-    .map((turn) => `${turn.role}: ${turn.message}`)
-    .join(" | ");
-
-  return `${turns.length} prior turn(s). Recent: ${preview}`;
 }
 
 function buildRecord(
@@ -126,20 +109,15 @@ export class DefaultContextBuilder implements ContextBuilder {
       }
     }
 
-    if (query.intentDescription) {
-      const keywords = query.intentDescription
-        .toLowerCase()
-        .split(/\s+/)
-        .filter((word) => word.length > 3);
-      if (keywords.length > 0) {
-        const matched = turns.filter((turn) =>
-          keywords.some((keyword) =>
-            turn.message.toLowerCase().includes(keyword),
-          ),
-        );
-        if (matched.length > 0) {
-          turns = matched;
-        }
+    const keywords = extractKeywords(query.intentDescription);
+    if (keywords.length > 0) {
+      const matched = turns.filter((turn) =>
+        keywords.some((keyword) =>
+          turn.message.toLowerCase().includes(keyword),
+        ),
+      );
+      if (matched.length > 0) {
+        turns = matched;
       }
     }
 

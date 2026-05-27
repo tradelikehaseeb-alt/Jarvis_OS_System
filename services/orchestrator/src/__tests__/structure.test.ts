@@ -21,6 +21,7 @@ describe("orchestrator structure", () => {
       "memory",
       "conversation-history",
       "context",
+      "memory-recall",
       "streaming",
       "storage-runtime",
       "transport",

@@ -15,14 +15,17 @@ import {
 
 /**
  * Factory for default in-memory memory persistence manager (Phase 46).
- * Uses {@link StorageBackedMemoryStore} with in-memory storage runtime (Phase 51).
+ * Uses {@link LocalMemoryBackedMemoryStore} with {@link @jarvis/local-memory} (Phase 67).
  */
 export function createDefaultMemoryPersistenceManager(
   store?: MemoryStore,
   streamManager?: StreamManager,
 ): MemoryPersistenceManager {
   const memoryStore =
-    store ?? new StorageBackedMemoryStore(createDefaultStorageRuntime());
+    store ??
+    new LocalMemoryBackedMemoryStore(
+      createDefaultLocalMemoryRuntime({ useFileBackend: false }),
+    );
   return new MemoryPersistenceManager(memoryStore, streamManager);
 }
 

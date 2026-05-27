@@ -1,25 +1,7 @@
+import { matchesHistoryQuery } from "../shared/history-utils";
 import type { MemoryQuery } from "./memory-query";
 import type { MemoryRecord } from "./memory-record";
 import type { MemoryStore } from "./memory-store";
-
-function matchesQuery(record: MemoryRecord, query: MemoryQuery): boolean {
-  if (record.userId !== query.userId) {
-    return false;
-  }
-  if (query.types && !query.types.includes(record.type)) {
-    return false;
-  }
-  if (query.taskId && record.taskId !== query.taskId) {
-    return false;
-  }
-  if (query.sessionId && record.sessionId !== query.sessionId) {
-    return false;
-  }
-  if (query.conversationId && record.conversationId !== query.conversationId) {
-    return false;
-  }
-  return true;
-}
 
 /**
  * Deterministic in-memory memory store (Phase 46).
@@ -38,7 +20,7 @@ export class InMemoryMemoryStore implements MemoryStore {
 
   queryHistory(query: MemoryQuery): readonly MemoryRecord[] {
     const results = [...this.records.values()]
-      .filter((record) => matchesQuery(record, query))
+      .filter((record) => matchesHistoryQuery(record, query))
       .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 
     if (query.limit !== undefined) {

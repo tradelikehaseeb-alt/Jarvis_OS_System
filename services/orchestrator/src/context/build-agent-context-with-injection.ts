@@ -5,6 +5,9 @@ import type { ContextRecord } from "./context-record";
 import { JARVIS_CONTEXT_METADATA_KEY } from "./context-record";
 import type { ContextRuntime } from "./context-runtime";
 import type { ContextRankingRuntime } from "./context-ranking-runtime";
+import type { MemoryRecallRuntime } from "../memory-recall/memory-recall-runtime";
+import type { MemoryRecallRecord } from "../memory-recall/memory-recall-record";
+import { JARVIS_MEMORY_RECALL_METADATA_KEY } from "../memory-recall/memory-recall-record";
 
 export interface BuildAgentContextInput {
   readonly contextRef: string;
@@ -15,11 +18,13 @@ export interface BuildAgentContextInput {
   readonly metadata?: Readonly<Record<string, unknown>>;
   readonly contextRuntime?: ContextRuntime;
   readonly contextRankingRuntime?: ContextRankingRuntime;
+  readonly memoryRecallRuntime?: MemoryRecallRuntime;
 }
 
 export interface AgentContextInjection {
   readonly agentContext: AgentContext;
   readonly contextRecord: ContextRecord;
+  readonly recalledMemories: readonly MemoryRecallRecord[];
 }
 
 /**
@@ -53,15 +58,37 @@ export function buildAgentContextWithInjection(
     ? input.contextRankingRuntime.selectRelevantContext(contextQuery, rawContext)
     : rawContext;
 
+  const recallQuery = {
+    userId: input.userId,
+    conversationId: input.conversationId,
+    taskId: input.taskId,
+    intentDescription: input.intentDescription,
+  };
+
+  let agentContext: AgentContext = {
+    contextRef: input.contextRef,
+    userId: input.userId,
+    metadata: {
+      ...input.metadata,
+      [JARVIS_CONTEXT_METADATA_KEY]: contextRecord,
+    },
+  };
+
+  let recalledMemories: AgentContextInjection["recalledMemories"] = [];
+
+  if (input.memoryRecallRuntime) {
+    agentContext = input.memoryRecallRuntime.injectMemoryContext(
+      recallQuery,
+      agentContext,
+      contextRecord,
+    );
+    const injected = agentContext.metadata?.[JARVIS_MEMORY_RECALL_METADATA_KEY];
+    recalledMemories = Array.isArray(injected) ? injected : [];
+  }
+
   return {
     contextRecord,
-    agentContext: {
-      contextRef: input.contextRef,
-      userId: input.userId,
-      metadata: {
-        ...input.metadata,
-        [JARVIS_CONTEXT_METADATA_KEY]: contextRecord,
-      },
-    },
+    agentContext,
+    recalledMemories,
   };
 }

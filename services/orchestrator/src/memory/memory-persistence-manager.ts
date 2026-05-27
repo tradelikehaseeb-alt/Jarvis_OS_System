@@ -146,7 +146,13 @@ export class MemoryPersistenceManager {
 
   persistConversationTurn(input: PersistConversationTurnInput): MemoryRecord {
     const turnKey = `${input.conversationId}:${input.userId}`;
-    const turnIndex = (this.turnCounts.get(turnKey) ?? 0) + 1;
+    const existingTurns = this.store.queryHistory({
+      userId: input.userId,
+      conversationId: input.conversationId,
+      types: ["conversation"],
+    });
+    const cachedTurnCount = this.turnCounts.get(turnKey) ?? 0;
+    const turnIndex = Math.max(existingTurns.length, cachedTurnCount) + 1;
     this.turnCounts.set(turnKey, turnIndex);
 
     const turn: ConversationMemory = {

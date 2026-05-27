@@ -23,10 +23,13 @@ export type { ContextRuntime } from "./context-runtime";
 export {
   DefaultContextRuntime,
   createDefaultContextRuntime,
-  createDefaultContextRuntimeBundle,
   type DefaultContextRuntimeOptions,
-  type ContextRuntimeBundle,
 } from "./create-default-context-runtime";
+export {
+  createDefaultContextRuntimeBundle,
+  type ContextRuntimeBundle,
+  type ContextRuntimeBundleOptions,
+} from "./create-default-context-runtime-bundle";
 export {
   buildAgentContextWithInjection,
   type BuildAgentContextInput,

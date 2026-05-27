@@ -13,6 +13,11 @@ import type {
 } from "@jarvis/types";
 
 import {
+  createDefaultLocalMemoryRuntime,
+  type LocalMemoryRuntime,
+} from "@jarvis/local-memory";
+
+import {
   HERMES_AGENT_ID,
   OPENCLAW_AGENT_ID,
   createDefaultExecutionLifecycleManager,
@@ -23,6 +28,7 @@ import {
 } from "../execution";
 import {
   createDefaultMemoryPersistenceManager,
+  createLocalBackedMemoryPersistenceManager,
   type MemoryPersistenceManager,
 } from "../memory";
 import {
@@ -40,6 +46,8 @@ import {
   type ContextRankingRuntime,
   type ContextRuntime,
 } from "../context";
+import { createDefaultMemoryRecallRuntime } from "../memory-recall/create-default-memory-recall-runtime";
+import type { MemoryRecallRuntime } from "../memory-recall/memory-recall-runtime";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -63,6 +71,8 @@ export interface CreateTaskExecutionOptions {
   readonly contextRuntime?: ContextRuntime;
   readonly conversationHistoryRuntime?: ConversationHistoryRuntime;
   readonly contextRankingRuntime?: ContextRankingRuntime;
+  readonly memoryRecallRuntime?: MemoryRecallRuntime;
+  readonly localMemoryRuntime?: LocalMemoryRuntime;
 }
 
 function resolveConversationId(
@@ -239,20 +249,39 @@ export async function executeCreateTask(
     options.lifecycleManager ?? createDefaultExecutionLifecycleManager();
   const stream =
     options.streamManager ?? createDefaultStreamManager();
+  const sharedLocalMemory =
+    options.localMemoryRuntime ??
+    (!options.memoryPersistenceManager && !options.contextRuntime
+      ? createDefaultLocalMemoryRuntime({ useFileBackend: false })
+      : undefined);
   const memory =
     options.memoryPersistenceManager ??
-    createDefaultMemoryPersistenceManager(undefined, stream);
+    (sharedLocalMemory
+      ? createLocalBackedMemoryPersistenceManager(undefined, stream, {
+          runtime: sharedLocalMemory,
+          useFileBackend: false,
+        })
+      : createDefaultMemoryPersistenceManager(undefined, stream));
   const contextBundle = options.contextRuntime
     ? undefined
-    : createDefaultContextRuntimeBundle();
+    : createDefaultContextRuntimeBundle({
+        localMemoryRuntime: sharedLocalMemory,
+        useFileBackend: false,
+        conversationHistory: options.conversationHistoryRuntime,
+      });
   const contextRuntime =
     options.contextRuntime ?? contextBundle!.contextRuntime;
-  const conversationHistory =
-    options.conversationHistoryRuntime ?? contextBundle!.conversationHistory;
   const contextRankingRuntime =
     options.contextRankingRuntime ??
     contextBundle?.contextRankingRuntime ??
     createDefaultContextRankingRuntime();
+  const memoryRecallRuntime =
+    options.memoryRecallRuntime ??
+    contextBundle?.memoryRecallRuntime ??
+    createDefaultMemoryRecallRuntime({
+      contextRuntime,
+      contextRankingRuntime,
+    });
 
   const taskId = `task-${Date.now()}`;
   const task = buildUserTask(taskId, input);
@@ -290,14 +319,6 @@ export async function executeCreateTask(
     taskId: task.id,
     intentKind: task.intent.kind,
   });
-  conversationHistory.saveConversation({
-    conversationId,
-    userId: task.userId,
-    role: "user",
-    message: task.intent.description,
-    taskId: task.id,
-    intentKind: task.intent.kind,
-  });
 
   await components.taskRouter.route({ task });
   await components.contextManager.create({ task });
@@ -311,7 +332,8 @@ export async function executeCreateTask(
     components.agentRegistry,
   );
 
-  const { agentContext, contextRecord } = buildAgentContextWithInjection({
+  const { agentContext, contextRecord, recalledMemories } =
+    buildAgentContextWithInjection({
     contextRef,
     userId: task.userId,
     conversationId,
@@ -320,6 +342,7 @@ export async function executeCreateTask(
     metadata: task.metadata,
     contextRuntime,
     contextRankingRuntime,
+    memoryRecallRuntime,
   });
 
   let agentResult: AgentResult;
@@ -436,6 +459,12 @@ export async function executeCreateTask(
           turnCount: contextRecord.turns.length,
           summary: contextRecord.summary,
         },
+        memoryRecall: {
+          count: recalledMemories.length,
+          source: recalledMemories.some((m) => m.source === "conversation-history")
+            ? "conversation-history"
+            : "fallback",
+        },
       },
       agentResult.error,
     );
@@ -465,14 +494,6 @@ export async function executeCreateTask(
     conversationId,
   });
   memory.persistConversationTurn({
-    conversationId,
-    userId: task.userId,
-    role: "assistant",
-    message: summary.text,
-    taskId: task.id,
-    intentKind: task.intent.kind,
-  });
-  conversationHistory.saveConversation({
     conversationId,
     userId: task.userId,
     role: "assistant",
@@ -529,6 +550,12 @@ export async function executeCreateTask(
       source: contextRecord.source,
       turnCount: contextRecord.turns.length,
       summary: contextRecord.summary,
+    },
+    memoryRecall: {
+      count: recalledMemories.length,
+      source: recalledMemories.some((m) => m.source === "conversation-history")
+        ? "conversation-history"
+        : "fallback",
     },
   };
 
