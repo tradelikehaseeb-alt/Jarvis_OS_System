@@ -3,12 +3,17 @@ import {
   createDefaultJarvisApiServer,
   type JarvisApiServer,
 } from "@jarvis/api-runtime";
+import {
+  createDefaultRuntimeProcessManager,
+  type RuntimeProcessManager,
+} from "@jarvis/runtime-process";
 
 /** Default embedded Jarvis API runtime port (Phase 54). */
 export const DEFAULT_EMBEDDED_API_PORT = 8787;
 
 let embeddedServer: JarvisApiServer | undefined;
 let embeddedBaseUrl: string | undefined;
+let processManager: RuntimeProcessManager | undefined;
 
 function useEmbeddedRuntime(): boolean {
   if (process.env.JARVIS_USE_EMBEDDED_API_RUNTIME === "false") {
@@ -17,10 +22,25 @@ function useEmbeddedRuntime(): boolean {
   return !process.env.JARVIS_API_URL;
 }
 
-/**
- * Start embedded {@link JarvisApiServer} when no external API URL is configured.
- */
-export async function startEmbeddedApiRuntime(): Promise<string> {
+function getProcessManager(): RuntimeProcessManager {
+  if (!processManager) {
+    processManager = createDefaultRuntimeProcessManager({
+      processHandlers: {
+        "api-runtime": {
+          start: async () => {
+            await startEmbeddedApiRuntimeInternal();
+          },
+          stop: async () => {
+            await stopEmbeddedApiRuntimeInternal();
+          },
+        },
+      },
+    });
+  }
+  return processManager;
+}
+
+async function startEmbeddedApiRuntimeInternal(): Promise<string> {
   if (process.env.JARVIS_API_URL) {
     embeddedBaseUrl = process.env.JARVIS_API_URL;
     return embeddedBaseUrl;
@@ -42,14 +62,25 @@ export async function startEmbeddedApiRuntime(): Promise<string> {
   return embeddedBaseUrl;
 }
 
+async function stopEmbeddedApiRuntimeInternal(): Promise<void> {
+  await embeddedServer?.stop();
+  embeddedServer = undefined;
+  embeddedBaseUrl = undefined;
+}
+
+/**
+ * Start embedded {@link JarvisApiServer} when no external API URL is configured.
+ */
+export async function startEmbeddedApiRuntime(): Promise<string> {
+  return startEmbeddedApiRuntimeInternal();
+}
+
 export function getEmbeddedApiBaseUrl(): string | undefined {
   return embeddedBaseUrl;
 }
 
 export async function stopEmbeddedApiRuntime(): Promise<void> {
-  await embeddedServer?.stop();
-  embeddedServer = undefined;
-  embeddedBaseUrl = undefined;
+  await stopEmbeddedApiRuntimeInternal();
 }
 
 export async function getEmbeddedApiHealth(): Promise<ApiHealth | null> {
@@ -67,4 +98,29 @@ export async function getEmbeddedApiHealth(): Promise<ApiHealth | null> {
   });
 
   return (response.body ?? null) as ApiHealth | null;
+}
+
+/**
+ * Initialize runtime processes via the process manager (Phase 55).
+ * Preserves embedded API runtime behavior when no external URL is configured.
+ */
+export async function initializeRuntimeProcesses(): Promise<string> {
+  const manager = getProcessManager();
+  await manager.startProcess("api-runtime");
+  await manager.startProcess("orchestrator");
+  await manager.startProcess("hermes-runtime");
+  await manager.startProcess("openclaw-runtime");
+  return getEmbeddedApiBaseUrl() ?? process.env.JARVIS_API_URL ?? "http://127.0.0.1:8000";
+}
+
+export function getRuntimeProcessManager(): RuntimeProcessManager {
+  return getProcessManager();
+}
+
+export function getRuntimeProcessHealth() {
+  return getProcessManager().getHealth();
+}
+
+export function getRuntimeActiveProcesses() {
+  return getProcessManager().getActiveProcesses();
 }

@@ -10,7 +10,7 @@ import type { ApiHealth } from "@jarvis/api-runtime";
 import {
   getEmbeddedApiBaseUrl,
   getEmbeddedApiHealth,
-  startEmbeddedApiRuntime,
+  initializeRuntimeProcesses,
 } from "./api-runtime-lifecycle";
 
 /** Fallback when external Python gateway is used explicitly. */
@@ -159,5 +159,5 @@ export function registerApiHandlers(): void {
 }
 
 export async function initializeApiRuntime(): Promise<string> {
-  return startEmbeddedApiRuntime();
+  return initializeRuntimeProcesses();
 }

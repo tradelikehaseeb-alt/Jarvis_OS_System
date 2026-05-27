@@ -15,6 +15,7 @@
     "packages/*",
     "services/orchestrator",
     "services/api-runtime",
+    "services/runtime-process",
     "services/memory-service",
     "services/speech-service",
     "services/api-gateway",
