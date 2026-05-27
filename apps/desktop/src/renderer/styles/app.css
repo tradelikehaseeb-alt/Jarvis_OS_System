@@ -143,6 +143,85 @@ body {
   flex-direction: column;
 }
 
+.agent-status-panel {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.agent-status-panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.agent-status-thinking,
+.agent-status-idle,
+.agent-status-memory,
+.agent-status-error {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.agent-status-idle {
+  color: var(--muted);
+}
+
+.agent-status-error {
+  color: #fca5a5;
+}
+
+.agent-status-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.agent-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.agent-status-badge--hermes.agent-status-badge--planning,
+.agent-status-badge--openclaw.agent-status-badge--executing {
+  border-color: var(--accent);
+  color: #bfdbfe;
+}
+
+.agent-status-badge--hermes.agent-status-badge--completed,
+.agent-status-badge--openclaw.agent-status-badge--completed {
+  border-color: var(--success);
+  color: #bbf7d0;
+}
+
+.agent-status-badge--hermes.agent-status-badge--failed,
+.agent-status-badge--openclaw.agent-status-badge--failed {
+  border-color: #f87171;
+  color: #fecaca;
+}
+
+.agent-status-badge--openclaw.agent-status-badge--waiting {
+  border-color: var(--warning);
+  color: #fde68a;
+}
+
+.agent-status-events {
+  margin: 0;
+  padding-left: 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 .activity-panel h2 {
   margin: 0 0 0.75rem;
   font-size: 1rem;

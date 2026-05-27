@@ -83,6 +83,7 @@ describe("ChatPage", () => {
       expect(screen.getByTestId("intent-badge")).toHaveTextContent("Plan");
       expect(screen.getByTestId("hermes-plan-card")).toBeInTheDocument();
       expect(screen.getByTestId("activity-panel")).toBeInTheDocument();
+      expect(screen.getByTestId("agent-status-panel")).toBeInTheDocument();
     });
     expect(screen.getByTestId("hermes-plan-goal")).toHaveTextContent(
       "Plan my week",
@@ -138,7 +139,12 @@ describe("ChatPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /send/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent("Gateway offline");
+      expect(screen.getByTestId("chat-error")).toHaveTextContent(
+        "Gateway offline",
+      );
+      expect(screen.getByTestId("agent-status-error")).toHaveTextContent(
+        "Gateway offline",
+      );
     });
   });
 

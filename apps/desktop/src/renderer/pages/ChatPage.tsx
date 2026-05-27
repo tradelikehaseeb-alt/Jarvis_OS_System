@@ -6,6 +6,7 @@ import {
 } from "../api/extract-hermes-plan";
 import { submitChatAsTask } from "../api/jarvis-client";
 import { ActivityPanel, useActivityStream } from "../activity";
+import { AgentStatusPanel, useAgentStatus } from "../agent-status";
 import { ChatInput } from "../components/ChatInput";
 import { ChatMessages, type ChatMessage } from "../components/ChatMessages";
 import { TaskPanel } from "../components/TaskPanel";
@@ -79,6 +80,10 @@ export function ChatPage() {
     null,
   );
   const activity = useActivityStream();
+  const agentStatus = useAgentStatus({
+    events: activity.events,
+    isStreaming: activity.isStreaming,
+  });
 
   const voice = useMockVoiceInput({
     settings: voiceSettings,
@@ -201,6 +206,11 @@ export function ChatPage() {
         />
       </div>
       <div className="chat-sidebar">
+        <AgentStatusPanel
+          status={agentStatus.status}
+          events={agentStatus.events}
+          loading={agentStatus.loading}
+        />
         <ActivityPanel
           events={activity.events}
           loading={activity.isStreaming}
