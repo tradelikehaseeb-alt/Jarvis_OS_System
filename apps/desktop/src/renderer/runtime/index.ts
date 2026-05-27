@@ -20,5 +20,24 @@ export {
   type UseRuntimeHealthOptions,
   type UseRuntimeHealthResult,
 } from "./use-runtime-health";
+export {
+  useRuntimeStartup,
+  type UseRuntimeStartupOptions,
+  type UseRuntimeStartupResult,
+} from "./use-runtime-startup";
+export { RuntimeStartupPanel } from "./RuntimeStartupPanel";
+export type {
+  RuntimeStartupPhase,
+  RuntimeStartupState,
+  RuntimeStartupEvent,
+  RuntimeStartupEventKind,
+  RuntimeStartupResponse,
+} from "./runtime-startup-types";
+export {
+  initializeRuntime,
+  validateRuntime,
+  recoverRuntime,
+  getStartupStatus,
+} from "./runtime-startup-client";
 export { RuntimeHealthCard } from "./RuntimeHealthCard";
 export { RuntimeDashboard } from "./RuntimeDashboard";

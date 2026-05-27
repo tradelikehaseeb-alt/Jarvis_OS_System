@@ -188,6 +188,22 @@ Voice Input → Speech Runtime → Intent → Orchestrator → Activity Stream
 
 Static/mock only — no LLM, database, or external APIs.
 
+## Phase 73 — runtime startup & recovery
+
+```
+Desktop Start → Runtime Bootstrap → Health Validation → Recovery → Ready
+```
+
+| Export | Role |
+|--------|------|
+| `RuntimeStartupState` | Startup phase and probe summary |
+| `RuntimeStartupEvent` | Bootstrap / validation / recovery timeline |
+| `RuntimeStartupManager` | Startup contract |
+| `RuntimeRecoveryHandler` | Recovery contract |
+| `createDefaultRuntimeStartupManager()` | Process-manager-backed factory |
+
+See `src/runtime-startup/README.md`.
+
 ## Modules
 
 | Module | Role |
@@ -198,7 +214,8 @@ Static/mock only — no LLM, database, or external APIs.
 | `execution/` | **Phase 45** — lifecycle + activity streaming |
 | `memory/` | **Phase 46** — execution + conversation memory |
 | `shared/history-utils/` | **Phase 67** — shared `matchesHistoryQuery`, `summarizeTurns`, `extractKeywords` |
-| `activity/` | **Phase 71** — live activity stream runtime for Desktop |
+| `voice-execution/` | **Phase 72** — orchestrator voice execution bridge |
+| `runtime-startup/` | **Phase 73** — bootstrap, validation, recovery |
 | `streaming/` | **Phase 47** — real-time event stream |
 | `execution-manager/` | Step lifecycle (stub) |
 | `context-manager/` | Session context |

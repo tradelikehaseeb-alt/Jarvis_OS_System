@@ -20,6 +20,14 @@ export default defineConfig({
         __dirname,
         "../../services/api-runtime/src/index.ts",
       ),
+      "@jarvis/orchestrator": path.join(
+        __dirname,
+        "../../services/orchestrator/src/index.ts",
+      ),
+      "@jarvis/runtime-process": path.join(
+        __dirname,
+        "../../services/runtime-process/src/index.ts",
+      ),
       "@jarvis/desktop-intent": path.join(
         __dirname,
         "../../apps/desktop/src/renderer/intent/index.ts",

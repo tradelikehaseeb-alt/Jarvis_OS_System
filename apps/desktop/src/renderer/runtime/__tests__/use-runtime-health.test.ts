@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { JarvisDesktopApi } from "../../global";
+import { createMockJarvisApi } from "../../test/mock-jarvis-api";
 import { useRuntimeHealth } from "../use-runtime-health";
 
 const snapshot = {
@@ -25,13 +25,9 @@ const snapshot = {
 
 describe("useRuntimeHealth", () => {
   beforeEach(() => {
-    window.jarvis = {
-      getApiUrl: vi.fn(),
-      checkApiHealth: vi.fn(),
+    window.jarvis = createMockJarvisApi({
       getRuntimeHealth: vi.fn().mockResolvedValue(snapshot),
-      createTask: vi.fn(),
-      getTaskStatus: vi.fn(),
-    } satisfies JarvisDesktopApi;
+    });
   });
 
   afterEach(() => {

@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { JarvisDesktopApi } from "../../global";
+import { createMockJarvisApi } from "../../test/mock-jarvis-api";
 import { useRuntimeActions } from "../use-runtime-actions";
 
 const successResponse = {
@@ -13,14 +13,9 @@ const successResponse = {
 
 describe("useRuntimeActions", () => {
   beforeEach(() => {
-    window.jarvis = {
-      getApiUrl: vi.fn(),
-      checkApiHealth: vi.fn(),
-      getRuntimeHealth: vi.fn(),
+    window.jarvis = createMockJarvisApi({
       executeRuntimeAction: vi.fn().mockResolvedValue(successResponse),
-      createTask: vi.fn(),
-      getTaskStatus: vi.fn(),
-    } satisfies JarvisDesktopApi;
+    });
   });
 
   afterEach(() => {

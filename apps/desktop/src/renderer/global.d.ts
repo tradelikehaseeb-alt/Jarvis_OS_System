@@ -10,6 +10,7 @@ import type {
   RuntimeActionRequest,
   RuntimeActionResponse,
 } from "../ipc/runtime-action";
+import type { RuntimeStartupResponse } from "./runtime/runtime-startup-types";
 
 /** Mirrors preload bridge (Phase 54). */
 export interface JarvisDesktopApi {
@@ -19,6 +20,10 @@ export interface JarvisDesktopApi {
   executeRuntimeAction(
     request: RuntimeActionRequest,
   ): Promise<RuntimeActionResponse>;
+  initializeRuntime(): Promise<RuntimeStartupResponse>;
+  validateRuntime(): Promise<RuntimeStartupResponse>;
+  recoverRuntime(): Promise<RuntimeStartupResponse>;
+  getStartupStatus(): Promise<RuntimeStartupResponse>;
   createTask(body: CreateTaskRequest): Promise<CreateTaskResponse>;
   getTaskStatus(taskId: string): Promise<TaskStatusResponse>;
 }

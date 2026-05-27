@@ -1,0 +1,57 @@
+import { vi } from "vitest";
+
+import type { JarvisDesktopApi } from "../global";
+
+const defaultReadyState = {
+  phase: "ready" as const,
+  ready: true,
+  initialized: true,
+  validated: true,
+  recovered: false,
+  processCount: 6,
+  healthyProcessCount: 6,
+  failedProcesses: [] as string[],
+  message: "Runtime ready",
+  updatedAt: "2026-05-27T12:00:00.000Z",
+};
+
+const defaultStartupResponse = {
+  state: defaultReadyState,
+  events: [] as const,
+  apiBaseUrl: "http://127.0.0.1:8787",
+};
+
+/**
+ * Shared Jarvis desktop bridge mock for renderer tests.
+ */
+export function createMockJarvisApi(
+  overrides: Partial<JarvisDesktopApi> = {},
+): JarvisDesktopApi {
+  return {
+    getApiUrl: vi.fn().mockResolvedValue("http://127.0.0.1:8787"),
+    checkApiHealth: vi.fn().mockResolvedValue({
+      status: "ok",
+      service: "jarvis-api-runtime",
+      orchestrator: "ok",
+      checkedAt: "2026-05-27T12:00:00.000Z",
+    }),
+    getRuntimeHealth: vi.fn().mockResolvedValue({
+      health: {
+        status: "healthy",
+        processCount: 4,
+        runningCount: 4,
+        failedCount: 0,
+        checkedAt: "2026-05-27T12:00:00.000Z",
+      },
+      processes: [],
+    }),
+    executeRuntimeAction: vi.fn(),
+    initializeRuntime: vi.fn().mockResolvedValue(defaultStartupResponse),
+    validateRuntime: vi.fn().mockResolvedValue(defaultStartupResponse),
+    recoverRuntime: vi.fn().mockResolvedValue(defaultStartupResponse),
+    getStartupStatus: vi.fn().mockResolvedValue(defaultStartupResponse),
+    createTask: vi.fn(),
+    getTaskStatus: vi.fn(),
+    ...overrides,
+  };
+}

@@ -24,6 +24,7 @@ describe("orchestrator structure", () => {
       "memory-recall",
       "activity",
       "voice-execution",
+      "runtime-startup",
       "streaming",
       "storage-runtime",
       "transport",

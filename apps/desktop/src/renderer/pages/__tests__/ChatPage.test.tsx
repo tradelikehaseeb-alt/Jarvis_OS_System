@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MOCK_VOICE_LISTEN_MS } from "../../voice/mock-voice-session";
 import * as mockVoiceSession from "../../voice/mock-voice-session";
 
-import type { JarvisDesktopApi } from "../../global";
+import { createMockJarvisApi } from "../../test/mock-jarvis-api";
 import { ChatPage } from "../ChatPage";
 
 vi.mock("../../api/jarvis-client", () => ({
@@ -28,11 +28,9 @@ describe("ChatPage", () => {
         autoExecuteVoicePipeline: false,
       }),
     );
-    window.jarvis = {
+    window.jarvis = createMockJarvisApi({
       getApiUrl: vi.fn().mockResolvedValue("http://127.0.0.1:8000"),
-      createTask: vi.fn(),
-      getTaskStatus: vi.fn(),
-    } satisfies JarvisDesktopApi;
+    });
   });
 
   afterEach(() => {

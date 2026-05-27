@@ -12,6 +12,7 @@ import type {
   RuntimeActionRequest,
   RuntimeActionResponse,
 } from "./runtime-action";
+import type { RuntimeStartupResponse } from "./runtime-startup-snapshot";
 
 /**
  * Renderer-safe API — delegates to main process IPC (Phase 54).
@@ -23,6 +24,10 @@ export interface JarvisDesktopApi {
   executeRuntimeAction(
     request: RuntimeActionRequest,
   ): Promise<RuntimeActionResponse>;
+  initializeRuntime(): Promise<RuntimeStartupResponse>;
+  validateRuntime(): Promise<RuntimeStartupResponse>;
+  recoverRuntime(): Promise<RuntimeStartupResponse>;
+  getStartupStatus(): Promise<RuntimeStartupResponse>;
   createTask(body: CreateTaskRequest): Promise<CreateTaskResponse>;
   getTaskStatus(taskId: string): Promise<TaskStatusResponse>;
 }
@@ -33,6 +38,10 @@ const jarvisApi: JarvisDesktopApi = {
   getRuntimeHealth: () => ipcRenderer.invoke("jarvis:getRuntimeHealth"),
   executeRuntimeAction: (request) =>
     ipcRenderer.invoke("jarvis:executeRuntimeAction", request),
+  initializeRuntime: () => ipcRenderer.invoke("jarvis:initializeRuntime"),
+  validateRuntime: () => ipcRenderer.invoke("jarvis:validateRuntime"),
+  recoverRuntime: () => ipcRenderer.invoke("jarvis:recoverRuntime"),
+  getStartupStatus: () => ipcRenderer.invoke("jarvis:getStartupStatus"),
   createTask: (body) => ipcRenderer.invoke("jarvis:createTask", body),
   getTaskStatus: (taskId) => ipcRenderer.invoke("jarvis:getTaskStatus", taskId),
 };

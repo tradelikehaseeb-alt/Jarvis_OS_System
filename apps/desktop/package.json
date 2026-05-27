@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@jarvis/api-runtime": "*",
+    "@jarvis/orchestrator": "*",
     "@jarvis/runtime-process": "*",
     "@jarvis/speech-service": "*",
     "@jarvis/types": "*",

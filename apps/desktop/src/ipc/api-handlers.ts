@@ -11,8 +11,13 @@ import {
   buildRuntimeHealthSnapshot,
   getEmbeddedApiBaseUrl,
   getEmbeddedApiHealth,
-  initializeRuntimeProcesses,
 } from "./api-runtime-lifecycle";
+import {
+  getDesktopStartupStatus,
+  initializeDesktopRuntime,
+  recoverDesktopRuntime,
+  validateDesktopRuntime,
+} from "./runtime-startup-lifecycle";
 import { executeRuntimeAction } from "./execute-runtime-action";
 
 /** Fallback when external Python gateway is used explicitly. */
@@ -164,8 +169,17 @@ export function registerApiHandlers(): void {
   ipcMain.handle("jarvis:executeRuntimeAction", (_event, request) =>
     executeRuntimeAction(request),
   );
+
+  ipcMain.handle("jarvis:initializeRuntime", () => initializeDesktopRuntime());
+
+  ipcMain.handle("jarvis:validateRuntime", () => validateDesktopRuntime());
+
+  ipcMain.handle("jarvis:recoverRuntime", () => recoverDesktopRuntime());
+
+  ipcMain.handle("jarvis:getStartupStatus", () => getDesktopStartupStatus());
 }
 
 export async function initializeApiRuntime(): Promise<string> {
-  return initializeRuntimeProcesses();
+  const result = await initializeDesktopRuntime();
+  return result.apiBaseUrl ?? getApiBaseUrl();
 }

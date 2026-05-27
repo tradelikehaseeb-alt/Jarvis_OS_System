@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { JarvisDesktopApi } from "../../global";
+import { createMockJarvisApi } from "../../test/mock-jarvis-api";
 import { classifyChatIntent } from "../../intent";
 import {
   checkApiHealth,
@@ -11,17 +11,8 @@ import {
 } from "../jarvis-client";
 
 describe("jarvis-client", () => {
-  let mockApi: JarvisDesktopApi;
-
   beforeEach(() => {
-    mockApi = {
-      getApiUrl: vi.fn().mockResolvedValue("http://127.0.0.1:8787"),
-      checkApiHealth: vi.fn().mockResolvedValue({
-        status: "ok",
-        service: "jarvis-api-runtime",
-        orchestrator: "ok",
-        checkedAt: "2026-01-01T00:00:00.000Z",
-      }),
+    window.jarvis = createMockJarvisApi({
       createTask: vi.fn().mockResolvedValue({
         taskId: "task-1",
         status: "completed",
@@ -39,9 +30,7 @@ describe("jarvis-client", () => {
         },
         updatedAt: "2026-01-01T00:00:00.000Z",
       }),
-    };
-
-    window.jarvis = mockApi;
+    });
   });
 
   afterEach(() => {
@@ -53,13 +42,13 @@ describe("jarvis-client", () => {
       intent: { kind: "research", description: "test" },
     });
     expect(result.taskId).toBe("task-1");
-    expect(mockApi.createTask).toHaveBeenCalled();
+    expect(window.jarvis.createTask).toHaveBeenCalled();
   });
 
   it("checkApiHealth calls bridge", async () => {
     const health = await checkApiHealth();
     expect(health.status).toBe("ok");
-    expect(mockApi.checkApiHealth).toHaveBeenCalled();
+    expect(window.jarvis.checkApiHealth).toHaveBeenCalled();
   });
 
   it("submitChatAsTask uses classified intent and lifecycle through API runtime", async () => {
@@ -77,9 +66,9 @@ describe("jarvis-client", () => {
     expect(lifecycleStates).toContain("checking_health");
     expect(lifecycleStates).toContain("creating_task");
     expect(lifecycleStates).toContain("fetching_status");
-    expect(mockApi.checkApiHealth).toHaveBeenCalled();
-    expect(mockApi.getTaskStatus).toHaveBeenCalledWith("task-1");
-    expect(mockApi.createTask).toHaveBeenCalledWith(
+    expect(window.jarvis.checkApiHealth).toHaveBeenCalled();
+    expect(window.jarvis.getTaskStatus).toHaveBeenCalledWith("task-1");
+    expect(window.jarvis.createTask).toHaveBeenCalledWith(
       expect.objectContaining({
         intent: expect.objectContaining({
           kind: "plan",
@@ -98,7 +87,7 @@ describe("jarvis-client", () => {
   });
 
   it("submitChatAsTask fails when API health is degraded", async () => {
-    vi.mocked(mockApi.checkApiHealth).mockResolvedValue({
+    vi.mocked(window.jarvis.checkApiHealth).mockResolvedValue({
       status: "degraded",
       service: "jarvis-api-runtime",
       orchestrator: "degraded",
@@ -114,6 +103,6 @@ describe("jarvis-client", () => {
   it("throws when bridge missing", async () => {
     vi.stubGlobal("jarvis", undefined);
     await expect(getTaskStatus("x")).rejects.toBeInstanceOf(JarvisApiError);
-    window.jarvis = mockApi;
+    window.jarvis = createMockJarvisApi();
   });
 });
