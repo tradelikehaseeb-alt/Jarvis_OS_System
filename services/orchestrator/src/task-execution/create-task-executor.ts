@@ -47,10 +47,18 @@ import {
 } from "../task-chain";
 import {
   createDefaultAdaptiveExecutionRuntime,
+  DEFAULT_STUB_ADAPTIVE_RULES,
   toTaskChainOutputFromAdaptive,
   type AdaptiveExecuteResult,
   type AdaptiveExecutionRuntime,
+  type AdaptiveExecutionRule,
 } from "../adaptive-execution";
+import {
+  createDefaultLearningRuntime,
+  type LearningInsights,
+  type LearningRuntime,
+  type LearningSignal,
+} from "../execution-learning";
 import {
   completeExecutionStream,
   createDefaultStreamManager,
@@ -96,6 +104,7 @@ export interface CreateTaskExecutionOptions {
   readonly localMemoryRuntime?: LocalMemoryRuntime;
   readonly taskChainRuntime?: TaskChainRuntime;
   readonly adaptiveExecutionRuntime?: AdaptiveExecutionRuntime;
+  readonly learningRuntime?: LearningRuntime;
 }
 
 function resolveConversationId(
@@ -203,6 +212,7 @@ async function runExecutionHandshake(
   chainOptions: {
     readonly adaptiveExecutionRuntime: AdaptiveExecutionRuntime;
     readonly timelineId: string;
+    readonly learnedRules?: readonly AdaptiveExecutionRule[];
   },
 ): Promise<{
   agentResult: AgentResult;
@@ -255,6 +265,7 @@ async function runExecutionHandshake(
       agentContext,
       sessionId,
       timelineId: chainOptions.timelineId,
+      rules: chainOptions.learnedRules,
     });
 
   const chainResult = toTaskChainOutputFromAdaptive(adaptiveResult);
@@ -460,6 +471,9 @@ export async function executeCreateTask(
   let planningResult: AgentResult | undefined;
   let taskChainResult: TaskChainExecuteResult | undefined;
   let adaptiveResult: AdaptiveExecuteResult | undefined;
+  let learningInsights: LearningInsights | undefined;
+  let learningSignals: readonly LearningSignal[] = [];
+  let learnedRules: readonly AdaptiveExecutionRule[] = DEFAULT_STUB_ADAPTIVE_RULES;
   let handshake = false;
 
   const executeOpenClawStep = async (
@@ -496,6 +510,23 @@ export async function executeCreateTask(
       timelineRuntime,
     });
 
+  const learningRuntime =
+    options.learningRuntime ??
+    (sharedLocalMemory
+      ? createDefaultLearningRuntime({ localMemoryRuntime: sharedLocalMemory })
+      : undefined);
+
+  if (learningRuntime && intentRequiresExecutionHandshake(task.intent)) {
+    learningSignals = learningRuntime.evaluateLearning({
+      userId: task.userId,
+      intentKind: task.intent.kind,
+    });
+    learnedRules = learningRuntime.applyLearning({
+      baseRules: DEFAULT_STUB_ADAPTIVE_RULES,
+      signals: learningSignals,
+    });
+  }
+
   if (intentRequiresExecutionHandshake(task.intent)) {
     handshake = true;
     const handshakeResult = await runExecutionHandshake(
@@ -505,12 +536,30 @@ export async function executeCreateTask(
       task,
       requestId,
       agentContext,
-      { adaptiveExecutionRuntime, timelineId },
+      { adaptiveExecutionRuntime, timelineId, learnedRules },
     );
     agentResult = handshakeResult.agentResult;
     planningResult = handshakeResult.planningResult;
     taskChainResult = handshakeResult.taskChainResult;
     adaptiveResult = handshakeResult.adaptiveResult;
+
+    if (learningRuntime && adaptiveResult) {
+      learningRuntime.recordExecutionOutcome({
+        userId: task.userId,
+        taskId: task.id,
+        intentKind: task.intent.kind,
+        adaptiveResult,
+        conversationId,
+        sessionId: session.sessionId,
+      });
+    }
+
+    if (learningRuntime) {
+      learningInsights = learningRuntime.getLearningInsights({
+        userId: task.userId,
+        intentKind: task.intent.kind,
+      });
+    }
   } else {
     const selectedAgentId = routing.selectedAgentId;
     const initialState =
@@ -727,6 +776,15 @@ export async function executeCreateTask(
             plan: adaptiveResult.plan,
             decisions: adaptiveResult.decisions,
             events: adaptiveResult.events,
+          },
+        }
+      : {}),
+    ...(learningInsights
+      ? {
+          learningInsights,
+          learning: {
+            signals: learningSignals,
+            appliedRules: learnedRules,
           },
         }
       : {}),
