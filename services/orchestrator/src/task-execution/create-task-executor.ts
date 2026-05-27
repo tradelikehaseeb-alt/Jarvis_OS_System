@@ -32,6 +32,12 @@ import {
   publishStreamFailed,
   type StreamManager,
 } from "../streaming";
+import type { ConversationHistoryRuntime } from "../conversation-history";
+import {
+  buildAgentContextWithInjection,
+  createDefaultContextRuntimeBundle,
+  type ContextRuntime,
+} from "../context";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -52,6 +58,8 @@ export interface CreateTaskExecutionOptions {
   readonly lifecycleManager?: ExecutionLifecycleManager;
   readonly memoryPersistenceManager?: MemoryPersistenceManager;
   readonly streamManager?: StreamManager;
+  readonly contextRuntime?: ContextRuntime;
+  readonly conversationHistoryRuntime?: ConversationHistoryRuntime;
 }
 
 function resolveConversationId(
@@ -122,7 +130,15 @@ async function executeAgent(
   if (!agent) {
     return undefined;
   }
-  return agent.execute(buildAgentTask(task, requestId), agentContext);
+  const agentTask = buildAgentTask(task, requestId);
+  const enrichedTask: AgentTask = {
+    ...agentTask,
+    metadata: {
+      ...agentTask.metadata,
+      ...agentContext.metadata,
+    },
+  };
+  return agent.execute(enrichedTask, agentContext);
 }
 
 async function runExecutionHandshake(
@@ -223,6 +239,13 @@ export async function executeCreateTask(
   const memory =
     options.memoryPersistenceManager ??
     createDefaultMemoryPersistenceManager(undefined, stream);
+  const contextBundle = options.contextRuntime
+    ? undefined
+    : createDefaultContextRuntimeBundle();
+  const contextRuntime =
+    options.contextRuntime ?? contextBundle!.contextRuntime;
+  const conversationHistory =
+    options.conversationHistoryRuntime ?? contextBundle!.conversationHistory;
 
   const taskId = `task-${Date.now()}`;
   const task = buildUserTask(taskId, input);
@@ -260,6 +283,14 @@ export async function executeCreateTask(
     taskId: task.id,
     intentKind: task.intent.kind,
   });
+  conversationHistory.saveConversation({
+    conversationId,
+    userId: task.userId,
+    role: "user",
+    message: task.intent.description,
+    taskId: task.id,
+    intentKind: task.intent.kind,
+  });
 
   await components.taskRouter.route({ task });
   await components.contextManager.create({ task });
@@ -273,11 +304,15 @@ export async function executeCreateTask(
     components.agentRegistry,
   );
 
-  const agentContext: AgentContext = {
+  const { agentContext, contextRecord } = buildAgentContextWithInjection({
     contextRef,
     userId: task.userId,
+    conversationId,
+    taskId: task.id,
+    intentDescription: task.intent.description,
     metadata: task.metadata,
-  };
+    contextRuntime,
+  });
 
   let agentResult: AgentResult;
   let planningResult: AgentResult | undefined;
@@ -387,6 +422,12 @@ export async function executeCreateTask(
           streamSessionId,
           activeSessions: stream.getActiveSessions().length,
         },
+        context: {
+          contextId: contextRecord.contextId,
+          source: contextRecord.source,
+          turnCount: contextRecord.turns.length,
+          summary: contextRecord.summary,
+        },
       },
       agentResult.error,
     );
@@ -416,6 +457,14 @@ export async function executeCreateTask(
     conversationId,
   });
   memory.persistConversationTurn({
+    conversationId,
+    userId: task.userId,
+    role: "assistant",
+    message: summary.text,
+    taskId: task.id,
+    intentKind: task.intent.kind,
+  });
+  conversationHistory.saveConversation({
     conversationId,
     userId: task.userId,
     role: "assistant",
@@ -466,6 +515,12 @@ export async function executeCreateTask(
     stream: {
       streamSessionId,
       activeSessions: stream.getActiveSessions().length,
+    },
+    context: {
+      contextId: contextRecord.contextId,
+      source: contextRecord.source,
+      turnCount: contextRecord.turns.length,
+      summary: contextRecord.summary,
     },
   };
 
