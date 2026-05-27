@@ -10,8 +10,7 @@ import {
   createStoredSession,
   deriveRuntimeState,
   extractRelatedMemories,
-  loadActiveSessionId,
-  loadStoredSessions,
+  loadInitialWorkspaceState,
   messagesToHistoryTurns,
   saveActiveSessionId,
   saveStoredSessions,
@@ -31,24 +30,15 @@ export interface UseConversationWorkspaceResult {
   ) => void;
 }
 
-function ensureActiveSession(
-  sessions: StoredWorkspaceSession[],
-): StoredWorkspaceSession[] {
-  if (sessions.length > 0) {
-    return sessions;
-  }
-  return [createStoredSession()];
-}
-
 export function useConversationWorkspace(): UseConversationWorkspaceResult {
   const timeline = useExecutionTimeline();
+  const [initialWorkspace] = useState(loadInitialWorkspaceState);
   const [storedSessions, setStoredSessions] = useState<StoredWorkspaceSession[]>(
-    () => ensureActiveSession(loadStoredSessions()),
+    () => initialWorkspace.storedSessions,
   );
-  const [activeSessionId, setActiveSessionId] = useState<string>(() => {
-    const stored = ensureActiveSession(loadStoredSessions());
-    return loadActiveSessionId() ?? stored[0]!.sessionId;
-  });
+  const [activeSessionId, setActiveSessionId] = useState<string>(
+    () => initialWorkspace.activeSessionId,
+  );
   const [historyTurns, setHistoryTurns] = useState<WorkspaceSessionView["historyTurns"]>(
     [],
   );

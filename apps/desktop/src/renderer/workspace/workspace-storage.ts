@@ -54,6 +54,31 @@ export function createStoredSession(): StoredWorkspaceSession {
   };
 }
 
+function ensureActiveSession(
+  sessions: StoredWorkspaceSession[],
+): StoredWorkspaceSession[] {
+  if (sessions.length > 0) {
+    return sessions;
+  }
+  return [createStoredSession()];
+}
+
+/** Load persisted sessions and resolve a single active session id (Phase 76). */
+export function loadInitialWorkspaceState(): {
+  readonly storedSessions: StoredWorkspaceSession[];
+  readonly activeSessionId: string;
+} {
+  const storedSessions = ensureActiveSession(loadStoredSessions());
+  const savedActiveId = loadActiveSessionId();
+  const activeSessionId =
+    savedActiveId &&
+    storedSessions.some((session) => session.sessionId === savedActiveId)
+      ? savedActiveId
+      : storedSessions[0]!.sessionId;
+
+  return { storedSessions, activeSessionId };
+}
+
 export function messagesToHistoryTurns(
   messages: readonly ChatMessage[],
 ): WorkspaceHistoryTurn[] {

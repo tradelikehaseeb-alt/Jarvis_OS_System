@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { createDefaultHermesExecutionBridge } from "../../execution-bridge";
 import { resolveHermesLiveExecutionPlanHint } from "../live-execution-plan-hint";
+import { REAL_PROVIDER_VALIDATION_COMMANDS } from "@jarvis/types";
 
 describe("Hermes live execution integration", () => {
   it("maps live command hint into Hermes execution plan", () => {
@@ -28,4 +29,12 @@ describe("Hermes live execution integration", () => {
     expect(plan.steps.length).toBeGreaterThan(0);
     expect(tasks[0]?.intent.description).toContain("Search gold price today");
   });
+
+  it.each(REAL_PROVIDER_VALIDATION_COMMANDS)(
+    "maps real provider command into Hermes plan: %s",
+    (command) => {
+      const hint = resolveHermesLiveExecutionPlanHint(command);
+      expect(hint?.goal).toBe(command);
+    },
+  );
 });

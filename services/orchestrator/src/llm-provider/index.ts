@@ -20,3 +20,4 @@ export {
   readOpenAiApiKey,
 } from "./llm-provider-utils";
 export * from "./connectors";
+export * from "./provider-health";
