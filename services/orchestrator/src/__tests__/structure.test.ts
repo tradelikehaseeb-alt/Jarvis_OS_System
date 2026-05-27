@@ -31,6 +31,7 @@ describe("orchestrator structure", () => {
       "task-chain",
       "adaptive-execution",
       "execution-learning",
+      "user-feedback",
       "streaming",
       "storage-runtime",
       "transport",

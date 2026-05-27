@@ -39,6 +39,7 @@ export * from "./conversation-workspace";
 export * from "./task-chain";
 export * from "./adaptive-execution";
 export * from "./execution-learning";
+export * from "./user-feedback";
 export * from "./streaming";
 export * from "./storage-runtime";
 export * from "./transport";
@@ -67,6 +68,7 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "task-chain",
   "adaptive-execution",
   "execution-learning",
+  "user-feedback",
   "streaming",
   "storage-runtime",
   "transport",

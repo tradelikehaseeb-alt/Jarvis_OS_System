@@ -60,6 +60,13 @@ import {
   type LearningSignal,
 } from "../execution-learning";
 import {
+  createDefaultFeedbackRuntime,
+  parseUserFeedbackFromMetadata,
+  type FeedbackInsight,
+  type FeedbackRuntime,
+  type FeedbackSignal,
+} from "../user-feedback";
+import {
   completeExecutionStream,
   createDefaultStreamManager,
   publishStreamFailed,
@@ -105,6 +112,7 @@ export interface CreateTaskExecutionOptions {
   readonly taskChainRuntime?: TaskChainRuntime;
   readonly adaptiveExecutionRuntime?: AdaptiveExecutionRuntime;
   readonly learningRuntime?: LearningRuntime;
+  readonly feedbackRuntime?: FeedbackRuntime;
 }
 
 function resolveConversationId(
@@ -473,6 +481,8 @@ export async function executeCreateTask(
   let adaptiveResult: AdaptiveExecuteResult | undefined;
   let learningInsights: LearningInsights | undefined;
   let learningSignals: readonly LearningSignal[] = [];
+  let feedbackInsights: FeedbackInsight | undefined;
+  let feedbackSignals: readonly FeedbackSignal[] = [];
   let learnedRules: readonly AdaptiveExecutionRule[] = DEFAULT_STUB_ADAPTIVE_RULES;
   let handshake = false;
 
@@ -516,6 +526,31 @@ export async function executeCreateTask(
       ? createDefaultLearningRuntime({ localMemoryRuntime: sharedLocalMemory })
       : undefined);
 
+  const feedbackRuntime =
+    options.feedbackRuntime ??
+    (sharedLocalMemory
+      ? createDefaultFeedbackRuntime({
+          localMemoryRuntime: sharedLocalMemory,
+          learningRuntime,
+        })
+      : undefined);
+
+  const pendingUserFeedback = parseUserFeedbackFromMetadata(task.metadata);
+
+  if (
+    feedbackRuntime &&
+    pendingUserFeedback?.taskId &&
+    pendingUserFeedback.taskId !== task.id
+  ) {
+    feedbackRuntime.recordFeedback({
+      userId: task.userId,
+      taskId: pendingUserFeedback.taskId,
+      rating: pendingUserFeedback.rating,
+      comment: pendingUserFeedback.comment,
+      intentKind: task.intent.kind,
+    });
+  }
+
   if (learningRuntime && intentRequiresExecutionHandshake(task.intent)) {
     learningSignals = learningRuntime.evaluateLearning({
       userId: task.userId,
@@ -525,6 +560,17 @@ export async function executeCreateTask(
       baseRules: DEFAULT_STUB_ADAPTIVE_RULES,
       signals: learningSignals,
     });
+
+    if (feedbackRuntime) {
+      feedbackSignals = feedbackRuntime.evaluateFeedback({
+        userId: task.userId,
+        intentKind: task.intent.kind,
+      });
+      learnedRules = feedbackRuntime.applyFeedback({
+        baseRules: learnedRules,
+        signals: feedbackSignals,
+      });
+    }
   }
 
   if (intentRequiresExecutionHandshake(task.intent)) {
@@ -559,6 +605,31 @@ export async function executeCreateTask(
         userId: task.userId,
         intentKind: task.intent.kind,
       });
+    }
+
+    if (feedbackRuntime) {
+      if (
+        pendingUserFeedback &&
+        (!pendingUserFeedback.taskId || pendingUserFeedback.taskId === task.id)
+      ) {
+        feedbackRuntime.recordFeedback({
+          userId: task.userId,
+          taskId: task.id,
+          rating: pendingUserFeedback.rating,
+          comment: pendingUserFeedback.comment,
+          intentKind: task.intent.kind,
+          executionSuccess: agentResult.success,
+          conversationId,
+          sessionId: session.sessionId,
+        });
+      }
+
+      feedbackInsights = feedbackRuntime.generateInsights({
+        userId: task.userId,
+        intentKind: task.intent.kind,
+        learningRuntime,
+      });
+      feedbackSignals = feedbackInsights.signals;
     }
   } else {
     const selectedAgentId = routing.selectedAgentId;
@@ -784,6 +855,15 @@ export async function executeCreateTask(
           learningInsights,
           learning: {
             signals: learningSignals,
+            appliedRules: learnedRules,
+          },
+        }
+      : {}),
+    ...(feedbackInsights
+      ? {
+          feedbackInsights,
+          feedback: {
+            signals: feedbackSignals,
             appliedRules: learnedRules,
           },
         }
