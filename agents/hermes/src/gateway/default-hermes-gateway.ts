@@ -7,13 +7,17 @@ import type {
   HermesRuntimeValidation,
 } from "./hermes-gateway-response";
 import {
+  HermesGatewayRuntimeWiring,
   createHermesGatewayRuntimeWiring,
   validationFromHermesRuntimeHealth,
   type HermesGatewayRuntimeWiringOptions,
 } from "./hermes-gateway-runtime-wiring";
+import { createHermesRuntimeSession } from "../runtime/create-hermes-runtime-session";
+import type { HermesRuntimeProcessBinding } from "../runtime/hermes-runtime-process-binding";
 
 export interface DefaultHermesGatewayOptions extends HermesGatewayRuntimeWiringOptions {
   readonly adapter?: HermesAdapter;
+  readonly processBinding?: HermesRuntimeProcessBinding;
 }
 
 function emptyPlan(intentKind: string): HermesGatewayResponse["plan"] {
@@ -26,57 +30,63 @@ function emptyPlan(intentKind: string): HermesGatewayResponse["plan"] {
 }
 
 /**
- * Default Hermes gateway — stub planning with runtime validation boundary (Phase 43–44).
+ * Default Hermes gateway — runtime planning handshake with stub fallback (Phase 43–44, 59).
  *
  * No LLM execution; delegates to {@link HermesAdapter} stub/planning path only.
  */
 export class DefaultHermesGateway implements HermesGateway {
   private readonly adapter: HermesAdapter;
   private readonly runtimeWiring: HermesGatewayRuntimeWiring;
+  private readonly processBinding?: HermesRuntimeProcessBinding;
 
   constructor(options: DefaultHermesGatewayOptions = {}) {
     this.adapter = options.adapter ?? createHermesAdapterStub();
     this.runtimeWiring = createHermesGatewayRuntimeWiring(options);
+    this.processBinding = options.processBinding;
   }
 
   async execute(request: HermesGatewayRequest): Promise<HermesGatewayResponse> {
-    const validation = await this.validateRuntime();
-    const runtimeStatus = validation.status;
+    const session = createHermesRuntimeSession({
+      adapter: this.adapter,
+      runtimeWiring: this.runtimeWiring,
+      processBinding: this.processBinding,
+    });
 
-    if (!validation.valid) {
+    await session.initializeSession();
+    const health = await session.validateRuntime();
+
+    if (!health.valid) {
+      await session.terminateSession();
       return {
         success: false,
-        stub: true,
-        runtimeStatus,
+        stub: health.stub,
+        runtimeStatus: health.status,
         adapterId: this.adapter.adapterId,
         plan: emptyPlan(request.intent.kind),
         reasoning: { summary: "", confidence: 0 },
         error: {
           code: "RUNTIME_UNAVAILABLE",
-          message: validation.reasons.join("; ") || "Hermes runtime unavailable",
+          message: health.message || "Hermes runtime unavailable",
         },
       };
     }
 
-    const adapterResponse = await this.adapter.invoke({
-      requestId: request.requestId,
-      taskId: request.taskId,
-      userId: request.userId,
-      intent: request.intent,
-      contextRef: request.contextRef,
-      correlationId: request.correlationId,
-      workflowStepId: request.workflowStepId,
-    });
-
-    return {
-      success: adapterResponse.success,
-      stub: adapterResponse.stub,
-      runtimeStatus,
-      adapterId: adapterResponse.adapterId,
-      plan: adapterResponse.plan,
-      reasoning: adapterResponse.reasoning,
-      error: adapterResponse.error,
-    };
+    const handshake = await session.generatePlan(request);
+    await session.terminateSession();
+    return (
+      handshake.response ?? {
+        success: false,
+        stub: health.stub,
+        runtimeStatus: health.status,
+        adapterId: this.adapter.adapterId,
+        plan: emptyPlan(request.intent.kind),
+        reasoning: { summary: "", confidence: 0 },
+        error: handshake.error ?? {
+          code: "PLANNING_FAILED",
+          message: "Hermes planning handshake failed",
+        },
+      }
+    );
   }
 
   async getRuntimeStatus(): Promise<HermesGatewayResponse["runtimeStatus"]> {

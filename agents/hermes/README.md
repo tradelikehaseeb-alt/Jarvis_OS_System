@@ -49,6 +49,33 @@ Runtime wiring module (`hermes-gateway-runtime-wiring.ts`):
 
 Stub execution preserved; discovery only (no LLM).
 
+## Phase 59 — runtime planning handshake
+
+Runtime session module (`src/runtime/`):
+
+```
+Orchestrator → HermesGateway → HermesRuntimeSession → Runtime Process Manager → Hermes Runtime
+```
+
+| Export | Role |
+|--------|------|
+| `HermesRuntimeSession` | Session contract |
+| `HermesPlanningState` | Session lifecycle state |
+| `HermesPlanningHandshake` | Handshake result |
+| `HermesRuntimeHealth` | Validation health snapshot |
+| `createHermesRuntimeSession()` | Session factory |
+
+Session operations:
+
+- `initializeSession()`
+- `validateRuntime()`
+- `generatePlan()`
+- `terminateSession()`
+
+`DefaultHermesGateway.execute()` runs the full handshake path. Stub mode remains
+the default fallback. Optional `HermesRuntimeProcessBinding` connects to Jarvis
+runtime process manager without changing gateway interfaces.
+
 ## Phase 16 — adapter boundary
 
 | Layer | Path | Role |
