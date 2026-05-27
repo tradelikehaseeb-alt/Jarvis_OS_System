@@ -2,6 +2,37 @@
 
 **Hermes** — planning, reasoning, memory-access, task-decomposition.
 
+## Phase 43 — gateway runtime boundary
+
+| Layer | Path | Role |
+|-------|------|------|
+| Gateway | `src/gateway/` | `HermesGateway` — execute + runtime validation boundary |
+| Agent | `src/hermes-agent.ts` | Orchestrator entry; calls gateway + skills |
+| Adapter | `adapter/` | `HermesAdapter` — official integration plug-in point |
+
+```
+Desktop → API → Orchestrator → HermesAgent → HermesGateway → Hermes Runtime → Structured Planning Result
+                                                    ↘ SkillExecutor → SearchSkill
+```
+
+Gateway module (`src/gateway/`) provides:
+
+- `HermesGatewayRequest`
+- `HermesGatewayResponse`
+- `HermesRuntimeStatus`
+- `HermesRuntimeValidation`
+- `HermesGateway`
+- `DefaultHermesGateway`
+- `createDefaultHermesGateway()`
+
+Supported operations:
+
+- `execute()`
+- `getRuntimeStatus()`
+- `validateRuntime()`
+
+Stub mode remains default (`HERMES_MODE=stub`). No LLM execution in this phase.
+
 ## Phase 16 — adapter boundary
 
 | Layer | Path | Role |

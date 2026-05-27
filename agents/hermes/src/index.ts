@@ -12,6 +12,7 @@ import { HERMES_AGENT_ID, HERMES_METADATA } from "./metadata";
 export { HermesAgent } from "./hermes-agent";
 export { HERMES_AGENT_ID, HERMES_METADATA } from "./metadata";
 export * from "../adapter/src";
+export * from "./gateway";
 
 /** Create Hermes with {@link SkillExecutor} and optional {@link HermesAdapter}. */
 export function createHermesAgent(

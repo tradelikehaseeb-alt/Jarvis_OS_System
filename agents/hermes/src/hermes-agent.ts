@@ -10,11 +10,15 @@ import {
 
 import type { HermesAdapter } from "../adapter/src/hermes-adapter";
 import { createHermesAdapterStub } from "../adapter/src/hermes-adapter-stub";
-import { buildHermesRequestWithContext } from "../adapter/src/build-hermes-request";
+import { buildHermesGatewayRequest } from "./gateway/build-hermes-gateway-request";
+import {
+  createDefaultHermesGateway,
+  type HermesGateway,
+} from "./gateway";
 import { HERMES_AGENT_ID, HERMES_METADATA } from "./metadata";
 
 /**
- * Hermes agent — {@link HermesAdapter} boundary + {@link SearchSkill} via {@link SkillExecutor} (Phase 16).
+ * Hermes agent — {@link HermesGateway} + {@link SearchSkill} via {@link SkillExecutor} (Phase 16, 43).
  */
 export class HermesAgent extends AbstractBaseAgent {
   readonly metadata = HERMES_METADATA;
@@ -22,16 +26,28 @@ export class HermesAgent extends AbstractBaseAgent {
   constructor(
     private readonly skillExecutor: SkillExecutor,
     private readonly adapter: HermesAdapter = createHermesAdapterStub(),
+    private readonly gateway: HermesGateway = createDefaultHermesGateway({
+      adapter,
+    }),
   ) {
     super();
   }
 
   async execute(task: AgentTask, context: AgentContext): Promise<AgentResult> {
-    const adapterResponse = await this.adapter.invoke(
-      buildHermesRequestWithContext(task, context.contextRef),
+    const gatewayResponse = await this.gateway.execute(
+      buildHermesGatewayRequest(task, context.contextRef),
     );
 
-    if (!adapterResponse.success) {
+    const adapterResponse = {
+      success: gatewayResponse.success,
+      adapterId: gatewayResponse.adapterId,
+      stub: gatewayResponse.stub,
+      plan: gatewayResponse.plan,
+      reasoning: gatewayResponse.reasoning,
+      error: gatewayResponse.error,
+    };
+
+    if (!gatewayResponse.success) {
       return {
         taskId: task.taskId,
         requestId: task.requestId,
@@ -39,7 +55,8 @@ export class HermesAgent extends AbstractBaseAgent {
         success: false,
         payload: {
           adapter: adapterResponse,
-          stub: adapterResponse.stub,
+          gateway: gatewayResponse,
+          stub: gatewayResponse.stub,
         },
         error: adapterResponse.error,
       };
@@ -54,7 +71,7 @@ export class HermesAgent extends AbstractBaseAgent {
         query: task.intent.description,
         intent: task.intent,
         taskId: task.taskId,
-        planSteps: adapterResponse.plan.steps,
+        planSteps: gatewayResponse.plan.steps,
       },
       contextRef: context.contextRef,
       workflowStepId: task.workflowStepId,
@@ -69,14 +86,19 @@ export class HermesAgent extends AbstractBaseAgent {
       agentId: HERMES_AGENT_ID,
       success: skillResponse.success,
       payload: {
-        stub: adapterResponse.stub,
+        stub: gatewayResponse.stub,
         adapter: adapterResponse,
-        plan: adapterResponse.plan,
+        gateway: gatewayResponse,
+        plan: gatewayResponse.plan,
         structuredPlan: {
-          goal: adapterResponse.plan.goal,
-          steps: adapterResponse.plan.steps,
+          goal: gatewayResponse.plan.goal,
+          steps: gatewayResponse.plan.steps,
         },
-        reasoning: adapterResponse.reasoning,
+        reasoning: gatewayResponse.reasoning,
+        planning: {
+          runtimeStatus: gatewayResponse.runtimeStatus,
+          contextRef: context.contextRef,
+        },
         search: skillResponse.data,
         skillExecution: skillResponse,
         memoryAccess: "via-memory-service-api-only",
