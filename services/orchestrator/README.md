@@ -68,6 +68,19 @@ MemoryPersistenceManager → StorageBackedMemoryStore → StorageRuntime → Sto
 
 See `src/storage-runtime/README.md`.
 
+## Phase 62 — local memory persistence
+
+```
+MemoryPersistenceManager → LocalMemoryBackedMemoryStore → LocalMemoryRuntime → LocalMemoryRepository → file (SQLite-ready)
+```
+
+| Export | Role |
+|--------|------|
+| `LocalMemoryBackedMemoryStore` | Adapts `@jarvis/local-memory` to `MemoryStore` |
+| `createLocalBackedMemoryPersistenceManager()` | File-backed local memory option |
+
+Default `createDefaultMemoryPersistenceManager()` remains in-memory. See `@jarvis/local-memory` README.
+
 ## Phase 52 — transport runtime
 
 ```

@@ -11,6 +11,10 @@ export default defineConfig({
         root,
         "../../apps/desktop/src/renderer/intent/index.ts",
       ),
+      "@jarvis/local-memory": path.resolve(
+        root,
+        "../local-memory/src/index.ts",
+      ),
     },
   },
   test: {

@@ -17,6 +17,7 @@
     "services/api-runtime",
     "services/runtime-process",
     "services/provider-runtime",
+    "services/local-memory",
     "services/memory-service",
     "services/speech-service",
     "services/api-gateway",
