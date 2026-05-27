@@ -11,6 +11,7 @@ import type {
   RuntimeActionResponse,
 } from "../ipc/runtime-action";
 import type { RuntimeStartupResponse } from "./runtime/runtime-startup-types";
+import type { AggregatedRuntimeHealthResponse } from "./runtime/aggregated-runtime-health-types";
 
 /** Mirrors preload bridge (Phase 54). */
 export interface JarvisDesktopApi {
@@ -24,6 +25,8 @@ export interface JarvisDesktopApi {
   validateRuntime(): Promise<RuntimeStartupResponse>;
   recoverRuntime(): Promise<RuntimeStartupResponse>;
   getStartupStatus(): Promise<RuntimeStartupResponse>;
+  getAggregatedRuntimeHealth(): Promise<AggregatedRuntimeHealthResponse>;
+  getAggregatedRuntimeHealthSnapshot(): Promise<AggregatedRuntimeHealthResponse>;
   createTask(body: CreateTaskRequest): Promise<CreateTaskResponse>;
   getTaskStatus(taskId: string): Promise<TaskStatusResponse>;
 }

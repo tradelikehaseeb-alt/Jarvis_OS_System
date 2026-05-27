@@ -204,6 +204,21 @@ Desktop Start → Runtime Bootstrap → Health Validation → Recovery → Ready
 
 See `src/runtime-startup/README.md`.
 
+## Phase 74 — runtime health dashboard
+
+```
+Runtime Startup → RuntimeHealthRuntime → Desktop Runtime Dashboard
+```
+
+| Export | Role |
+|--------|------|
+| `RuntimeHealthRuntime` | Health aggregation + subscription contract |
+| `RuntimeHealthEvent` | Orchestrator health timeline events |
+| `createDefaultRuntimeHealthRuntime()` | Process + startup + activity stream factory |
+| `aggregateRuntimeHealth()` | Pure health aggregation |
+
+See `src/runtime-health/README.md`.
+
 ## Modules
 
 | Module | Role |
@@ -216,6 +231,7 @@ See `src/runtime-startup/README.md`.
 | `shared/history-utils/` | **Phase 67** — shared `matchesHistoryQuery`, `summarizeTurns`, `extractKeywords` |
 | `voice-execution/` | **Phase 72** — orchestrator voice execution bridge |
 | `runtime-startup/` | **Phase 73** — bootstrap, validation, recovery |
+| `runtime-health/` | **Phase 74** — aggregated health for Desktop dashboard |
 | `streaming/` | **Phase 47** — real-time event stream |
 | `execution-manager/` | Step lifecycle (stub) |
 | `context-manager/` | Session context |

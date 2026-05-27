@@ -18,6 +18,10 @@ import {
   recoverDesktopRuntime,
   validateDesktopRuntime,
 } from "./runtime-startup-lifecycle";
+import {
+  buildAggregatedRuntimeHealthResponse,
+  getAggregatedRuntimeHealthSnapshot,
+} from "./runtime-health-lifecycle";
 import { executeRuntimeAction } from "./execute-runtime-action";
 
 /** Fallback when external Python gateway is used explicitly. */
@@ -177,6 +181,14 @@ export function registerApiHandlers(): void {
   ipcMain.handle("jarvis:recoverRuntime", () => recoverDesktopRuntime());
 
   ipcMain.handle("jarvis:getStartupStatus", () => getDesktopStartupStatus());
+
+  ipcMain.handle("jarvis:getAggregatedRuntimeHealth", () =>
+    buildAggregatedRuntimeHealthResponse(),
+  );
+
+  ipcMain.handle("jarvis:getAggregatedRuntimeHealthSnapshot", () =>
+    getAggregatedRuntimeHealthSnapshot(),
+  );
 }
 
 export async function initializeApiRuntime(): Promise<string> {

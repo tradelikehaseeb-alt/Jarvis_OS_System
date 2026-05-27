@@ -46,6 +46,9 @@ describe("useRuntimeHealth", () => {
     });
 
     expect(result.current.health?.status).toBe("healthy");
+    expect(result.current.aggregated?.status).toBe("healthy");
+    expect(result.current.startupProgress?.ready).toBe(true);
+    expect(result.current.recoveryState).toBe("none");
     expect(result.current.statuses).toHaveLength(4);
     expect(result.current.events.some((event) => event.kind === "checked")).toBe(
       true,

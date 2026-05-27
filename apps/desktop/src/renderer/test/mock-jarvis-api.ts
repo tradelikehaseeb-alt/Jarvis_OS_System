@@ -15,6 +15,37 @@ const defaultReadyState = {
   updatedAt: "2026-05-27T12:00:00.000Z",
 };
 
+const defaultAggregatedHealthResponse = {
+  health: {
+    status: "healthy" as const,
+    components: [
+      { componentId: "hermes" as const, label: "Hermes", healthy: true, state: "running" },
+      { componentId: "openclaw" as const, label: "OpenClaw", healthy: true, state: "running" },
+      { componentId: "speech" as const, label: "Speech", healthy: true, state: "running" },
+      { componentId: "memory" as const, label: "Memory", healthy: true, state: "running" },
+      { componentId: "api" as const, label: "API Runtime", healthy: true, state: "running" },
+      {
+        componentId: "orchestrator" as const,
+        label: "Orchestrator",
+        healthy: true,
+        state: "running",
+      },
+    ],
+    startupPhase: "ready" as const,
+    recoveryState: "none" as const,
+    checkedAt: "2026-05-27T12:00:00.000Z",
+    healthyCount: 6,
+    totalCount: 6,
+  },
+  progress: {
+    phase: "ready" as const,
+    percent: 100,
+    ready: true,
+    message: "Runtime ready",
+  },
+  events: [] as const,
+};
+
 const defaultStartupResponse = {
   state: defaultReadyState,
   events: [] as const,
@@ -50,6 +81,10 @@ export function createMockJarvisApi(
     validateRuntime: vi.fn().mockResolvedValue(defaultStartupResponse),
     recoverRuntime: vi.fn().mockResolvedValue(defaultStartupResponse),
     getStartupStatus: vi.fn().mockResolvedValue(defaultStartupResponse),
+    getAggregatedRuntimeHealth: vi.fn().mockResolvedValue(defaultAggregatedHealthResponse),
+    getAggregatedRuntimeHealthSnapshot: vi
+      .fn()
+      .mockResolvedValue(defaultAggregatedHealthResponse),
     createTask: vi.fn(),
     getTaskStatus: vi.fn(),
     ...overrides,

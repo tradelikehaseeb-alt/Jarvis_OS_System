@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { fetchAggregatedRuntimeHealth } from "./aggregated-runtime-health-client";
+import type {
+  AggregatedRuntimeHealth,
+  AggregatedRuntimeHealthEvent,
+  RuntimeStartupProgress,
+} from "./aggregated-runtime-health-types";
 import { deriveRuntimeStatuses } from "./derive-runtime-status";
 import { fetchRuntimeHealth } from "./runtime-client";
 import type { RuntimeHealthEvent } from "./runtime-health-event";
@@ -16,7 +22,11 @@ export interface UseRuntimeHealthOptions {
 export interface UseRuntimeHealthResult {
   readonly statuses: readonly RuntimeStatus[];
   readonly health: RuntimeHealthSnapshot["health"] | null;
+  readonly aggregated: AggregatedRuntimeHealth | null;
+  readonly startupProgress: RuntimeStartupProgress | null;
+  readonly recoveryState: AggregatedRuntimeHealth["recoveryState"] | null;
   readonly events: readonly RuntimeHealthEvent[];
+  readonly aggregatedEvents: readonly AggregatedRuntimeHealthEvent[];
   readonly loading: boolean;
   readonly error: string | null;
   readonly refresh: () => Promise<void>;
@@ -55,7 +65,7 @@ function buildStateChangeEvents(
 }
 
 /**
- * Polls main-process runtime health via IPC (Phase 56).
+ * Polls process health and aggregated runtime health via IPC (Phase 56, 74).
  */
 export function useRuntimeHealth(
   options: UseRuntimeHealthOptions = {},
@@ -64,19 +74,31 @@ export function useRuntimeHealth(
   const enabled = options.enabled ?? true;
   const [statuses, setStatuses] = useState<readonly RuntimeStatus[]>([]);
   const [health, setHealth] = useState<RuntimeHealthSnapshot["health"] | null>(null);
+  const [aggregated, setAggregated] = useState<AggregatedRuntimeHealth | null>(null);
+  const [startupProgress, setStartupProgress] =
+    useState<RuntimeStartupProgress | null>(null);
   const [events, setEvents] = useState<RuntimeHealthEvent[]>([]);
+  const [aggregatedEvents, setAggregatedEvents] = useState<
+    AggregatedRuntimeHealthEvent[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const previousStatusesRef = useRef<readonly RuntimeStatus[]>([]);
 
   const refresh = useCallback(async () => {
     try {
-      const snapshot = await fetchRuntimeHealth();
+      const [snapshot, aggregatedResponse] = await Promise.all([
+        fetchRuntimeHealth(),
+        fetchAggregatedRuntimeHealth(),
+      ]);
       const nextStatuses = deriveRuntimeStatuses(snapshot);
       const timestamp = snapshot.health.checkedAt;
 
       setHealth(snapshot.health);
       setStatuses(nextStatuses);
+      setAggregated(aggregatedResponse.health);
+      setStartupProgress(aggregatedResponse.progress);
+      setAggregatedEvents((prev) => [...prev, ...aggregatedResponse.events]);
       setError(null);
 
       const stateEvents = buildStateChangeEvents(
@@ -91,7 +113,7 @@ export function useRuntimeHealth(
         {
           id: nextEventId(),
           kind: "checked",
-          message: `Health check: ${snapshot.health.runningCount}/${snapshot.health.processCount} running`,
+          message: `Health check: ${snapshot.health.runningCount}/${snapshot.health.processCount} running · ${aggregatedResponse.health.healthyCount}/${aggregatedResponse.health.totalCount} components healthy`,
           timestamp,
           aggregateStatus: snapshot.health.status,
         },
@@ -133,7 +155,11 @@ export function useRuntimeHealth(
   return {
     statuses,
     health,
+    aggregated,
+    startupProgress,
+    recoveryState: aggregated?.recoveryState ?? null,
     events,
+    aggregatedEvents,
     loading,
     error,
     refresh,

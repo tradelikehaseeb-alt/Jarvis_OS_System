@@ -1,49 +1,35 @@
-# Runtime dashboard (Phase 56, 73)
+# Runtime dashboard (Phase 56, 73–74)
 
 ```
-Desktop Start → Runtime Bootstrap → Health Validation → Recovery → Ready
-Desktop → Runtime Dashboard → Process Manager → Runtime Health
+Desktop Start → Runtime Startup Manager → Runtime Health Aggregation → Runtime Dashboard
 ```
 
-Exposes managed Jarvis runtime process status and startup lifecycle to the Desktop UI via IPC.
+Exposes live Jarvis runtime state — startup progress, component health, process manager
+status, and recovery — via IPC.
 
 ## Components
 
 | Export | Role |
 |--------|------|
-| `RuntimeStatus` | UI-facing process snapshot |
-| `RuntimeHealthEvent` | Health check / state-change timeline event |
-| `useRuntimeHealth()` | Polls `jarvis:getRuntimeHealth` IPC |
-| `useRuntimeStartup()` | Syncs startup status; `initializeRuntime`, `validateRuntime`, `recoverRuntime` |
-| `RuntimeStartupPanel` | Startup phase + recovery controls |
-| `RuntimeHealthCard` | Single process card |
-| `RuntimeDashboard` | Aggregate health + process grid |
-
-## Monitored processes
-
-- API Runtime
-- Orchestrator
-- Hermes Runtime
-- OpenClaw Runtime
-- Speech Runtime (renderer-side probe)
-- API `/health` probe
-
-Each card shows process state, health, restart attempts, and errors.
+| `RuntimeDashboardPage` | Full dashboard page |
+| `RuntimeHealthPanel` | Hermes, OpenClaw, Speech, Memory health |
+| `RuntimeStatusBadge` | Compact component health badge |
+| `RuntimeStartupProgress` | Bootstrap phase progress bar |
+| `useRuntimeHealth()` | Polls process + aggregated health IPC |
+| `useRuntimeStartup()` | Startup sync and recovery |
+| `RuntimeDashboard` | Process manager grid |
+| `RuntimeStartupPanel` | Startup timeline + recovery controls |
 
 ## IPC
 
 | Channel | Role |
 |---------|------|
 | `jarvis:getRuntimeHealth` | Process manager snapshot |
-| `jarvis:initializeRuntime` | Bootstrap + validate |
-| `jarvis:validateRuntime` | Re-run health probes |
-| `jarvis:recoverRuntime` | Restart failed processes + validate |
-| `jarvis:getStartupStatus` | Current startup state |
-
-Main process bootstraps on app ready via `initializeApiRuntime()`; renderer syncs with `useRuntimeStartup({ autoSync: true })`.
+| `jarvis:getAggregatedRuntimeHealth` | Aggregated component health + startup progress |
+| `jarvis:getStartupStatus` | Startup manager state |
 
 ## Constraints
 
-- No HTTP API contract changes
 - No speech-service interface changes
+- Reuses orchestrator `RuntimeHealthRuntime` in main process
 - Chat behavior unchanged
