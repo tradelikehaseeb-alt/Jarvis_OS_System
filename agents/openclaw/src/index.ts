@@ -12,6 +12,7 @@ import { OpenClawAgent } from "./openclaw-agent";
 export { OpenClawAgent } from "./openclaw-agent";
 export { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
 export * from "../adapter/src";
+export * from "./gateway";
 
 /** Create OpenClaw with {@link SkillExecutor} and optional {@link OpenClawAdapter}. */
 export function createOpenClawAgent(

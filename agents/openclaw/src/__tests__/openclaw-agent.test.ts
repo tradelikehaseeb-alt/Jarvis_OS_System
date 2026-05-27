@@ -43,6 +43,7 @@ describe("OpenClawAgent", () => {
     const result = await agent.execute(task, context);
     expect(result.success).toBe(true);
     expect(result.payload?.adapter).toBeDefined();
+    expect(result.payload?.gateway).toBeDefined();
     expect((result.payload?.adapter as { stub: boolean }).stub).toBe(true);
     expect(result.payload?.browser).toBeDefined();
     expect(result.payload?.file).toBeDefined();

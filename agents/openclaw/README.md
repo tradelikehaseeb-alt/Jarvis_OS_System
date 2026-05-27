@@ -2,6 +2,36 @@
 
 **OpenClaw Gateway** — execution, browser-automation, desktop-automation.
 
+## Phase 42 — gateway runtime boundary
+
+| Layer | Path | Role |
+|-------|------|------|
+| Gateway | `src/gateway/` | `OpenClawGateway` — execute + runtime validation boundary |
+| Agent | `src/openclaw-agent.ts` | Orchestrator entry; calls gateway + skills |
+| Adapter | `adapter/` | `OpenClawAdapter` — stub/official plug-in point |
+
+```
+Desktop → API → Orchestrator → OpenClawAgent → OpenClawGateway → OpenClaw Runtime → Execution Result
+                                                      ↘ SkillExecutor → BrowserSkill, FileSkill
+```
+
+Gateway module (`src/gateway/`) provides:
+
+- `OpenClawGatewayRequest`
+- `OpenClawGatewayResponse`
+- `OpenClawRuntimeStatus`
+- `OpenClawGateway`
+- `DefaultOpenClawGateway`
+- `createDefaultOpenClawGateway()`
+
+Supported operations:
+
+- `execute()`
+- `getRuntimeStatus()`
+- `validateRuntime()`
+
+Stub mode remains default (`OPENCLAW_MODE=stub`). No browser/device control in this phase.
+
 ## Phase 16 — adapter boundary
 
 | Layer | Path | Role |

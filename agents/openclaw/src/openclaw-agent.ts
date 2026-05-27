@@ -11,12 +11,16 @@ import {
 
 import type { OpenClawAdapter } from "../adapter/src/openclaw-adapter";
 import { createOpenClawAdapterStub } from "../adapter/src/openclaw-adapter-stub";
-import { buildOpenClawRequest } from "../adapter/src/build-openclaw-request";
+import { buildOpenClawGatewayRequest } from "./gateway/build-openclaw-gateway-request";
+import {
+  createDefaultOpenClawGateway,
+  type OpenClawGateway,
+} from "./gateway";
 import { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
 
 /**
- * OpenClaw gateway — {@link OpenClawAdapter} boundary + skills via {@link SkillExecutor} (Phase 16).
- * No real automation; adapter and skills return static data only.
+ * OpenClaw gateway — {@link OpenClawGateway} + {@link SkillExecutor} (Phase 16, 42).
+ * No real automation; gateway and skills return static stub data only.
  */
 export class OpenClawAgent extends AbstractBaseAgent {
   readonly metadata = OPENCLAW_METADATA;
@@ -24,22 +28,43 @@ export class OpenClawAgent extends AbstractBaseAgent {
   constructor(
     private readonly skillExecutor: SkillExecutor,
     private readonly adapter: OpenClawAdapter = createOpenClawAdapterStub(),
+    private readonly gateway: OpenClawGateway = createDefaultOpenClawGateway({
+      adapter,
+    }),
   ) {
     super();
   }
 
   async execute(task: AgentTask, context: AgentContext): Promise<AgentResult> {
-    const adapterResponse = await this.adapter.invoke(
-      buildOpenClawRequest(task, context.contextRef),
+    const gatewayResponse = await this.gateway.execute(
+      buildOpenClawGatewayRequest(task, context.contextRef),
     );
 
-    if (!adapterResponse.success) {
+    const adapterResponse = {
+      success: gatewayResponse.success,
+      adapterId: gatewayResponse.adapterId,
+      stub: gatewayResponse.stub,
+      execution: {
+        status: gatewayResponse.success ? ("accepted" as const) : ("rejected" as const),
+        sandbox: gatewayResponse.sandbox,
+        permissionsChecked: gatewayResponse.permissionsChecked,
+        handleId: gatewayResponse.executionHandleId,
+      },
+      approvedActions: gatewayResponse.approvedActions,
+      error: gatewayResponse.error,
+    };
+
+    if (!gatewayResponse.success) {
       return {
         taskId: task.taskId,
         requestId: task.requestId,
         agentId: OPENCLAW_AGENT_ID,
         success: false,
-        payload: { adapter: adapterResponse, stub: true },
+        payload: {
+          adapter: adapterResponse,
+          gateway: gatewayResponse,
+          stub: true,
+        },
         error: adapterResponse.error,
       };
     }
@@ -61,7 +86,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
           action: "navigate",
           url: "https://stub.local/task",
           intent: task.intent,
-          handleId: adapterResponse.execution.handleId,
+          handleId: gatewayResponse.executionHandleId,
         },
       },
       context,
@@ -76,7 +101,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
           operation: "read",
           path: "/stub/workspace/output.txt",
           intent: task.intent,
-          handleId: adapterResponse.execution.handleId,
+          handleId: gatewayResponse.executionHandleId,
         },
       },
       context,
@@ -92,8 +117,10 @@ export class OpenClawAgent extends AbstractBaseAgent {
       payload: {
         stub: true,
         adapter: adapterResponse,
+        gateway: gatewayResponse,
         execution: {
-          ...adapterResponse.execution,
+          handleId: gatewayResponse.executionHandleId,
+          runtimeStatus: gatewayResponse.runtimeStatus,
           workflowStepId: task.workflowStepId,
           contextRef: context.contextRef,
         },
