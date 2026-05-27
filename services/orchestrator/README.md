@@ -68,6 +68,22 @@ MemoryPersistenceManager → StorageBackedMemoryStore → StorageRuntime → Sto
 
 See `src/storage-runtime/README.md`.
 
+## Phase 52 — transport runtime
+
+```
+StreamManager → TransportBackedStreamManager → TransportRuntime → TransportProvider → Subscribers
+```
+
+| Export | Role |
+|--------|------|
+| `TransportRuntime` | Pluggable publish/subscribe transport boundary |
+| `InMemoryTransportProvider` | Default in-memory backend |
+| `LocalEventTransportProvider` | Local JSON file event persistence |
+| `createDefaultTransportRuntime()` | In-memory default factory |
+| `createLocalEventStreamManager()` | Local file-backed stream option |
+
+See `src/transport/README.md`.
+
 ## Phase 50 — end-to-end execution flow
 
 ```

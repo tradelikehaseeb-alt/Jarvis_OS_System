@@ -8,7 +8,11 @@ export type {
 export type { StreamManager } from "./stream-manager";
 
 export { InMemoryStreamManager } from "./in-memory-stream-manager";
-export { createDefaultStreamManager } from "./create-default-stream-manager";
+export { TransportBackedStreamManager } from "./transport-backed-stream-manager";
+export {
+  createDefaultStreamManager,
+  createLocalEventStreamManager,
+} from "./create-default-stream-manager";
 export {
   attachExecutionStream,
   completeExecutionStream,

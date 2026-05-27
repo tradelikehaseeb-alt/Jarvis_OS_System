@@ -21,6 +21,7 @@ describe("orchestrator structure", () => {
       "memory",
       "streaming",
       "storage-runtime",
+      "transport",
       "e2e",
       "storage",
     ]);
