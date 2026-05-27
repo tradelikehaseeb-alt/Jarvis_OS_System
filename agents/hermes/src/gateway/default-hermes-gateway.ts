@@ -14,10 +14,13 @@ import {
 } from "./hermes-gateway-runtime-wiring";
 import { createHermesRuntimeSession } from "../runtime/create-hermes-runtime-session";
 import type { HermesRuntimeProcessBinding } from "../runtime/hermes-runtime-process-binding";
+import type { ProviderRuntime } from "@jarvis/provider-runtime";
 
 export interface DefaultHermesGatewayOptions extends HermesGatewayRuntimeWiringOptions {
   readonly adapter?: HermesAdapter;
   readonly processBinding?: HermesRuntimeProcessBinding;
+  readonly providerRuntime?: ProviderRuntime;
+  readonly providerId?: string;
 }
 
 function emptyPlan(intentKind: string): HermesGatewayResponse["plan"] {
@@ -38,11 +41,15 @@ export class DefaultHermesGateway implements HermesGateway {
   private readonly adapter: HermesAdapter;
   private readonly runtimeWiring: HermesGatewayRuntimeWiring;
   private readonly processBinding?: HermesRuntimeProcessBinding;
+  private readonly providerRuntime?: ProviderRuntime;
+  private readonly providerId?: string;
 
   constructor(options: DefaultHermesGatewayOptions = {}) {
     this.adapter = options.adapter ?? createHermesAdapterStub();
     this.runtimeWiring = createHermesGatewayRuntimeWiring(options);
     this.processBinding = options.processBinding;
+    this.providerRuntime = options.providerRuntime;
+    this.providerId = options.providerId;
   }
 
   async execute(request: HermesGatewayRequest): Promise<HermesGatewayResponse> {
@@ -50,6 +57,8 @@ export class DefaultHermesGateway implements HermesGateway {
       adapter: this.adapter,
       runtimeWiring: this.runtimeWiring,
       processBinding: this.processBinding,
+      providerRuntime: this.providerRuntime,
+      providerId: this.providerId,
     });
 
     await session.initializeSession();

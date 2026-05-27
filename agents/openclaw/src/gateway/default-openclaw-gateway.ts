@@ -13,10 +13,13 @@ import {
 } from "./openclaw-gateway-runtime-wiring";
 import { createOpenClawRuntimeSession } from "../runtime/create-openclaw-runtime-session";
 import type { OpenClawRuntimeProcessBinding } from "../runtime/openclaw-runtime-process-binding";
+import type { ProviderRuntime } from "@jarvis/provider-runtime";
 
 export interface DefaultOpenClawGatewayOptions extends OpenClawGatewayRuntimeWiringOptions {
   readonly adapter?: OpenClawAdapter;
   readonly processBinding?: OpenClawRuntimeProcessBinding;
+  readonly providerRuntime?: ProviderRuntime;
+  readonly providerId?: string;
 }
 
 /**
@@ -28,11 +31,15 @@ export class DefaultOpenClawGateway implements OpenClawGateway {
   private readonly adapter: OpenClawAdapter;
   private readonly runtimeWiring: OpenClawGatewayRuntimeWiring;
   private readonly processBinding?: OpenClawRuntimeProcessBinding;
+  private readonly providerRuntime?: ProviderRuntime;
+  private readonly providerId?: string;
 
   constructor(options: DefaultOpenClawGatewayOptions = {}) {
     this.adapter = options.adapter ?? createOpenClawAdapterStub();
     this.runtimeWiring = createOpenClawGatewayRuntimeWiring(options);
     this.processBinding = options.processBinding;
+    this.providerRuntime = options.providerRuntime;
+    this.providerId = options.providerId;
   }
 
   async execute(request: OpenClawGatewayRequest): Promise<OpenClawGatewayResponse> {
@@ -40,6 +47,8 @@ export class DefaultOpenClawGateway implements OpenClawGateway {
       adapter: this.adapter,
       runtimeWiring: this.runtimeWiring,
       processBinding: this.processBinding,
+      providerRuntime: this.providerRuntime,
+      providerId: this.providerId,
     });
 
     await session.initializeSession();

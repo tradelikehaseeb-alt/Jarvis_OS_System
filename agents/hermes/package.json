@@ -13,6 +13,7 @@
   "dependencies": {
     "@jarvis/agents-shared": "*",
     "@jarvis/provider-registry": "*",
+    "@jarvis/provider-runtime": "*",
     "@jarvis/runtime-manager": "*",
     "@jarvis/types": "*"
   },

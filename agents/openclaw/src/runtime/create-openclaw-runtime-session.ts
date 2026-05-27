@@ -6,6 +6,11 @@ import {
   validationFromOpenClawRuntimeHealth,
   type OpenClawGatewayRuntimeWiring,
 } from "../gateway/openclaw-gateway-runtime-wiring";
+import {
+  DEFAULT_OPENCLAW_PROVIDER_ID,
+  validateProviderConnection,
+  type ProviderRuntime,
+} from "@jarvis/provider-runtime";
 
 import type { OpenClawExecutionHandshake } from "./openclaw-execution-handshake";
 import type { OpenClawExecutionState } from "./openclaw-execution-state";
@@ -17,6 +22,8 @@ export interface CreateOpenClawRuntimeSessionOptions {
   readonly adapter: OpenClawAdapter;
   readonly runtimeWiring: OpenClawGatewayRuntimeWiring;
   readonly processBinding?: OpenClawRuntimeProcessBinding;
+  readonly providerRuntime?: ProviderRuntime;
+  readonly providerId?: string;
   readonly sessionId?: string;
 }
 
@@ -72,6 +79,32 @@ function buildUnavailableResponse(
   };
 }
 
+async function applyProviderConnectionValidation(
+  health: OpenClawRuntimeHealth,
+  options: CreateOpenClawRuntimeSessionOptions,
+): Promise<OpenClawRuntimeHealth> {
+  if (!options.providerRuntime) {
+    return health;
+  }
+
+  const providerId = options.providerId ?? DEFAULT_OPENCLAW_PROVIDER_ID;
+  const providerCheck = await validateProviderConnection(
+    options.providerRuntime,
+    providerId,
+  );
+
+  if (providerCheck.valid) {
+    return health;
+  }
+
+  return {
+    ...health,
+    valid: false,
+    available: false,
+    message: [health.message, providerCheck.message].filter(Boolean).join("; "),
+  };
+}
+
 class DefaultOpenClawRuntimeSession implements OpenClawRuntimeSession {
   readonly sessionId: string;
   state: OpenClawExecutionState = "idle";
@@ -117,18 +150,21 @@ class DefaultOpenClawRuntimeSession implements OpenClawRuntimeSession {
     const checkedAt = nowIso();
 
     if (stubMode) {
-      this.runtimeHealth = {
-        status: "stub",
-        valid: true,
-        stub: true,
-        available: true,
-        message: "OpenClaw stub runtime",
-        checkedAt,
-        processState: this.options.processBinding
-          ? await this.options.processBinding.getOpenClawProcessState()
-          : "stub",
-      };
-      this.state = "validated";
+      this.runtimeHealth = await applyProviderConnectionValidation(
+        {
+          status: "stub",
+          valid: true,
+          stub: true,
+          available: true,
+          message: "OpenClaw stub runtime",
+          checkedAt,
+          processState: this.options.processBinding
+            ? await this.options.processBinding.getOpenClawProcessState()
+            : "stub",
+        },
+        this.options,
+      );
+      this.state = this.runtimeHealth.valid ? "validated" : "failed";
       this.validatedAt = checkedAt;
       return this.runtimeHealth;
     }
@@ -151,18 +187,21 @@ class DefaultOpenClawRuntimeSession implements OpenClawRuntimeSession {
       reasons.push("OpenClaw runtime process is not running");
     }
 
-    this.runtimeHealth = {
-      status: validation.status,
-      valid,
-      stub: resolverHealth.stub,
-      available: resolverHealth.available && processRunning,
-      message: reasons.join("; ") || resolverHealth.message,
-      endpoint: resolverHealth.endpoint,
-      checkedAt,
-      processState,
-    };
+    this.runtimeHealth = await applyProviderConnectionValidation(
+      {
+        status: validation.status,
+        valid,
+        stub: resolverHealth.stub,
+        available: resolverHealth.available && processRunning,
+        message: reasons.join("; ") || resolverHealth.message,
+        endpoint: resolverHealth.endpoint,
+        checkedAt,
+        processState,
+      },
+      this.options,
+    );
 
-    this.state = valid ? "validated" : "failed";
+    this.state = this.runtimeHealth.valid ? "validated" : "failed";
     this.validatedAt = checkedAt;
     return this.runtimeHealth;
   }
