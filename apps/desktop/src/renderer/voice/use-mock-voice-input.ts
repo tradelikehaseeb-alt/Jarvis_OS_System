@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { SpeechNormalizer } from "@jarvis/speech-service";
+import {
+  SpeechNormalizer,
+  createDefaultSpeechConversationManager,
+  createDefaultSpeechGateway,
+  createDefaultSpeechTelemetry,
+} from "@jarvis/speech-service";
 
 import {
   MockVoiceSessionError,
@@ -8,6 +13,8 @@ import {
 import type { VoiceSettings } from "./voice-settings";
 import { DEFAULT_VOICE_SETTINGS } from "./voice-settings";
 import type { VoiceStatus } from "./voice-types";
+
+const MOCK_PROCESSING_DURATION_MS = 300;
 
 export interface UseMockVoiceInputOptions {
   readonly settings?: VoiceSettings;
@@ -25,10 +32,19 @@ export interface TranscriptNormalizationView {
   readonly normalizationApplied: boolean;
 }
 
+export interface SpeechMetadataView {
+  readonly detectedAction: string;
+  readonly normalizedTranscript: string;
+  readonly conversationState: string;
+  readonly providerDecision: string;
+  readonly traceSummary: string;
+}
+
 export interface UseMockVoiceInputResult {
   readonly status: VoiceStatus;
   readonly transcript: string;
   readonly normalization: TranscriptNormalizationView | null;
+  readonly metadata: SpeechMetadataView | null;
   readonly error: string | null;
   readonly isActive: boolean;
   readonly toggleListening: () => void;
@@ -47,9 +63,14 @@ export function useMockVoiceInput(
   const [transcript, setTranscript] = useState("");
   const [normalization, setNormalization] =
     useState<TranscriptNormalizationView | null>(null);
+  const [metadata, setMetadata] = useState<SpeechMetadataView | null>(null);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const normalizerRef = useRef(new SpeechNormalizer());
+  const gatewayRef = useRef(createDefaultSpeechGateway());
+  const conversationManagerRef = useRef(createDefaultSpeechConversationManager());
+  const telemetryRef = useRef(createDefaultSpeechTelemetry());
+  const conversationSequenceRef = useRef(0);
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();
@@ -61,6 +82,7 @@ export function useMockVoiceInput(
   const clearTranscript = useCallback(() => {
     setTranscript("");
     setNormalization(null);
+    setMetadata(null);
     if (status === "completed") {
       setStatus("idle");
     }
@@ -78,6 +100,7 @@ export function useMockVoiceInput(
     setError(null);
     setTranscript("");
     setNormalization(null);
+    setMetadata(null);
     setStatus("listening");
 
     try {
@@ -99,22 +122,87 @@ export function useMockVoiceInput(
       }
       setStatus("normalizing");
 
+      telemetryRef.current.collector.clearHistory();
+      const requestId = `speech-request-${Date.now()}`;
+      const conversationId = `speech-conversation-${++conversationSequenceRef.current}`;
+      const conversation = conversationManagerRef.current.createConversation(
+        conversationId,
+        {
+          metadata: { source: "desktop-voice-pipeline" },
+        },
+      );
+      telemetryRef.current.recorder.recordEvent("info", "conversation created", {
+        requestId,
+        conversationId: conversation.conversationId,
+        component: "conversation-manager",
+        metadata: { state: conversation.state },
+      });
+
       const original = result.transcript;
       let normalized = original;
       let correctionsApplied: string[] = [];
       let normalizationApplied = false;
+      let detectedAction = "none";
+      let providerDecision = "stt-local";
 
+      const gatewayResult = await gatewayRef.current.processTranscript({
+        requestId,
+        transcript: original,
+        conversationId,
+        requestedCapabilities: ["low-latency"],
+        providerIds: ["stt-local", "stt-cloud"],
+      });
+      providerDecision = gatewayResult.routing.providerId;
+
+      const normalizedResult = normalizerRef.current.normalize(original, {
+        domain: "trading",
+      });
+      correctionsApplied = [
+        ...normalizedResult.appliedCorrections,
+        ...normalizedResult.appliedRules,
+      ];
       if (settings.enableNormalization) {
-        const normalizedResult = normalizerRef.current.normalize(original, {
-          domain: "trading",
-        });
         normalized = normalizedResult.normalized;
-        correctionsApplied = [
-          ...normalizedResult.appliedCorrections,
-          ...normalizedResult.appliedRules,
-        ];
         normalizationApplied = original !== normalized;
       }
+
+      const actionResponse = await gatewayRef.current.processAction({
+        requestId,
+        transcript: normalized,
+        conversationId,
+      });
+      detectedAction = actionResponse.action?.type ?? "none";
+
+      conversationManagerRef.current.appendUserTurn(conversationId, normalized);
+      const endedConversation =
+        conversationManagerRef.current.endConversation(conversationId);
+      telemetryRef.current.recorder.recordEvent(
+        "info",
+        "gateway transcript processed",
+        {
+          requestId,
+          conversationId,
+          component: "gateway",
+          metadata: {
+            action: detectedAction,
+            provider: providerDecision,
+          },
+        },
+      );
+      telemetryRef.current.recorder.recordMetric(
+        "processing_duration",
+        MOCK_PROCESSING_DURATION_MS,
+        "ms",
+        { stage: "gateway" },
+      );
+      telemetryRef.current.recorder.recordMetric(
+        "normalization_corrections",
+        correctionsApplied.length,
+        "count",
+        { enabled: String(settings.enableNormalization) },
+      );
+      const history = telemetryRef.current.collector.getTraceHistory();
+      const traceSummary = `${history.events.length} events, ${history.metrics.length} metrics`;
 
       setNormalization({
         original,
@@ -127,6 +215,13 @@ export function useMockVoiceInput(
         normalized,
         correctionsApplied,
         normalizationApplied,
+      });
+      setMetadata({
+        detectedAction,
+        normalizedTranscript: normalized,
+        conversationState: endedConversation.state,
+        providerDecision,
+        traceSummary,
       });
       setTranscript(normalized);
       setStatus("completed");
@@ -176,6 +271,7 @@ export function useMockVoiceInput(
     status,
     transcript,
     normalization,
+    metadata,
     error,
     isActive: isActive || isNormalizing,
     toggleListening,

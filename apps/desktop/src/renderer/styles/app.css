@@ -693,6 +693,29 @@ body {
   font-size: 0.8rem;
 }
 
+.voice-metadata-panel {
+  margin-top: 0.65rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+
+.voice-metadata-list {
+  margin: 0.35rem 0 0;
+  display: grid;
+  grid-template-columns: minmax(8rem, 10rem) 1fr;
+  gap: 0.2rem 0.6rem;
+  font-size: 0.82rem;
+}
+
+.voice-metadata-list dt {
+  color: var(--muted);
+}
+
+.voice-metadata-list dd {
+  margin: 0;
+  color: var(--text);
+}
+
 .voice-normalization-error {
   margin: 0 0.75rem 0.4rem;
   font-size: 0.82rem;

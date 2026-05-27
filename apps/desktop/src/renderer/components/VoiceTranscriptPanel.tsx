@@ -1,10 +1,12 @@
 import type { VoiceStatus } from "../voice/voice-types";
 import type { TranscriptNormalizationView } from "../voice";
+import type { SpeechMetadataView } from "../voice/use-mock-voice-input";
 
 export interface VoiceTranscriptPanelProps {
   readonly status: VoiceStatus;
   readonly transcript: string;
   readonly normalization?: TranscriptNormalizationView | null;
+  readonly metadata?: SpeechMetadataView | null;
   readonly error?: string | null;
   readonly visible?: boolean;
 }
@@ -16,6 +18,7 @@ export function VoiceTranscriptPanel({
   status,
   transcript,
   normalization,
+  metadata,
   error,
   visible = true,
 }: VoiceTranscriptPanelProps) {
@@ -55,7 +58,9 @@ export function VoiceTranscriptPanel({
       ) : null}
 
       {status === "processing" ? (
-        <p className="voice-transcript-placeholder">Finalizing transcript…</p>
+        <p className="voice-transcript-placeholder">
+          Running speech gateway pipeline…
+        </p>
       ) : null}
 
       {status === "normalizing" ? (
@@ -100,6 +105,32 @@ export function VoiceTranscriptPanel({
               <p className="voice-corrections-empty">No corrections applied.</p>
             )}
           </details>
+        </section>
+      ) : null}
+
+      {metadata ? (
+        <section
+          className="voice-metadata-panel"
+          aria-label="Speech metadata"
+          data-testid="voice-metadata-panel"
+        >
+          <h4 className="voice-normalization-title">Speech metadata</h4>
+          <dl className="voice-metadata-list">
+            <dt>Detected action</dt>
+            <dd data-testid="voice-metadata-action">{metadata.detectedAction}</dd>
+            <dt>Normalized transcript</dt>
+            <dd data-testid="voice-metadata-normalized">
+              {metadata.normalizedTranscript}
+            </dd>
+            <dt>Conversation state</dt>
+            <dd data-testid="voice-metadata-conversation-state">
+              {metadata.conversationState}
+            </dd>
+            <dt>Provider decision</dt>
+            <dd data-testid="voice-metadata-provider">{metadata.providerDecision}</dd>
+            <dt>Trace summary</dt>
+            <dd data-testid="voice-metadata-trace">{metadata.traceSummary}</dd>
+          </dl>
         </section>
       ) : null}
 

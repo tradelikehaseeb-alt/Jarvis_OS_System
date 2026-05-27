@@ -396,7 +396,15 @@ npm run test --workspace=@jarvis/speech-service
 npm run build --workspace=@jarvis/speech-service
 ```
 
-## Phase 35 Internal E2E Coverage
+## Phase 38 Desktop integration
+
+Desktop voice pipeline now wires `@jarvis/speech-service` gateway + telemetry internally via `useMockVoiceInput`.
+No API, orchestrator, or Hermes/OpenClaw changes.
+
+Integration coverage:
+
+- `src/__tests__/speech-service-integration.test.ts` (service-level)
+- `apps/desktop/src/renderer/voice/__tests__/voice-gateway-pipeline.integration.test.ts` (desktop hook)
 
 `src/__tests__/speech-service-integration.test.ts` validates deterministic in-memory integration flow:
 

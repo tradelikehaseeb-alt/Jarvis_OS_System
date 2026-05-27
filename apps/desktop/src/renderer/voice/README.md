@@ -1,4 +1,4 @@
-# Desktop voice shell (Phase 25–27)
+# Desktop voice shell (Phase 25–38)
 
 UI-only mock voice capture — **no STT, TTS, or microphone APIs**.
 
@@ -6,7 +6,11 @@ UI-only mock voice capture — **no STT, TTS, or microphone APIs**.
 
 ```
 Mic click → listening animation → mock transcript
-  → SpeechNormalizer (optional, deterministic rules)
+  → SpeechGateway.processTranscript() (provider + runtime, stub-only)
+  → SpeechNormalizer (Roman Urdu + trading corrections)
+  → ConversationManager (in-memory turn + lifecycle)
+  → SpeechActionRouter (detected voice command)
+  → SpeechTelemetry (trace + metrics summary)
   → IntentClassifier → ChatInput → POST /tasks (unchanged API)
 ```
 
@@ -38,6 +42,16 @@ Mic click → listening animation → mock transcript
   - **Corrections applied** rule ids
 - Toggle in Settings can disable normalization (pass-through behavior)
 - Includes dedicated `normalizing` loading status in the voice indicator/panel
+
+## Speech metadata panel (Phase 38)
+
+Voice transcript panel now also shows deterministic gateway metadata:
+
+- **detected action**
+- **normalized transcript**
+- **conversation state**
+- **provider decision**
+- **trace summary**
 
 ## Future integration
 

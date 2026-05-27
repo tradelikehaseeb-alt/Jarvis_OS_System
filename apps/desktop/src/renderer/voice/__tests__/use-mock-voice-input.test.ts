@@ -141,6 +141,33 @@ describe("useMockVoiceInput", () => {
 
   });
 
+  it("exposes speech gateway metadata after pipeline completes", async () => {
+    const { result } = renderHook(() =>
+      useMockVoiceInput({
+        settings: {
+          showTranscriptPanel: true,
+          pushToChatInput: false,
+          simulateCaptureError: false,
+          enableNormalization: true,
+        },
+      }),
+    );
+
+    act(() => {
+      result.current.toggleListening();
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(MOCK_VOICE_LISTEN_MS + 400);
+    });
+
+    expect(result.current.metadata).toMatchObject({
+      conversationState: "completed",
+      providerDecision: "stt-local",
+    });
+    expect(result.current.metadata?.detectedAction).toBeTruthy();
+    expect(result.current.metadata?.traceSummary).toMatch(/\d+ events, \d+ metrics/);
+  });
+
   it("shows normalizing state during pipeline", async () => {
     const { result } = renderHook(() =>
       useMockVoiceInput({

@@ -39,6 +39,7 @@ export function VoiceShell({
           status={voice.status}
           transcript={voice.transcript}
           normalization={voice.normalization}
+          metadata={voice.metadata}
           error={voice.error}
         />
       ) : null}

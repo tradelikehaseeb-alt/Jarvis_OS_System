@@ -48,6 +48,31 @@ describe("VoiceTranscriptPanel", () => {
     expect(screen.getByTestId("voice-corrections")).toBeInTheDocument();
   });
 
+  it("renders speech metadata panel when metadata is provided", () => {
+    render(
+      <VoiceTranscriptPanel
+        status="completed"
+        transcript="open settings"
+        metadata={{
+          detectedAction: "open-settings",
+          normalizedTranscript: "open settings",
+          conversationState: "completed",
+          providerDecision: "stt-local",
+          traceSummary: "2 events, 2 metrics",
+        }}
+        visible
+      />,
+    );
+
+    expect(screen.getByTestId("voice-metadata-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("voice-metadata-action")).toHaveTextContent(
+      "open-settings",
+    );
+    expect(screen.getByTestId("voice-metadata-provider")).toHaveTextContent(
+      "stt-local",
+    );
+  });
+
   it("shows error alert", () => {
     render(
       <VoiceTranscriptPanel

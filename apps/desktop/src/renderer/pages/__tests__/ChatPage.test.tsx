@@ -118,9 +118,13 @@ describe("ChatPage", () => {
         screen.getByTestId("voice-normalization-block"),
       ).toBeInTheDocument();
     });
-    expect(screen.getByText(/Original transcript/i)).toBeInTheDocument();
-    expect(screen.getByText(/Normalized transcript/i)).toBeInTheDocument();
+    expect(screen.getByTestId("voice-transcript-original")).toBeInTheDocument();
+    expect(screen.getByTestId("voice-transcript-normalized")).toBeInTheDocument();
     expect(screen.getByTestId("voice-corrections")).toBeInTheDocument();
+    expect(screen.getByTestId("voice-metadata-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("voice-metadata-provider")).toHaveTextContent(
+      "stt-local",
+    );
   });
 
   it("shows error when task fails without a plan", async () => {

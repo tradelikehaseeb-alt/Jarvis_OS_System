@@ -19,4 +19,5 @@ export {
 } from "./use-mock-voice-input";
 export type {
   TranscriptNormalizationView,
+  SpeechMetadataView,
 } from "./use-mock-voice-input";
