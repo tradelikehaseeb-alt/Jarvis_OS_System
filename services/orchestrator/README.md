@@ -235,6 +235,20 @@ Task output includes `executionTimeline.events` alongside `activityStream.events
 
 See `src/timeline/README.md`.
 
+## Phase 76 — conversation workspace
+
+```
+Desktop Chat → ConversationWorkspaceRuntime → Memory Recall + Timeline
+```
+
+| Export | Role |
+|--------|------|
+| `WorkspaceSession` | Session with history, memories, timeline |
+| `ConversationWorkspaceRuntime` | `createWorkspaceSession`, `restoreWorkspaceSession`, `archiveWorkspaceSession` |
+| `createDefaultConversationWorkspaceRuntime()` | Composes history + recall + timeline |
+
+See `src/conversation-workspace/README.md`.
+
 ## Modules
 
 | Module | Role |
@@ -249,6 +263,7 @@ See `src/timeline/README.md`.
 | `runtime-startup/` | **Phase 73** — bootstrap, validation, recovery |
 | `runtime-health/` | **Phase 74** — aggregated health for Desktop dashboard |
 | `timeline/` | **Phase 75** — execution timeline runtime |
+| `conversation-workspace/` | **Phase 76** — persistent conversation workspace |
 | `streaming/` | **Phase 47** — real-time event stream |
 | `execution-manager/` | Step lifecycle (stub) |
 | `context-manager/` | Session context |
