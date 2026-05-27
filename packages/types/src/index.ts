@@ -9,3 +9,5 @@ export * from "./contracts";
 export * from "./api";
 export * from "./memory";
 export * from "./live-execution";
+export * from "./live-provider";
+export * from "./user-session";

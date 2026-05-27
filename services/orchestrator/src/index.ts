@@ -46,6 +46,8 @@ export * from "./storage-runtime";
 export * from "./transport";
 export * from "./e2e";
 export * from "./live-execution";
+export * from "./live-provider";
+export * from "./user-session";
 
 /** Orchestrator module identifiers for structure tests. */
 export const ORCHESTRATOR_MODULE_IDS = [
@@ -77,6 +79,8 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "transport",
   "e2e",
   "live-execution",
+  "live-provider",
+  "user-session",
   "storage",
 ] as const;
 

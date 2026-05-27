@@ -16,6 +16,8 @@ export * from "./gateway";
 export * from "./runtime";
 export * from "./execution-bridge";
 export * from "./live-execution";
+export * from "./live-provider";
+export * from "./user-session";
 
 /** Create Hermes with {@link SkillExecutor} and optional {@link HermesAdapter}. */
 export function createHermesAgent(

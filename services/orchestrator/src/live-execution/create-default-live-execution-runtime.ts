@@ -12,7 +12,7 @@ import {
 } from "../llm-provider";
 import type { CreateTaskExecutionOptions } from "../task-execution/create-task-executor";
 import { DEFAULT_API_USER_ID } from "../task-execution/create-task-executor";
-import { isLiveExecutionValidationCommand, isRealProviderValidationCommand } from "@jarvis/types";
+import { isLiveExecutionValidationCommand, isRealProviderValidationCommand, isRealUserSessionPrompt } from "@jarvis/types";
 
 import type { LiveExecutionResult } from "./live-execution-result";
 import type {
@@ -68,7 +68,8 @@ function countTimelineEvents(flowResult: JarvisExecutionFlowResult): number {
 function classifyLiveExecutionIntent(message: string): IntentClassification {
   if (
     isLiveExecutionValidationCommand(message) ||
-    isRealProviderValidationCommand(message)
+    isRealProviderValidationCommand(message) ||
+    isRealUserSessionPrompt(message)
   ) {
     return {
       intent: "automate",

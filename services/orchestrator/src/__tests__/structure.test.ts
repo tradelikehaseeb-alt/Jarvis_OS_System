@@ -38,6 +38,8 @@ describe("orchestrator structure", () => {
       "transport",
       "e2e",
       "live-execution",
+      "live-provider",
+      "user-session",
       "storage",
     ]);
   });

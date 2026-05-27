@@ -2,7 +2,7 @@
 export const REAL_PROVIDER_VALIDATION_COMMANDS = [
   "What is the gold price today?",
   "Summarize latest AI news",
-  "Explain current Bitcoin trend",
+  "Explain Bitcoin trend today",
 ] as const;
 
 export type RealProviderValidationCommand =
