@@ -8,6 +8,7 @@ import type {
 import type { ApiHealth } from "@jarvis/api-runtime";
 
 import {
+  buildRuntimeHealthSnapshot,
   getEmbeddedApiBaseUrl,
   getEmbeddedApiHealth,
   initializeRuntimeProcesses,
@@ -156,6 +157,8 @@ export function registerApiHandlers(): void {
       { method: "GET" },
     ),
   );
+
+  ipcMain.handle("jarvis:getRuntimeHealth", () => buildRuntimeHealthSnapshot());
 }
 
 export async function initializeApiRuntime(): Promise<string> {

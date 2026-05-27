@@ -5,6 +5,7 @@ import {
 } from "@jarvis/api-runtime";
 import {
   createDefaultRuntimeProcessManager,
+  DEFAULT_RUNTIME_PROCESS_IDS,
   type RuntimeProcessManager,
 } from "@jarvis/runtime-process";
 
@@ -123,4 +124,37 @@ export function getRuntimeProcessHealth() {
 
 export function getRuntimeActiveProcesses() {
   return getProcessManager().getActiveProcesses();
+}
+
+/** Serializable runtime health snapshot for renderer IPC (Phase 56). */
+export function buildRuntimeHealthSnapshot() {
+  const manager = getProcessManager();
+  const health = manager.getHealth();
+
+  const processes = DEFAULT_RUNTIME_PROCESS_IDS.map((processId) => {
+    const process = manager.getProcess(processId);
+    const healthEntry = health.processes.find((entry) => entry.processId === processId);
+
+    return {
+      processId,
+      label: process?.label ?? healthEntry?.label ?? processId,
+      state: process?.state ?? healthEntry?.state ?? "stopped",
+      healthy: healthEntry?.healthy ?? process?.state === "running",
+      restartCount: process?.restartCount ?? 0,
+      lastError: process?.lastError ?? healthEntry?.message,
+      startedAt: process?.startedAt,
+      stoppedAt: process?.stoppedAt,
+    };
+  });
+
+  return {
+    health: {
+      status: health.status,
+      processCount: health.processCount,
+      runningCount: health.runningCount,
+      failedCount: health.failedCount,
+      checkedAt: health.checkedAt,
+    },
+    processes,
+  };
 }

@@ -6,6 +6,7 @@ import { Sidebar, type AppPageId } from "../components/Sidebar";
 import { ChatPage } from "../pages/ChatPage";
 import { MemoryPage } from "../pages/MemoryPage";
 import { PluginsPage } from "../pages/PluginsPage";
+import { RuntimePage } from "../pages/RuntimePage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { TasksPage } from "../pages/TasksPage";
 import { VoicePage } from "../pages/VoicePage";
@@ -24,6 +25,8 @@ function renderPage(page: AppPageId) {
       return <VoicePage />;
     case "plugins":
       return <PluginsPage />;
+    case "runtime":
+      return <RuntimePage />;
     default:
       return <ChatPage />;
   }

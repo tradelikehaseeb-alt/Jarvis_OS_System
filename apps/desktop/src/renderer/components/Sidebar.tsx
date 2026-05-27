@@ -4,7 +4,8 @@ export type AppPageId =
   | "memory"
   | "settings"
   | "voice"
-  | "plugins";
+  | "plugins"
+  | "runtime";
 
 export interface NavItem {
   readonly id: AppPageId;
@@ -15,6 +16,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "chat", label: "Chat" },
   { id: "tasks", label: "Tasks" },
   { id: "memory", label: "Memory" },
+  { id: "runtime", label: "Runtime" },
   { id: "voice", label: "Voice" },
   { id: "plugins", label: "Plugins" },
   { id: "settings", label: "Settings" },

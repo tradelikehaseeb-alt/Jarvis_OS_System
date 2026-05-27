@@ -7,6 +7,7 @@ const PAGE_TITLES: Record<AppPageId, string> = {
   settings: "Settings",
   voice: "Voice",
   plugins: "Plugins",
+  runtime: "Runtime",
 };
 
 export interface HeaderProps {
