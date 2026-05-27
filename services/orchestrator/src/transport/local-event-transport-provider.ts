@@ -1,6 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, dirname } from "node:path";
 
 import { InMemoryTransportProvider } from "./in-memory-transport-provider";
 import type { TransportHealth } from "./transport-health";
@@ -16,7 +15,7 @@ import type { TransportProvider, TransportSubscriberHandler } from "./transport-
 
 /** Default JSON file for local event transport (Phase 52). */
 export const DEFAULT_LOCAL_TRANSPORT_FILE = join(
-  dirname(fileURLToPath(import.meta.url)),
+  __dirname,
   "..",
   "..",
   "..",

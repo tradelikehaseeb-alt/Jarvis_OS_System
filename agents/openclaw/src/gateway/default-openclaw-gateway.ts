@@ -1,3 +1,5 @@
+import type { ProviderRuntime } from "@jarvis/provider-runtime";
+
 import type { OpenClawAdapter } from "../../adapter/src/openclaw-adapter";
 import { createOpenClawAdapterStub } from "../../adapter/src/openclaw-adapter-stub";
 import type { OpenClawGateway } from "./openclaw-gateway";

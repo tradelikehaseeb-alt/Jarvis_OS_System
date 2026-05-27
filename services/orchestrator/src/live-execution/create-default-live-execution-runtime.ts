@@ -12,7 +12,7 @@ import {
 } from "../llm-provider";
 import type { CreateTaskExecutionOptions } from "../task-execution/create-task-executor";
 import { DEFAULT_API_USER_ID } from "../task-execution/create-task-executor";
-import { isLiveExecutionValidationCommand, isRealProviderValidationCommand, isRealUserSessionPrompt } from "@jarvis/types";
+import { isLiveExecutionValidationCommand, isRealProviderValidationCommand, isRealUserSessionPrompt, matchesDesktopValidationPrompt } from "@jarvis/types";
 
 import type { LiveExecutionResult } from "./live-execution-result";
 import type {
@@ -69,7 +69,8 @@ function classifyLiveExecutionIntent(message: string): IntentClassification {
   if (
     isLiveExecutionValidationCommand(message) ||
     isRealProviderValidationCommand(message) ||
-    isRealUserSessionPrompt(message)
+    isRealUserSessionPrompt(message) ||
+    matchesDesktopValidationPrompt(message.toLowerCase())
   ) {
     return {
       intent: "automate",

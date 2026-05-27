@@ -7,13 +7,13 @@ import type {
 } from "@jarvis/types";
 import type { ApiHealth } from "@jarvis/api-runtime";
 
-import type { RuntimeHealthSnapshot } from "./runtime-health-snapshot";
+import type { RuntimeHealthSnapshot } from "./ipc/runtime-health-snapshot";
 import type {
   RuntimeActionRequest,
   RuntimeActionResponse,
-} from "./runtime-action";
-import type { RuntimeStartupResponse } from "./runtime-startup-snapshot";
-import type { AggregatedRuntimeHealthResponse } from "./aggregated-runtime-health-response";
+} from "./ipc/runtime-action";
+import type { RuntimeStartupResponse } from "./ipc/runtime-startup-lifecycle";
+import type { AggregatedRuntimeHealthResponse } from "./ipc/aggregated-runtime-health-response";
 import type {
   ApiKeyValidationResult,
   ProviderSettings,

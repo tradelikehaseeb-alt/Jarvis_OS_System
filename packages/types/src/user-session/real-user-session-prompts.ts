@@ -13,3 +13,30 @@ export function isRealUserSessionPrompt(
 ): prompt is RealUserSessionPrompt {
   return (REAL_USER_SESSION_PROMPTS as readonly string[]).includes(prompt);
 }
+
+/** Phase 87 desktop manual validation prompts (exact chat strings). */
+export const DESKTOP_VALIDATION_PROMPTS = [
+  "What is the gold price today?",
+  "Summarize AI news",
+  "Plan a 3 day Dubai trip",
+  "Explain Bitcoin trend",
+] as const;
+
+export type DesktopValidationPrompt = (typeof DESKTOP_VALIDATION_PROMPTS)[number];
+
+export function isDesktopValidationPrompt(
+  prompt: string,
+): prompt is DesktopValidationPrompt {
+  return (DESKTOP_VALIDATION_PROMPTS as readonly string[]).includes(prompt);
+}
+
+export function matchesDesktopValidationPrompt(normalizedMessage: string): boolean {
+  const candidates = [
+    ...REAL_USER_SESSION_PROMPTS,
+    ...DESKTOP_VALIDATION_PROMPTS,
+  ] as readonly string[];
+
+  return candidates.some(
+    (prompt) => prompt.toLowerCase() === normalizedMessage.trim().toLowerCase(),
+  );
+}

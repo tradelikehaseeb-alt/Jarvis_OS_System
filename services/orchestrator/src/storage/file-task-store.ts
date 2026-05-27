@@ -1,6 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, dirname } from "node:path";
 
 import { InMemoryTaskStore } from "./in-memory-task-store";
 import type { TaskExecutionRecord } from "./task-record";
@@ -8,7 +7,7 @@ import type { TaskStore } from "./task-store";
 
 /** Default JSON file for CLI bridge subprocesses (Phase 14–15). */
 export const DEFAULT_BRIDGE_TASK_STORE_FILE = join(
-  dirname(fileURLToPath(import.meta.url)),
+  __dirname,
   "..",
   "..",
   "..",

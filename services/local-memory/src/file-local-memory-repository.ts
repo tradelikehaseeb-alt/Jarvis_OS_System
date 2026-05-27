@@ -1,6 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, dirname } from "node:path";
 
 import type { LocalMemoryHealth } from "./local-memory-health";
 import type { LocalMemoryQuery } from "./local-memory-query";
@@ -10,7 +9,7 @@ import type { LocalMemoryRepository } from "./local-memory-repository";
 
 /** Default local memory JSON store (Phase 62). */
 export const DEFAULT_LOCAL_MEMORY_FILE = join(
-  dirname(fileURLToPath(import.meta.url)),
+  __dirname,
   "..",
   "..",
   "..",

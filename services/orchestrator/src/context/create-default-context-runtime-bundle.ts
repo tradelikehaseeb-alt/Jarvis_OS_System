@@ -22,6 +22,8 @@ export interface ContextRuntimeBundle {
 
 export interface ContextRuntimeBundleOptions extends DefaultContextRuntimeOptions {
   readonly localMemoryRuntime?: LocalMemoryRuntime;
+  readonly filePath?: string;
+  readonly useFileBackend?: boolean;
 }
 
 /**

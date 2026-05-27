@@ -5,9 +5,9 @@
 export type {
   ChatIntentType,
   IntentClassification,
-} from "@jarvis/desktop-intent";
+} from "../../../../apps/desktop/src/renderer/intent/intent-types";
 export {
   classifyChatIntent,
   buildTaskIntentFromClassification,
   mapChatIntentToTaskKind,
-} from "@jarvis/desktop-intent";
+} from "../../../../apps/desktop/src/renderer/intent/index";

@@ -45,7 +45,7 @@ export class ProviderSelectedHermesAdapter implements HermesAdapter {
       ...config,
       adapterId: resolution.metadata.providerId,
       ...(this.forceStubMode ? { mode: "stub" as const } : {}),
-    });
+    } as HermesConfig);
 
     return {
       ...response,

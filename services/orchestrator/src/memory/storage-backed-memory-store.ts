@@ -22,7 +22,7 @@ function memoryToStorage(record: MemoryRecord): StorageRecord {
 }
 
 function storageToMemory(record: StorageRecord): MemoryRecord {
-  const data = record.data as MemoryRecord;
+  const data = record.data as unknown as MemoryRecord;
   return {
     recordId: data.recordId ?? record.id,
     type: data.type,

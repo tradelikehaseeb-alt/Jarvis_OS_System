@@ -20,9 +20,8 @@ import {
   type StreamManager,
 } from "../streaming";
 import { buildExecutionSummary } from "./build-execution-summary";
-import type { JarvisExecutionFlow } from "./jarvis-execution-flow";
+import type { JarvisExecutionFlow, JarvisExecutionFlowInput } from "./jarvis-execution-flow";
 import type {
-  JarvisExecutionFlowInput,
   JarvisExecutionFlowResult,
   JarvisExecutionFlowStep,
   JarvisExecutionSummary,

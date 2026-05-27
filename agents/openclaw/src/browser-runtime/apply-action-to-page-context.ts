@@ -9,27 +9,31 @@ export function applyActionToPageContext(
   request: BrowserActionRequest,
   result: BrowserActionResult,
 ): BrowserPageContextUpdate {
-  const update: BrowserPageContextUpdate = {
-    lastAction: request.action,
-  };
-
   switch (request.action) {
     case "open-page":
-      update.currentUrl = request.url;
-      update.title = `[stub-title:${request.url ?? "page"}]`;
-      break;
+      return {
+        lastAction: request.action,
+        currentUrl: request.url,
+        title: `[stub-title:${request.url ?? "page"}]`,
+      };
     case "click-element":
-      update.activeSelector = request.selector;
-      break;
+      return {
+        lastAction: request.action,
+        activeSelector: request.selector,
+      };
     case "type-text":
-      update.activeSelector = request.selector;
-      break;
+      return {
+        lastAction: request.action,
+        activeSelector: request.selector,
+      };
     case "extract-content":
-      update.activeSelector = request.selector;
-      update.extractedContent = result.extractedContent;
-      update.appendSnapshot = true;
-      break;
+      return {
+        lastAction: request.action,
+        activeSelector: request.selector,
+        extractedContent: result.extractedContent,
+        appendSnapshot: true,
+      };
+    default:
+      return { lastAction: request.action };
   }
-
-  return update;
 }

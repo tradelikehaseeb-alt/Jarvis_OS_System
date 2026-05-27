@@ -8,7 +8,7 @@
     "build:renderer": "vite build",
     "build:main": "tsc -p tsconfig.main.json",
     "build": "npm run build:renderer && npm run build:main",
-    "dev": "npm run build && electron .",
+    "dev": "npm run build && electron -r tsx/cjs .",
     "lint": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
     "test": "vitest run"
   },
@@ -30,6 +30,7 @@
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.4.1",
     "jsdom": "^26.1.0",
+    "tsx": "^4.22.3",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.3"

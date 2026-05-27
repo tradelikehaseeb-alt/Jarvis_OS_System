@@ -1,6 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, dirname } from "node:path";
 
 import { InMemoryStorageProvider } from "./in-memory-storage-provider";
 import type { StorageHealth } from "./storage-health";
@@ -10,7 +9,7 @@ import type { StorageRecord } from "./storage-record";
 
 /** Default JSON file for orchestrator memory persistence (Phase 51). */
 export const DEFAULT_STORAGE_RUNTIME_FILE = join(
-  dirname(fileURLToPath(import.meta.url)),
+  __dirname,
   "..",
   "..",
   "..",

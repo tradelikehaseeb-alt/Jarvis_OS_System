@@ -7,7 +7,13 @@
     "outDir": "dist",
     "rootDir": "src",
     "noEmit": false,
-    "types": ["node"]
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "types": ["node"],
+    "paths": {
+      "@jarvis/desktop-intent": ["./src/renderer/intent/index.ts"],
+      "@jarvis/desktop-intent/*": ["./src/renderer/intent/*"]
+    }
   },
   "include": ["src/main.ts", "src/preload.ts", "src/ipc/**/*.ts"],
   "exclude": ["node_modules", "dist", "src/renderer"]

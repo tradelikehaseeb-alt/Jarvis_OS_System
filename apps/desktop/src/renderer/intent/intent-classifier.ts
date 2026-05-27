@@ -1,4 +1,5 @@
 import type { ChatIntentType, IntentClassification } from "./intent-types";
+import { matchesDesktopValidationPrompt } from "@jarvis/types";
 
 interface IntentRule {
   readonly id: string;
@@ -30,6 +31,13 @@ function matchesAnyPattern(text: string, patterns: readonly RegExp[]): boolean {
 
 /** Deterministic rules — first match wins (Phase 24). */
 const INTENT_RULES: readonly IntentRule[] = [
+  {
+    id: "desktop-validation-session",
+    intent: "automate",
+    confidence: 0.98,
+    reason: "Desktop real user session validation prompt",
+    test: (text) => matchesDesktopValidationPrompt(text),
+  },
   {
     id: "automate-keywords",
     intent: "automate",

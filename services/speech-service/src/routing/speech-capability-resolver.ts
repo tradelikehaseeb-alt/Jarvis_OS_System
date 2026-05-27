@@ -1,8 +1,9 @@
 import type { SpeechRuntimeProviderId } from "../runtime";
 import type { SpeechCapabilityMatch } from "./speech-capability-match";
 
-const CAPABILITIES_BY_PROVIDER: Readonly<
-  Record<SpeechRuntimeProviderId, readonly SpeechCapabilityMatch["capabilities"]>
+const CAPABILITIES_BY_PROVIDER: Record<
+  SpeechRuntimeProviderId,
+  SpeechCapabilityMatch["capabilities"]
 > = {
   "stt-local": ["low-latency", "offline", "roman-urdu", "streaming-ready"],
   "stt-cloud": ["multilingual", "high-quality", "streaming-ready"],

@@ -11,7 +11,9 @@ import {
  * Used to wire agent→skill protocol with static responses.
  */
 export class PipelineStubSkill extends AbstractBaseSkill {
-  constructor(readonly metadata: SkillMetadata) {}
+  constructor(readonly metadata: SkillMetadata) {
+    super();
+  }
 
   async execute(input: SkillInput, _context: SkillContext): Promise<SkillOutput> {
     return {

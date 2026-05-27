@@ -3,5 +3,5 @@ export type {
   RuntimeStartupState,
   RuntimeStartupEvent,
   RuntimeStartupEventKind,
-  RuntimeStartupResponse,
 } from "@jarvis/orchestrator";
+export type { RuntimeStartupResponse } from "./runtime-startup-lifecycle";

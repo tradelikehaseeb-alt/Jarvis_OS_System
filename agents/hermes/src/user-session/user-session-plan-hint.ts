@@ -5,7 +5,6 @@ import {
 
 import {
   resolveHermesLiveExecutionPlanHint,
-  type HermesLiveExecutionPlanHint,
 } from "../live-execution/live-execution-plan-hint";
 
 /** Hermes planning hint for a real user session prompt (Phase 86). */
