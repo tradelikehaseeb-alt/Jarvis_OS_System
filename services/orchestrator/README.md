@@ -52,6 +52,20 @@ Event types: `execution_started`, `planning_started`, `planning_completed`, `exe
 
 No WebSockets yet — internal subscribers only.
 
+## Phase 50 — end-to-end execution flow
+
+```
+Chat/Voice Input → Speech Normalization → Intent → Orchestrator → Lifecycle → Memory → Stream → UI Projection
+```
+
+| Export | Role |
+|--------|------|
+| `JarvisExecutionFlow` | `executeFlow()` + `getExecutionSummary()` |
+| `createDefaultJarvisExecutionFlow()` | Full chain with speech + intent + orchestrator |
+| `JarvisExecutionFlowResult` | Steps, stream events, task record, UI projection |
+
+See `src/e2e/README.md`.
+
 ## Phase 14 — end-to-end task lifecycle
 
 ```
