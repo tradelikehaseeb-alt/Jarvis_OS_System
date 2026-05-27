@@ -80,18 +80,64 @@ runtime process manager without changing gateway interfaces.
 Browser runtime module (`src/browser-runtime/`):
 
 ```
-OpenClaw Runtime → Browser Runtime → Execution Result
+OpenClaw Runtime → Browser Runtime Bootstrap → Browser Runtime Session → Execution Result
 ```
 
 | Export | Role |
 |--------|------|
+| `BrowserRuntimeBootstrap` | Bootstrap contract (Phase 68) |
+| `BrowserRuntimeConfig` | Bootstrap configuration |
+| `BrowserRuntimeSessionInfo` | Bootstrap session snapshot |
+| `BrowserRuntimeValidator` | Runtime validation contract |
+| `createDefaultBrowserRuntimeBootstrap()` | Stub bootstrap factory |
 | `BrowserRuntimeSession` | Browser session contract |
 | `BrowserExecutionRequest` | Browser task request |
 | `BrowserExecutionResult` | Stub execution result |
 | `BrowserRuntimeHealth` | Browser validation snapshot |
-| `createBrowserRuntimeSession()` | Stub session factory |
+| `createBrowserRuntimeSession()` | Direct stub session factory |
+| `runBrowserRuntimePath()` | Bootstrap-backed execution path |
 
 Stub validation and execution only — no real browsing automation.
+
+## Phase 68 — browser runtime bootstrap
+
+```
+Desktop → API Runtime → Orchestrator → OpenClaw Runtime → Browser Runtime Bootstrap → Execution Session
+```
+
+Bootstrap operations:
+
+- `initializeRuntime()`
+- `validateRuntime()`
+- `createSession()`
+- `terminateRuntime()`
+
+Existing stub session path preserved when an explicit `BrowserRuntimeSession` is injected.
+Gateway, adapter, and orchestrator interfaces unchanged.
+
+## Phase 69 — browser action execution pipeline
+
+```
+Desktop → API Runtime → Orchestrator → OpenClaw Runtime → Browser Runtime → Action Pipeline → Execution Result
+```
+
+| Export | Role |
+|--------|------|
+| `BrowserAction` | Stub action kinds |
+| `BrowserActionRequest` | Single action request |
+| `BrowserActionResult` | Single action result |
+| `BrowserActionPipeline` | Pipeline contract |
+| `BrowserActionValidator` | Action validation |
+| `createDefaultBrowserActionPipeline()` | Stub pipeline factory |
+
+Pipeline operations:
+
+- `validateAction()`
+- `executeAction()`
+- `executePipeline()`
+
+Stub actions: `open-page`, `click-element`, `type-text`, `extract-content`. Legacy `navigate` maps to `open-page`.
+No real browser automation or device control.
 
 ## Phase 16 — adapter boundary
 

@@ -18,7 +18,7 @@ import {
 } from "./gateway";
 import {
   buildBrowserExecutionRequest,
-  createBrowserRuntimeSession,
+  runBrowserRuntimePath,
   type BrowserRuntimeSession,
 } from "./browser-runtime";
 import { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
@@ -84,16 +84,13 @@ export class OpenClawAgent extends AbstractBaseAgent {
       correlationId: task.correlationId,
     };
 
-    const browserSession = this.browserRuntimeSession ?? createBrowserRuntimeSession();
-    await browserSession.initializeSession();
-    await browserSession.validateBrowser();
-    const browserRuntimeResult = await browserSession.executeBrowserTask(
+    const browserRuntimeResult = await runBrowserRuntimePath(
       buildBrowserExecutionRequest(
         buildOpenClawGatewayRequest(task, context.contextRef),
         gatewayResponse.executionHandleId,
       ),
+      this.browserRuntimeSession,
     );
-    await browserSession.terminateSession();
 
     if (!browserRuntimeResult.success) {
       return {

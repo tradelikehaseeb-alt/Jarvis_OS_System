@@ -1,15 +1,21 @@
 import type { BrowserExecutionRequest } from "./browser-execution-request";
 import type { BrowserExecutionResult } from "./browser-execution-result";
+import type { BrowserActionPipeline } from "./browser-action-pipeline";
+import type { BrowserRuntimeBootstrap } from "./browser-runtime-bootstrap";
 import type { BrowserRuntimeHealth } from "./browser-runtime-health";
 import type {
   BrowserRuntimeSession,
   BrowserRuntimeSessionSnapshot,
 } from "./browser-runtime-session";
 import type { BrowserRuntimeState } from "./browser-runtime-state";
+import { createDefaultBrowserActionPipeline } from "./create-default-browser-action-pipeline";
+import { createDefaultBrowserRuntimeBootstrap } from "./create-default-browser-runtime-bootstrap";
+import { mapBrowserExecutionToActionRequest } from "./map-browser-execution-to-action-request";
 
 export interface CreateBrowserRuntimeSessionOptions {
   readonly stub?: boolean;
   readonly sessionId?: string;
+  readonly actionPipeline?: BrowserActionPipeline;
 }
 
 let sessionCounter = 0;
@@ -27,12 +33,15 @@ class DefaultBrowserRuntimeSession implements BrowserRuntimeSession {
   readonly sessionId: string;
   state: BrowserRuntimeState = "idle";
   private readonly stub: boolean;
+  private readonly actionPipeline: BrowserActionPipeline;
   private runtimeHealth: BrowserRuntimeHealth | undefined;
   private initializedAt: string | undefined;
 
   constructor(options: CreateBrowserRuntimeSessionOptions = {}) {
     this.sessionId = options.sessionId ?? nextSessionId();
     this.stub = options.stub ?? true;
+    this.actionPipeline =
+      options.actionPipeline ?? createDefaultBrowserActionPipeline({ stub: this.stub });
   }
 
   async initializeSession(): Promise<BrowserRuntimeSessionSnapshot> {
@@ -85,6 +94,25 @@ class DefaultBrowserRuntimeSession implements BrowserRuntimeSession {
 
     this.state = "executing";
 
+    const actionRequest = mapBrowserExecutionToActionRequest(request);
+
+    if (actionRequest) {
+      const actionResult = await this.actionPipeline.executeAction(actionRequest);
+
+      this.state = actionResult.success ? "completed" : "failed";
+
+      return {
+        success: actionResult.success,
+        stub: actionResult.stub,
+        action: request.action,
+        url: request.url,
+        status: actionResult.status,
+        message: actionResult.message,
+        executedAt: actionResult.executedAt,
+        screenshotRef: actionResult.screenshotRef ?? null,
+      };
+    }
+
     const result: BrowserExecutionResult = {
       success: true,
       stub: request.stub ?? this.stub,
@@ -122,15 +150,32 @@ export function createBrowserRuntimeSession(
 }
 
 /**
- * Runs browser validation + stub execution for gateway requests (Phase 61).
+ * Runs browser validation + stub execution for gateway requests (Phase 61, 68).
+ * Uses {@link BrowserRuntimeBootstrap} by default; pass an explicit session to preserve direct stub path.
  */
 export async function runBrowserRuntimePath(
   request: BrowserExecutionRequest,
-  session: BrowserRuntimeSession = createBrowserRuntimeSession(),
+  session?: BrowserRuntimeSession,
+  options?: { readonly bootstrap?: BrowserRuntimeBootstrap },
 ): Promise<BrowserExecutionResult> {
-  await session.initializeSession();
-  await session.validateBrowser();
-  const result = await session.executeBrowserTask(request);
-  await session.terminateSession();
-  return result;
+  if (session) {
+    await session.initializeSession();
+    await session.validateBrowser();
+    const result = await session.executeBrowserTask(request);
+    await session.terminateSession();
+    return result;
+  }
+
+  const bootstrap =
+    options?.bootstrap ?? createDefaultBrowserRuntimeBootstrap();
+
+  await bootstrap.initializeRuntime();
+  await bootstrap.validateRuntime();
+  const { session: execSession } = await bootstrap.createSession();
+
+  try {
+    return await execSession.executeBrowserTask(request);
+  } finally {
+    await bootstrap.terminateRuntime();
+  }
 }

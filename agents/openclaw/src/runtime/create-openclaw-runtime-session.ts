@@ -19,7 +19,7 @@ import type { OpenClawRuntimeProcessBinding } from "./openclaw-runtime-process-b
 import type { OpenClawRuntimeSession } from "./openclaw-runtime-session";
 import {
   buildBrowserExecutionRequest,
-  createBrowserRuntimeSession,
+  runBrowserRuntimePath,
   type BrowserRuntimeSession,
 } from "../browser-runtime";
 
@@ -94,14 +94,10 @@ async function runBrowserExecutionPath(
   handleId: string,
   browserRuntimeSession?: BrowserRuntimeSession,
 ) {
-  const session = browserRuntimeSession ?? createBrowserRuntimeSession();
-  await session.initializeSession();
-  await session.validateBrowser();
-  const result = await session.executeBrowserTask(
+  return runBrowserRuntimePath(
     buildBrowserExecutionRequest(request, handleId),
+    browserRuntimeSession,
   );
-  await session.terminateSession();
-  return result;
 }
 
 async function applyProviderConnectionValidation(
