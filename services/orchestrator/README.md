@@ -2,6 +2,24 @@
 
 Jarvis Core **orchestrator** — workflow composition, capability routing, and task execution.
 
+## Phase 45 — execution lifecycle
+
+```
+Orchestrator → HermesGateway → Plan → OpenClawGateway → Execution Lifecycle → Activity Stream
+```
+
+| Export | Role |
+|--------|------|
+| `ExecutionLifecycleManager` | Session state + activity streaming |
+| `InMemoryExecutionLifecycleManager` | In-memory lifecycle + internal subscribers |
+| `createDefaultExecutionLifecycleManager()` | Factory |
+| `emitHermesPlanningActivities()` | Planning activity from Hermes payload |
+| `emitOpenClawExecutionActivities()` | Execution activity from OpenClaw payload |
+
+Execution states: `queued`, `planning`, `executing`, `waiting`, `completed`, `failed`, `cancelled`.
+
+Automate intents run Hermes planning handshake → OpenClaw execution. Task output includes `executionLifecycle` snapshot.
+
 ## Phase 14 — end-to-end task lifecycle
 
 ```
@@ -40,6 +58,7 @@ Static/mock only — no LLM, database, or external APIs.
 | `task-router/` | Route `UserTask` → workflow |
 | `capability-routing/` | Intent → agent selection |
 | `task-execution/` | **Phase 14** — create + status store |
+| `execution/` | **Phase 45** — lifecycle + activity streaming |
 | `execution-manager/` | Step lifecycle (stub) |
 | `context-manager/` | Session context |
 | `workflow-manager/` | Build workflows |

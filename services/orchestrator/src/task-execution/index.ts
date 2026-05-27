@@ -2,6 +2,7 @@ export {
   executeCreateTask,
   DEFAULT_API_USER_ID,
   type CreateTaskExecutionInput,
+  type CreateTaskExecutionOptions,
   type CreateTaskExecutionResult,
 } from "./create-task-executor";
 export { extractSkillOutput } from "./extract-skill-output";

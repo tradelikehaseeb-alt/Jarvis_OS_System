@@ -17,6 +17,7 @@ describe("orchestrator structure", () => {
       "agent-registry",
       "capability-router",
       "task-execution",
+      "execution",
       "storage",
     ]);
   });

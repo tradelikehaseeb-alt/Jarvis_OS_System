@@ -1,8 +1,10 @@
 import type {
   AgentRegistryContract,
   AgentContext,
+  AgentResult,
   AgentTask,
 } from "@jarvis/agents-shared";
+import type { TaskIntent } from "@jarvis/types";
 import type {
   CreateTaskRequest,
   CreateTaskResponse,
@@ -10,6 +12,15 @@ import type {
   UserTask,
 } from "@jarvis/types";
 
+import {
+  HERMES_AGENT_ID,
+  OPENCLAW_AGENT_ID,
+  createDefaultExecutionLifecycleManager,
+  emitHermesPlanningActivities,
+  emitOpenClawExecutionActivities,
+  toExecutionLifecycleSnapshot,
+  type ExecutionLifecycleManager,
+} from "../execution";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -24,6 +35,10 @@ export interface CreateTaskExecutionInput extends CreateTaskRequest {
 
 export interface CreateTaskExecutionResult {
   readonly record: TaskExecutionRecord;
+}
+
+export interface CreateTaskExecutionOptions {
+  readonly lifecycleManager?: ExecutionLifecycleManager;
 }
 
 function buildUserTask(
@@ -68,22 +83,128 @@ function buildTaskStatus(
   };
 }
 
+function intentRequiresExecutionHandshake(intent: TaskIntent): boolean {
+  return intent.kind === "automate";
+}
+
+async function executeAgent(
+  registry: AgentRegistryContract,
+  agentId: string,
+  task: UserTask,
+  requestId: string,
+  agentContext: AgentContext,
+): Promise<AgentResult | undefined> {
+  const agent = await registry.resolve(agentId);
+  if (!agent) {
+    return undefined;
+  }
+  return agent.execute(buildAgentTask(task, requestId), agentContext);
+}
+
+async function runExecutionHandshake(
+  registry: AgentRegistryContract,
+  lifecycle: ExecutionLifecycleManager,
+  sessionId: string,
+  task: UserTask,
+  requestId: string,
+  agentContext: AgentContext,
+): Promise<{
+  agentResult: AgentResult;
+  planningResult?: AgentResult;
+}> {
+  lifecycle.transition(sessionId, "planning", "Hermes planning phase");
+
+  const planningResult = await executeAgent(
+    registry,
+    HERMES_AGENT_ID,
+    task,
+    requestId,
+    agentContext,
+  );
+
+  if (!planningResult) {
+    return {
+      agentResult: {
+        taskId: task.id,
+        requestId,
+        agentId: HERMES_AGENT_ID,
+        success: false,
+        error: {
+          code: "AGENT_NOT_FOUND",
+          message: `Agent ${HERMES_AGENT_ID} is not registered for planning`,
+        },
+      },
+    };
+  }
+
+  emitHermesPlanningActivities(lifecycle, sessionId, task.id, planningResult);
+
+  if (!planningResult.success) {
+    return { agentResult: planningResult, planningResult };
+  }
+
+  lifecycle.transition(sessionId, "executing", "OpenClaw execution phase");
+
+  const executionResult = await executeAgent(
+    registry,
+    OPENCLAW_AGENT_ID,
+    task,
+    requestId,
+    agentContext,
+  );
+
+  if (!executionResult) {
+    return {
+      agentResult: {
+        taskId: task.id,
+        requestId,
+        agentId: OPENCLAW_AGENT_ID,
+        success: false,
+        error: {
+          code: "AGENT_NOT_FOUND",
+          message: `Agent ${OPENCLAW_AGENT_ID} is not registered for execution`,
+        },
+      },
+      planningResult,
+    };
+  }
+
+  emitOpenClawExecutionActivities(
+    lifecycle,
+    sessionId,
+    task.id,
+    executionResult,
+  );
+
+  return { agentResult: executionResult, planningResult };
+}
+
 /**
- * End-to-end create-task flow (Phase 14):
+ * End-to-end create-task flow (Phase 14, 45):
  *
  * TaskRouter → ContextManager → WorkflowManager → CapabilityRouter →
- * AgentRegistry → Agent.execute (→ SkillExecutor → Skill).
+ * ExecutionLifecycle → Agent.execute (→ SkillExecutor → Skill).
  */
 export async function executeCreateTask(
   components: OrchestratorComponents,
   executableRegistry: AgentRegistryContract,
   input: CreateTaskExecutionInput,
   store: TaskStore,
+  options: CreateTaskExecutionOptions = {},
 ): Promise<CreateTaskExecutionResult> {
+  const lifecycle =
+    options.lifecycleManager ?? createDefaultExecutionLifecycleManager();
+
   const taskId = `task-${Date.now()}`;
   const task = buildUserTask(taskId, input);
   const requestId = mockRequestId(taskId);
   const contextRef = mockContextRef(taskId);
+
+  const session = lifecycle.startSession({
+    taskId: task.id,
+    requestId,
+    userId: task.userId,
+  });
 
   await components.taskRouter.route({ task });
   await components.contextManager.create({ task });
@@ -97,8 +218,79 @@ export async function executeCreateTask(
     components.agentRegistry,
   );
 
-  const agent = await executableRegistry.resolve(routing.selectedAgentId);
-  if (!agent) {
+  const agentContext: AgentContext = {
+    contextRef,
+    userId: task.userId,
+    metadata: task.metadata,
+  };
+
+  let agentResult: AgentResult;
+  let planningResult: AgentResult | undefined;
+  let handshake = false;
+
+  if (intentRequiresExecutionHandshake(task.intent)) {
+    handshake = true;
+    const handshakeResult = await runExecutionHandshake(
+      executableRegistry,
+      lifecycle,
+      session.sessionId,
+      task,
+      requestId,
+      agentContext,
+    );
+    agentResult = handshakeResult.agentResult;
+    planningResult = handshakeResult.planningResult;
+  } else {
+    const selectedAgentId = routing.selectedAgentId;
+    const initialState =
+      selectedAgentId === HERMES_AGENT_ID ? "planning" : "executing";
+    lifecycle.transition(
+      session.sessionId,
+      initialState,
+      `Single-agent ${initialState}`,
+    );
+
+    const resolved = await executeAgent(
+      executableRegistry,
+      selectedAgentId,
+      task,
+      requestId,
+      agentContext,
+    );
+
+    if (!resolved) {
+      agentResult = {
+        taskId: task.id,
+        requestId,
+        agentId: selectedAgentId,
+        success: false,
+        error: {
+          code: "AGENT_NOT_FOUND",
+          message: `Agent ${selectedAgentId} is not registered for execution`,
+        },
+      };
+    } else {
+      agentResult = resolved;
+      if (selectedAgentId === HERMES_AGENT_ID) {
+        emitHermesPlanningActivities(
+          lifecycle,
+          session.sessionId,
+          task.id,
+          agentResult,
+        );
+      } else if (selectedAgentId === OPENCLAW_AGENT_ID) {
+        emitOpenClawExecutionActivities(
+          lifecycle,
+          session.sessionId,
+          task.id,
+          agentResult,
+        );
+      }
+    }
+  }
+
+  if (agentResult.error?.code === "AGENT_NOT_FOUND") {
+    lifecycle.transition(session.sessionId, "failed", agentResult.error.message);
     const failedStatus = buildTaskStatus(
       task,
       "failed",
@@ -108,11 +300,17 @@ export async function executeCreateTask(
           selectedAgentId: routing.selectedAgentId,
           reason: routing.reason,
         },
+        executionLifecycle: toExecutionLifecycleSnapshot(
+          lifecycle.getSession(session.sessionId)!,
+          handshake
+            ? {
+                planningAgentId: HERMES_AGENT_ID,
+                executionAgentId: OPENCLAW_AGENT_ID,
+              }
+            : undefined,
+        ),
       },
-      {
-        code: "AGENT_NOT_FOUND",
-        message: `Agent ${routing.selectedAgentId} is not registered for execution`,
-      },
+      agentResult.error,
     );
     const createTaskResponse: CreateTaskResponse = {
       taskId: task.id,
@@ -125,26 +323,23 @@ export async function executeCreateTask(
     return { record };
   }
 
-  const agentContext: AgentContext = {
-    contextRef,
-    userId: task.userId,
-    metadata: task.metadata,
-  };
-
-  const agentResult = await agent.execute(
-    buildAgentTask(task, requestId),
-    agentContext,
+  const terminalState = agentResult.success ? "completed" : "failed";
+  lifecycle.transition(
+    session.sessionId,
+    terminalState,
+    agentResult.success ? "Task completed" : "Task failed",
   );
 
   const skillOutput = extractSkillOutput(agentResult.payload);
   const output: Readonly<Record<string, unknown>> = {
     stub: true,
-    phase: 14,
+    phase: 45,
     routing: {
-      selectedAgentId: routing.selectedAgentId,
+      selectedAgentId: handshake ? OPENCLAW_AGENT_ID : routing.selectedAgentId,
       reason: routing.reason,
       policyId: routing.policyId,
       matches: routing.matches.length,
+      handshake,
     },
     agent: {
       agentId: agentResult.agentId,
@@ -153,19 +348,30 @@ export async function executeCreateTask(
     },
     skill: skillOutput,
     agentPayload: agentResult.payload,
+    ...(planningResult
+      ? { planningPayload: planningResult.payload }
+      : {}),
+    executionLifecycle: toExecutionLifecycleSnapshot(
+      lifecycle.getSession(session.sessionId)!,
+      handshake
+        ? {
+            planningAgentId: HERMES_AGENT_ID,
+            executionAgentId: OPENCLAW_AGENT_ID,
+          }
+        : undefined,
+    ),
   };
 
-  const terminalStatus = agentResult.success ? "completed" : "failed";
   const taskStatus = buildTaskStatus(
     task,
-    terminalStatus,
+    terminalState,
     output,
     agentResult.error,
   );
 
   const createTaskResponse: CreateTaskResponse = {
     taskId: task.id,
-    status: terminalStatus,
+    status: terminalState,
     createdAt: task.createdAt,
     correlationId: task.correlationId,
   };

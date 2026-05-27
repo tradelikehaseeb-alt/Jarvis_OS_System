@@ -15,6 +15,7 @@ import {
 import {
   executeCreateTask,
   type CreateTaskExecutionInput,
+  type CreateTaskExecutionOptions,
   type CreateTaskExecutionResult,
 } from "./task-execution/create-task-executor";
 
@@ -24,6 +25,7 @@ import {
 export interface TaskLifecycleOperations {
   executeCreateTask(
     input: CreateTaskExecutionInput,
+    options?: CreateTaskExecutionOptions,
   ): Promise<CreateTaskExecutionResult>;
 
   getTaskStatus(taskId: string): Promise<TaskStatusResponse | null>;
@@ -46,12 +48,14 @@ export class OrchestratorServiceImpl
 
   async executeCreateTask(
     input: CreateTaskExecutionInput,
+    options?: CreateTaskExecutionOptions,
   ): Promise<CreateTaskExecutionResult> {
     return executeCreateTask(
       this.components,
       this.executableRegistry,
       input,
       this.taskStore,
+      options,
     );
   }
 
