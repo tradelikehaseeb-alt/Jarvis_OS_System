@@ -48,6 +48,33 @@ Runtime wiring module (`openclaw-gateway-runtime-wiring.ts`):
 
 Stub execution preserved; discovery only (no browser/device control).
 
+## Phase 58 — runtime execution handshake
+
+Runtime session module (`src/runtime/`):
+
+```
+Orchestrator → OpenClawGateway → OpenClawRuntimeSession → Runtime Process Manager → OpenClaw Runtime
+```
+
+| Export | Role |
+|--------|------|
+| `OpenClawRuntimeSession` | Session contract |
+| `OpenClawExecutionState` | Session lifecycle state |
+| `OpenClawExecutionHandshake` | Handshake result |
+| `OpenClawRuntimeHealth` | Validation health snapshot |
+| `createOpenClawRuntimeSession()` | Session factory |
+
+Session operations:
+
+- `initializeSession()`
+- `validateRuntime()`
+- `executeTask()`
+- `terminateSession()`
+
+`DefaultOpenClawGateway.execute()` runs the full handshake path. Stub mode remains
+the default fallback. Optional `OpenClawRuntimeProcessBinding` connects to Jarvis
+runtime process manager without changing gateway interfaces.
+
 ## Phase 16 — adapter boundary
 
 | Layer | Path | Role |
