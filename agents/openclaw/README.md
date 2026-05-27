@@ -139,6 +139,29 @@ Pipeline operations:
 Stub actions: `open-page`, `click-element`, `type-text`, `extract-content`. Legacy `navigate` maps to `open-page`.
 No real browser automation or device control.
 
+## Phase 70 — browser page context runtime
+
+```
+Desktop → API Runtime → Orchestrator → OpenClaw Runtime → Browser Runtime → Page Context Runtime → Action Pipeline
+```
+
+| Export | Role |
+|--------|------|
+| `BrowserPageContext` | Active page/session context |
+| `BrowserPageSnapshot` | Point-in-time page snapshot |
+| `BrowserSessionState` | Context lifecycle state |
+| `BrowserContextRuntime` | Page context contract |
+| `createDefaultBrowserContextRuntime()` | Stub context factory |
+
+Context operations:
+
+- `initializeContext()`
+- `updateContext()`
+- `getCurrentContext()`
+- `clearContext()`
+
+Page state persists across pipeline actions within a browser session. Stub fallback preserved.
+
 ## Phase 16 — adapter boundary
 
 | Layer | Path | Role |

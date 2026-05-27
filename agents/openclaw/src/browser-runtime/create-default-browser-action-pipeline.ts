@@ -8,10 +8,14 @@ import {
   DefaultBrowserActionValidator,
   type BrowserActionValidator,
 } from "./browser-action-validator";
+import { applyActionToPageContext } from "./apply-action-to-page-context";
+import type { BrowserContextRuntime } from "./browser-context-runtime";
+import { createDefaultBrowserContextRuntime } from "./create-default-browser-context-runtime";
 
 export interface CreateDefaultBrowserActionPipelineOptions {
   readonly stub?: boolean;
   readonly validator?: BrowserActionValidator;
+  readonly contextRuntime?: BrowserContextRuntime;
 }
 
 function nowIso(): string {
@@ -20,12 +24,16 @@ function nowIso(): string {
 
 class DefaultBrowserActionPipeline implements BrowserActionPipeline {
   private readonly stub: boolean;
+  private readonly contextRuntime: BrowserContextRuntime;
 
   constructor(
     private readonly validator: BrowserActionValidator,
     options: CreateDefaultBrowserActionPipelineOptions = {},
   ) {
     this.stub = options.stub ?? true;
+    this.contextRuntime =
+      options.contextRuntime ??
+      createDefaultBrowserContextRuntime({ stub: this.stub });
   }
 
   validateAction(request: BrowserActionRequest) {
@@ -56,7 +64,7 @@ class DefaultBrowserActionPipeline implements BrowserActionPipeline {
 
     const message = this.stubMessage(request);
 
-    return {
+    const result: BrowserActionResult = {
       success: true,
       stub,
       action: request.action,
@@ -72,6 +80,14 @@ class DefaultBrowserActionPipeline implements BrowserActionPipeline {
           : undefined,
       screenshotRef: null,
     };
+
+    if (this.contextRuntime.getCurrentContext()) {
+      await this.contextRuntime.updateContext(
+        applyActionToPageContext(request, result),
+      );
+    }
+
+    return result;
   }
 
   async executePipeline(
@@ -79,6 +95,10 @@ class DefaultBrowserActionPipeline implements BrowserActionPipeline {
   ): Promise<BrowserActionPipelineResult> {
     const executedAt = nowIso();
     const results: BrowserActionResult[] = [];
+
+    if (requests.length > 0 && !this.contextRuntime.getCurrentContext()) {
+      await this.contextRuntime.initializeContext(requests[0]!.taskId);
+    }
 
     for (const request of requests) {
       const result = await this.executeAction(request);

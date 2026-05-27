@@ -13,6 +13,13 @@ export type {
   BrowserActionValidation,
 } from "./browser-action-validator";
 export { DefaultBrowserActionValidator } from "./browser-action-validator";
+export type { BrowserSessionState } from "./browser-session-state";
+export type { BrowserPageSnapshot } from "./browser-page-snapshot";
+export type {
+  BrowserPageContext,
+  BrowserPageContextUpdate,
+} from "./browser-page-context";
+export type { BrowserContextRuntime } from "./browser-context-runtime";
 export type { BrowserRuntimeState } from "./browser-runtime-state";
 export type { BrowserRuntimeHealth } from "./browser-runtime-health";
 export type { BrowserRuntimeConfig } from "./browser-runtime-config";
@@ -39,3 +46,7 @@ export {
   createDefaultBrowserActionPipeline,
   type CreateDefaultBrowserActionPipelineOptions,
 } from "./create-default-browser-action-pipeline";
+export {
+  createDefaultBrowserContextRuntime,
+  type CreateDefaultBrowserContextRuntimeOptions,
+} from "./create-default-browser-context-runtime";

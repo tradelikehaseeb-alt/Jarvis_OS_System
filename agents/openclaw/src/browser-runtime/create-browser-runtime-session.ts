@@ -1,6 +1,7 @@
 import type { BrowserExecutionRequest } from "./browser-execution-request";
 import type { BrowserExecutionResult } from "./browser-execution-result";
 import type { BrowserActionPipeline } from "./browser-action-pipeline";
+import type { BrowserContextRuntime } from "./browser-context-runtime";
 import type { BrowserRuntimeBootstrap } from "./browser-runtime-bootstrap";
 import type { BrowserRuntimeHealth } from "./browser-runtime-health";
 import type {
@@ -9,12 +10,14 @@ import type {
 } from "./browser-runtime-session";
 import type { BrowserRuntimeState } from "./browser-runtime-state";
 import { createDefaultBrowserActionPipeline } from "./create-default-browser-action-pipeline";
+import { createDefaultBrowserContextRuntime } from "./create-default-browser-context-runtime";
 import { createDefaultBrowserRuntimeBootstrap } from "./create-default-browser-runtime-bootstrap";
 import { mapBrowserExecutionToActionRequest } from "./map-browser-execution-to-action-request";
 
 export interface CreateBrowserRuntimeSessionOptions {
   readonly stub?: boolean;
   readonly sessionId?: string;
+  readonly contextRuntime?: BrowserContextRuntime;
   readonly actionPipeline?: BrowserActionPipeline;
 }
 
@@ -33,6 +36,7 @@ class DefaultBrowserRuntimeSession implements BrowserRuntimeSession {
   readonly sessionId: string;
   state: BrowserRuntimeState = "idle";
   private readonly stub: boolean;
+  private readonly contextRuntime: BrowserContextRuntime;
   private readonly actionPipeline: BrowserActionPipeline;
   private runtimeHealth: BrowserRuntimeHealth | undefined;
   private initializedAt: string | undefined;
@@ -40,13 +44,21 @@ class DefaultBrowserRuntimeSession implements BrowserRuntimeSession {
   constructor(options: CreateBrowserRuntimeSessionOptions = {}) {
     this.sessionId = options.sessionId ?? nextSessionId();
     this.stub = options.stub ?? true;
+    this.contextRuntime =
+      options.contextRuntime ??
+      createDefaultBrowserContextRuntime({ stub: this.stub });
     this.actionPipeline =
-      options.actionPipeline ?? createDefaultBrowserActionPipeline({ stub: this.stub });
+      options.actionPipeline ??
+      createDefaultBrowserActionPipeline({
+        stub: this.stub,
+        contextRuntime: this.contextRuntime,
+      });
   }
 
   async initializeSession(): Promise<BrowserRuntimeSessionSnapshot> {
     this.state = "initializing";
     this.initializedAt = nowIso();
+    await this.contextRuntime.initializeContext(this.sessionId);
     this.state = "idle";
 
     return {
@@ -130,6 +142,7 @@ class DefaultBrowserRuntimeSession implements BrowserRuntimeSession {
 
   async terminateSession(): Promise<BrowserRuntimeSessionSnapshot> {
     this.state = "terminated";
+    await this.contextRuntime.clearContext();
 
     return {
       sessionId: this.sessionId,
