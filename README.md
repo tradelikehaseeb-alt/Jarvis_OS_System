@@ -2,7 +2,7 @@
 
 Production-grade AI Operating System and SaaS platform — planning, execution, voice, memory, and multi-provider inference behind a single **Jarvis** experience.
 
-**Current checkpoint:** Phase **92** — quality & responsiveness polish (Framer Motion, voice smoothness, streaming UX, performance).
+**Current checkpoint:** Phase **93** — memory & context intelligence (adaptive recall, continuity, UI indicators).
 
 ## Architecture
 
@@ -23,17 +23,18 @@ UI (apps) → API Gateway (services) → Orchestrator → Agents → Skills
 | Packages | `packages/` | types, logger, config, shared-utils, provider-registry, runtime-manager |
 | Docs | `docs/` | Architecture, setup, phases, voice, providers |
 
-## Recent phases (88–92)
+## Recent phases (88–93)
 
 | Phase | Scope |
 |-------|--------|
 | **88** | Real AI response validation — live provider detection, streaming, stub fallback |
 | **89** | Jarvis Command Center UI + real provider SSE streaming + user-facing execution labels |
-| **90** | Voice-native UI — orb, overlay, wake word, interruption (mock capture path) |
-| **91** | Real-time voice — browser mic, streaming STT/TTS adapters, orchestrator speech bridge |
-| **92** | Quality pass — Framer Motion, transcript stabilization, throttled waveforms, progressive streaming |
+| **90** | Voice-native UI — orb, overlay, wake word, interruption |
+| **91** | Real-time voice — browser mic, streaming STT/TTS adapters |
+| **92** | Quality pass — Framer Motion, transcript stabilization, progressive streaming |
+| **93** | Memory intelligence — adaptive recall, continuity profiles, "Remembered context" UI |
 
-Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Providers: `docs/PROVIDERS.md`
+Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMORY.md` · Providers: `docs/PROVIDERS.md`
 
 ## Desktop capabilities (today)
 
@@ -43,6 +44,7 @@ Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Providers: `docs/PR
 - **LLM providers** — OpenAI, Groq, Gemini, OpenRouter, DeepSeek, Minimax, Ollama (Settings → Providers)
 - **Intent routing** — deterministic classifier → `POST /tasks` → Hermes plan + OpenClaw execution
 - **Polish (92)** — memoized waveforms, stabilized partials, progressive response rendering
+- **Memory intelligence (93)** — adaptive recall, session continuity, subtle context indicators
 
 UI screenshots: `docs/screenshots/README.md`
 
@@ -91,9 +93,9 @@ Full setup: [`docs/SETUP.md`](docs/SETUP.md)
 ## Tests (last verified — Phase 92)
 
 ```bash
-npm run test --workspace=@jarvis/desktop          # 180 tests
+npm run test --workspace=@jarvis/desktop          # 182 tests
 npm run test --workspace=@jarvis/speech-service   # 84 tests
-npm run test --workspace=@jarvis/orchestrator     # 243 tests
+npm run test --workspace=@jarvis/orchestrator     # 252 tests
 ```
 
 ## Documentation
@@ -106,6 +108,7 @@ npm run test --workspace=@jarvis/orchestrator     # 243 tests
 | [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md) | Current implementation snapshot |
 | [`docs/PHASES.md`](docs/PHASES.md) | Delivery phase table |
 | [`docs/VOICE.md`](docs/VOICE.md) | Voice & speech runtime capabilities |
+| [`docs/MEMORY.md`](docs/MEMORY.md) | Memory intelligence & context recall |
 | [`docs/PROVIDERS.md`](docs/PROVIDERS.md) | LLM + STT/TTS provider support |
 | [`RESUME_POINT.md`](RESUME_POINT.md) | Restart guide after a break |
 

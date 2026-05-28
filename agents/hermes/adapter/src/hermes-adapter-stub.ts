@@ -43,7 +43,9 @@ export class HermesAdapterStub implements HermesAdapter {
       };
     }
 
-    const summary = `Stub plan for: ${request.intent.description}`;
+    const summary = request.recalledContextSnippets?.length
+      ? `Stub plan for: ${request.intent.description} (with ${request.recalledContextSnippets.length} remembered context item(s))`
+      : `Stub plan for: ${request.intent.description}`;
 
     return {
       success: true,

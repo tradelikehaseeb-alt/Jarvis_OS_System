@@ -13,4 +13,6 @@ export interface HermesRequest {
   readonly contextRef?: string;
   readonly correlationId?: string;
   readonly workflowStepId?: string;
+  /** Recalled conversation snippets from orchestrator memory (Phase 93). */
+  readonly recalledContextSnippets?: readonly string[];
 }

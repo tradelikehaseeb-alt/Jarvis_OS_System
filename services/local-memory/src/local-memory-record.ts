@@ -1,7 +1,12 @@
 /**
  * Local memory record categories (Phase 62).
  */
-export type LocalMemoryType = "conversation" | "execution" | "activity" | "summary";
+export type LocalMemoryType =
+  | "conversation"
+  | "execution"
+  | "activity"
+  | "summary"
+  | "session-profile";
 
 /**
  * Persisted local memory record — SQLite-ready shape (Phase 62).

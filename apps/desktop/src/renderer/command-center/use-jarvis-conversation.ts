@@ -20,6 +20,7 @@ import type { CreateTaskResponse, TaskStatusResponse } from "@jarvis/types";
 import { useConversationWorkspace } from "../workspace/use-conversation-workspace";
 import { loadingMessageForJarvisIntent } from "./execution-display-labels";
 import type { ChatMessage } from "../components/ChatMessages";
+import { parseMemoryRecallView } from "../memory/memory-recall-view";
 
 let messageCounter = 0;
 
@@ -345,6 +346,11 @@ export function useJarvisConversation() {
     };
   }, [statusResult]);
 
+  const memoryRecallView = useMemo(
+    () => parseMemoryRecallView(statusResult?.output as Record<string, unknown> | undefined),
+    [statusResult],
+  );
+
   return {
     workspace,
     activeSession,
@@ -364,5 +370,6 @@ export function useJarvisConversation() {
     handleSubmit,
     orbState,
     providerTelemetry,
+    memoryRecallView,
   };
 }

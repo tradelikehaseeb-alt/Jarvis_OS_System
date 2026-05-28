@@ -7,6 +7,7 @@ import type { TimelineStep } from "../timeline/timeline-step";
 import { DynamicActivityPanel } from "./DynamicActivityPanel";
 import { JARVIS_EXECUTION_LABELS } from "./execution-display-labels";
 import { fadeSlideUp, panelTransition } from "../polish/motion-presets";
+import { MemoryContextIndicator } from "../memory/MemoryContextIndicator";
 
 export interface LiveExecutionPanelProps {
   readonly steps: readonly TimelineStep[];
@@ -17,6 +18,8 @@ export interface LiveExecutionPanelProps {
   readonly error?: string;
   readonly providerLabel?: string;
   readonly latencyMs?: number;
+  readonly memoryRecallMessage?: string;
+  readonly memoryRecallCount?: number;
 }
 
 /**
@@ -31,6 +34,8 @@ export const LiveExecutionPanel = memo(function LiveExecutionPanel({
   error,
   providerLabel,
   latencyMs,
+  memoryRecallMessage,
+  memoryRecallCount,
 }: LiveExecutionPanelProps) {
   const showPanel = loading || steps.length > 0 || Boolean(error) || events.length > 0;
   const complete = !loading && !error && progress >= 1;
@@ -65,6 +70,12 @@ export const LiveExecutionPanel = memo(function LiveExecutionPanel({
               {displayMessage}
             </p>
           ) : null}
+
+          <MemoryContextIndicator
+            visible={Boolean(memoryRecallMessage)}
+            message={memoryRecallMessage}
+            snippetCount={memoryRecallCount}
+          />
 
           <DynamicActivityPanel events={events} loading={loading} />
 

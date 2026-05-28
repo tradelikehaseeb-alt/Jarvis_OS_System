@@ -23,6 +23,7 @@
 | Document | Description |
 |----------|-------------|
 | [VOICE.md](./VOICE.md) | Voice-native UI, STT/TTS, speech-service runtime |
+| [MEMORY.md](./MEMORY.md) | Memory intelligence & adaptive recall (Phase 93) |
 | [PROVIDERS.md](./PROVIDERS.md) | LLM, STT, and TTS provider matrix |
 | [screenshots/README.md](./screenshots/README.md) | UI screenshot & GIF reference paths |
 

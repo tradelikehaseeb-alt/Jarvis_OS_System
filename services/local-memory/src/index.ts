@@ -5,6 +5,15 @@ export type { LocalMemoryQuery } from "./local-memory-query";
 export type { LocalMemoryRepository } from "./local-memory-repository";
 export type { LocalMemoryRuntime } from "./local-memory-runtime";
 export {
+  createDefaultSessionMemoryProfile,
+  type SessionMemoryProfile,
+} from "./session-memory-profile";
+export {
+  getSessionMemoryProfile,
+  saveSessionMemoryProfile,
+  resolveSessionMemoryProfile,
+} from "./session-memory-profile-store";
+export {
   FileLocalMemoryRepository,
   InMemoryLocalMemoryRepository,
   DEFAULT_LOCAL_MEMORY_FILE,

@@ -89,6 +89,7 @@ import {
 } from "../context";
 import { createDefaultMemoryRecallRuntime } from "../memory-recall/create-default-memory-recall-runtime";
 import type { MemoryRecallRuntime } from "../memory-recall/memory-recall-runtime";
+import { buildTaskMemoryRecallView } from "../memory-intelligence/build-task-memory-recall-view";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -809,12 +810,7 @@ export async function executeCreateTask(
           turnCount: contextRecord.turns.length,
           summary: contextRecord.summary,
         },
-        memoryRecall: {
-          count: recalledMemories.length,
-          source: recalledMemories.some((m) => m.source === "conversation-history")
-            ? "conversation-history"
-            : "fallback",
-        },
+        memoryRecall: buildTaskMemoryRecallView(recalledMemories),
       },
       agentResult.error,
     );
@@ -979,12 +975,7 @@ export async function executeCreateTask(
       turnCount: contextRecord.turns.length,
       summary: contextRecord.summary,
     },
-    memoryRecall: {
-      count: recalledMemories.length,
-      source: recalledMemories.some((m) => m.source === "conversation-history")
-        ? "conversation-history"
-        : "fallback",
-    },
+    memoryRecall: buildTaskMemoryRecallView(recalledMemories),
   };
 
   const taskStatus = buildTaskStatus(

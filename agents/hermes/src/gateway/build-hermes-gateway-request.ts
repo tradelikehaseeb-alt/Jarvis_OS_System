@@ -1,6 +1,7 @@
-import type { AgentTask } from "@jarvis/agents-shared";
+import type { AgentContext, AgentTask } from "@jarvis/agents-shared";
 
 import type { HermesGatewayRequest } from "./hermes-gateway-request";
+import { extractRecalledContextFromAgentContext } from "./extract-recalled-context";
 
 /** Map orchestrator {@link AgentTask} to gateway {@link HermesGatewayRequest}. */
 export function buildHermesGatewayRequest(
@@ -15,5 +16,16 @@ export function buildHermesGatewayRequest(
     contextRef,
     correlationId: task.correlationId,
     workflowStepId: task.workflowStepId,
+  };
+}
+
+/** Builds gateway request with recalled context from agent metadata (Phase 93). */
+export function buildHermesGatewayRequestWithContext(
+  task: AgentTask,
+  context: AgentContext,
+): HermesGatewayRequest {
+  return {
+    ...buildHermesGatewayRequest(task, context.contextRef),
+    recalledContext: extractRecalledContextFromAgentContext(context),
   };
 }

@@ -11,6 +11,7 @@ import {
   type DefaultContextRuntimeOptions,
 } from "./create-default-context-runtime";
 import type { ContextRuntime } from "./context-runtime";
+import { createDefaultMemoryIntelligenceBundle } from "../memory-intelligence/create-default-memory-intelligence-bundle";
 
 export interface ContextRuntimeBundle {
   readonly contextRuntime: ContextRuntime;
@@ -24,14 +25,29 @@ export interface ContextRuntimeBundleOptions extends DefaultContextRuntimeOption
   readonly localMemoryRuntime?: LocalMemoryRuntime;
   readonly filePath?: string;
   readonly useFileBackend?: boolean;
+  /** When true (default), uses Phase 93 memory intelligence ranker + adaptive recall. */
+  readonly useMemoryIntelligence?: boolean;
 }
 
 /**
- * Creates paired context, conversation history, ranking, and recall runtimes (Phase 64, 67).
+ * Creates paired context, conversation history, ranking, and recall runtimes (Phase 64, 67, 93).
  */
 export function createDefaultContextRuntimeBundle(
   options?: ContextRuntimeBundleOptions,
 ): ContextRuntimeBundle {
+  const useMemoryIntelligence = options?.useMemoryIntelligence ?? true;
+
+  if (useMemoryIntelligence) {
+    const intelligence = createDefaultMemoryIntelligenceBundle(options);
+    return {
+      conversationHistory: intelligence.conversationHistory,
+      contextRuntime: intelligence.contextRuntime,
+      contextRankingRuntime: intelligence.contextRankingRuntime,
+      memoryRecallRuntime: intelligence.memoryRecallRuntime,
+      localMemoryRuntime: options?.localMemoryRuntime,
+    };
+  }
+
   const conversationHistory =
     options?.conversationHistory ??
     createDefaultConversationHistoryRuntime({

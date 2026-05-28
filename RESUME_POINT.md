@@ -2,7 +2,7 @@
 
 Use this file after a break or context reset.
 
-**Last completed phase:** **92** (quality & responsiveness polish)  
+**Last completed phase:** **93** (memory & context intelligence)  
 **Checkpoint docs:** `docs/PROJECT_STATUS.md`, `docs/PHASES.md`, `docs/SETUP.md`, `docs/VOICE.md`
 
 ---
@@ -23,9 +23,10 @@ Use this file after a break or context reset.
 ## Test baseline (Phase 92)
 
 ```bash
-npm run test --workspace=@jarvis/desktop          # 180
+npm run test --workspace=@jarvis/desktop          # 182
 npm run test --workspace=@jarvis/speech-service   # 84
-npm run test --workspace=@jarvis/orchestrator     # 243
+npm run test --workspace=@jarvis/orchestrator     # 252
+npm run test --workspace=@jarvis/hermes           # 74
 ```
 
 ---

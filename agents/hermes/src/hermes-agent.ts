@@ -10,7 +10,7 @@ import {
 
 import type { HermesAdapter } from "../adapter/src/hermes-adapter";
 import { createHermesAdapterStub } from "../adapter/src/hermes-adapter-stub";
-import { buildHermesGatewayRequest } from "./gateway/build-hermes-gateway-request";
+import { buildHermesGatewayRequestWithContext } from "./gateway/build-hermes-gateway-request";
 import {
   createDefaultHermesGateway,
   type HermesGateway,
@@ -35,7 +35,7 @@ export class HermesAgent extends AbstractBaseAgent {
 
   async execute(task: AgentTask, context: AgentContext): Promise<AgentResult> {
     const gatewayResponse = await this.gateway.execute(
-      buildHermesGatewayRequest(task, context.contextRef),
+      buildHermesGatewayRequestWithContext(task, context),
     );
 
     const adapterResponse = {

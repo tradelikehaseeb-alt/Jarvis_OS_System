@@ -12,7 +12,11 @@ export type {
 
 export { DefaultHermesGateway } from "./default-hermes-gateway";
 export { createDefaultHermesGateway } from "./create-default-hermes-gateway";
-export { buildHermesGatewayRequest } from "./build-hermes-gateway-request";
+export { buildHermesGatewayRequest, buildHermesGatewayRequestWithContext } from "./build-hermes-gateway-request";
+export {
+  extractRecalledContextFromAgentContext,
+  type HermesRecalledContext,
+} from "./extract-recalled-context";
 export {
   HermesGatewayRuntimeWiring,
   createHermesGatewayRuntimeWiring,

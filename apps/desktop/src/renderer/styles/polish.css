@@ -38,6 +38,24 @@
   letter-spacing: 0.03em;
 }
 
+.memory-context-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.78rem;
+  color: rgba(167, 139, 250, 0.92);
+  letter-spacing: 0.02em;
+}
+
+.memory-context-indicator__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgba(167, 139, 250, 0.85);
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.45);
+}
+
 .streaming-voice-overlay__telemetry {
   display: flex;
   gap: 0.75rem;

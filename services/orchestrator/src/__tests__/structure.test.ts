@@ -22,6 +22,7 @@ describe("orchestrator structure", () => {
       "conversation-history",
       "context",
       "memory-recall",
+      "memory-intelligence",
       "activity",
       "voice-execution",
       "voice-session",

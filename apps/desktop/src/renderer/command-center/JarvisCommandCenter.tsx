@@ -16,6 +16,7 @@ import { FloatingCommandInput } from "./FloatingCommandInput";
 import { JARVIS_EXECUTION_LABELS } from "./execution-display-labels";
 import { LiveExecutionPanel } from "./LiveExecutionPanel";
 import { useJarvisConversation } from "./use-jarvis-conversation";
+import { MemoryContextIndicator } from "../memory/MemoryContextIndicator";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -39,6 +40,7 @@ export function JarvisCommandCenter() {
     handleSubmit,
     orbState,
     providerTelemetry,
+    memoryRecallView,
   } = conversation;
 
   const voiceNative = voiceSettings.voiceNativeUi;
@@ -119,6 +121,11 @@ export function JarvisCommandCenter() {
                 latencyMs={voiceSession.sttLatencyMs}
               />
             ) : null}
+            <MemoryContextIndicator
+              visible={Boolean(memoryRecallView?.message)}
+              message={memoryRecallView?.message}
+              snippetCount={memoryRecallView?.snippets?.length ?? memoryRecallView?.count}
+            />
             <ChatMessages messages={messages} />
             {!voiceNative ? (
               <VoiceShell
@@ -146,6 +153,8 @@ export function JarvisCommandCenter() {
                 error={taskError ?? agentStatus.status.error}
                 providerLabel={providerTelemetry?.label}
                 latencyMs={providerTelemetry?.latencyMs}
+                memoryRecallMessage={memoryRecallView?.message}
+                memoryRecallCount={memoryRecallView?.snippets?.length ?? memoryRecallView?.count}
               />
             </aside>
           ) : null}

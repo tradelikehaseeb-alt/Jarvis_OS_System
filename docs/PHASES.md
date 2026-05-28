@@ -26,7 +26,8 @@
 | **90** | Voice-native UI (orb, overlay, wake word, interrupt) | Done |
 | **91** | Real-time voice (mic, streaming STT/TTS) | Done |
 | **92** | Quality & responsiveness polish | Done |
-| **93+** | Production hardening, web UI, SaaS, auth | Planned |
+| **93** | Memory & context intelligence | Done |
+| **94+** | Production hardening, web UI, SaaS, auth | Planned |
 
 **Target value:** 1–4 hours/day saved (5–8+ heavy users).
 
@@ -38,6 +39,7 @@
 | 90 | `apps/desktop/src/renderer/voice-native/PHASE-90-README.md`, `services/speech-service/src/voice-session/PHASE-90-README.md` |
 | 91 | `apps/desktop/src/renderer/voice-native/PHASE-91-README.md`, `services/speech-service/src/real-time/PHASE-91-README.md` |
 | 92 | `apps/desktop/src/renderer/polish/PHASE-92-README.md` |
+| 93 | `services/orchestrator/src/memory-intelligence/PHASE-93-README.md`, `docs/MEMORY.md` |
 
 Detailed log for Phases 0–15: [COMPLETED_PHASES.md](./COMPLETED_PHASES.md).  
 Summary for Phases 16–92: same file (append section).

@@ -123,13 +123,15 @@ export function extractRelatedMemories(
   }
 
   const recall = status.output.memoryRecall as
-    | { count?: number; source?: string }
+    | { count?: number; source?: string; message?: string; snippets?: readonly string[] }
     | undefined;
 
   if (recall?.count) {
+    const label = recall.message ?? "Remembered context";
+    const snippetPreview = recall.snippets?.[0];
     memories.push({
       id: "memory-recall",
-      content: `${recall.count} recalled memories`,
+      content: snippetPreview ? `${label}: ${snippetPreview}` : label,
       source: recall.source ?? "memory-recall",
       score: 0.8,
     });
