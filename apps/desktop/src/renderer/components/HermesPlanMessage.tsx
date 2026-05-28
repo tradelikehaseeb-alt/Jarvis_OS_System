@@ -18,14 +18,14 @@ export function HermesPlanMessage({ data }: HermesPlanMessageProps) {
   return (
     <article
       className="hermes-plan-card"
-      aria-label="Hermes structured plan"
+      aria-label="Jarvis action plan"
       data-testid="hermes-plan-card"
     >
       <header className="hermes-plan-header">
         <span className="agent-badge hermes" data-testid="hermes-agent-badge">
-          Hermes
+          Jarvis
         </span>
-        <span className="hermes-plan-label">Structured plan</span>
+        <span className="hermes-plan-label">Action plan</span>
       </header>
 
       <section className="hermes-plan-section" aria-labelledby="hermes-goal-heading">

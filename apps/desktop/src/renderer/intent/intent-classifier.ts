@@ -223,16 +223,16 @@ export function classifyChatIntent(message: string): IntentClassification {
   };
 }
 
-/** Loading copy keyed by classified intent (preserves Hermes planning UX for `plan`). */
+/** Loading copy keyed by classified intent (Jarvis-facing, Phase 89). */
 export function loadingMessageForIntent(intent: ChatIntentType): string {
   if (intent === "plan") {
-    return "Hermes is planning…";
+    return "Understanding request…";
   }
   if (intent === "automate") {
-    return "Routing to execution agent…";
+    return "Performing task…";
   }
   if (intent === "search" || intent === "research") {
-    return "Hermes is researching…";
+    return "Researching…";
   }
   return "Jarvis is working…";
 }

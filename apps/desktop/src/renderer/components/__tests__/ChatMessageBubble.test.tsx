@@ -7,10 +7,10 @@ describe("ChatMessageBubble", () => {
   it("renders loading state with status role", () => {
     render(
       <ChatMessageBubble
-        message={{ id: "1", role: "loading", text: "Hermes is planning…" }}
+        message={{ id: "1", role: "loading", text: "Understanding request…" }}
       />,
     );
-    expect(screen.getByRole("status")).toHaveTextContent(/planning/);
+    expect(screen.getByRole("status")).toHaveTextContent(/Understanding request/);
   });
 
   it("renders error state with alert role", () => {

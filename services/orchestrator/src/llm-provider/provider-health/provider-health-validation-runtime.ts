@@ -93,8 +93,17 @@ async function probeOllamaHealth(
         ?.map((model) => model.name?.trim())
         .filter((name): name is string => Boolean(name && name.length > 0)) ?? [];
 
-    const availableModels =
-      discovered.length > 0 ? discovered : configuration.availableModels;
+    if (discovered.length === 0) {
+      return {
+        connected: true,
+        availableModels: [],
+        latencyMs,
+        failureHandled: true,
+        message: "Ollama running but no models installed — stub fallback active",
+      };
+    }
+
+    const availableModels = discovered;
 
     return {
       connected: true,
@@ -253,7 +262,7 @@ class DefaultProviderHealthValidationRuntime implements ProviderHealthValidation
 
     if (configuration.providerId === OLLAMA_PROVIDER_ID) {
       const probe = await probeOllamaHealth(configuration);
-      const stub = !probe.connected;
+      const stub = !probe.connected || probe.availableModels.length === 0;
 
       return {
         providerId,

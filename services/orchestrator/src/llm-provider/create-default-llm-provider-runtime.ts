@@ -42,7 +42,7 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
       providerId: provider.providerId,
     });
 
-    if (!response.success && provider.providerId !== this.fallbackProviderId) {
+    if (!response.success && !response.stub && provider.providerId !== this.fallbackProviderId) {
       const fallback = this.providers.get(this.fallbackProviderId);
       if (fallback) {
         return fallback.executePrompt({
@@ -87,7 +87,7 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
       subscriber,
     );
 
-    if (!response.success && provider.providerId !== this.fallbackProviderId) {
+    if (!response.success && !response.stub && provider.providerId !== this.fallbackProviderId) {
       const fallback = this.providers.get(this.fallbackProviderId);
       if (fallback) {
         return fallback.streamResponse(

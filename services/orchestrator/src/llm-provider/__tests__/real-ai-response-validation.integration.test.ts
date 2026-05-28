@@ -7,8 +7,10 @@ import { createDefaultProviderHealthValidationRuntime } from "../provider-health
 import { DEFAULT_API_USER_ID } from "../../task-execution";
 import {
   createDefaultProviderSettingsRuntime,
+  DEEPSEEK_PROVIDER_ID,
   GEMINI_PROVIDER_ID,
   GROQ_PROVIDER_ID,
+  MINIMAX_PROVIDER_ID,
   OLLAMA_PROVIDER_ID,
   OPENAI_PROVIDER_ID,
   OPENROUTER_PROVIDER_ID,
@@ -20,6 +22,8 @@ const PROVIDER_PRIORITY = [
   GEMINI_PROVIDER_ID,
   GROQ_PROVIDER_ID,
   OPENAI_PROVIDER_ID,
+  DEEPSEEK_PROVIDER_ID,
+  MINIMAX_PROVIDER_ID,
 ] as const;
 
 function estimateTokens(content: string): number {

@@ -4,6 +4,7 @@ import {
   DEFAULT_STUB_LLM_PROVIDER_ID,
   type LlmProviderKind,
 } from "./llm-provider";
+import { resolveFirstConfiguredProviderId } from "./connectors/resolve-configured-provider-id";
 
 /** Build deterministic stub LLM content for fallback paths (Phase 81). */
 export function buildStubLlmContent(
@@ -83,6 +84,11 @@ export function resolveDefaultLlmProviderId(
 
   if (readOpenAiApiKey()) {
     return "openai";
+  }
+
+  const configured = resolveFirstConfiguredProviderId();
+  if (configured) {
+    return configured;
   }
 
   return DEFAULT_STUB_LLM_PROVIDER_ID;

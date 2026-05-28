@@ -1,6 +1,6 @@
-import { ConversationWorkspace } from "../workspace";
+import { JarvisCommandCenter } from "../command-center";
 
-/** Chat page — persistent conversation workspace (Phase 76). */
+/** Chat page — Jarvis command center (Phase 89). */
 export function ChatPage() {
-  return <ConversationWorkspace />;
+  return <JarvisCommandCenter />;
 }

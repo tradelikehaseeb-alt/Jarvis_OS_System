@@ -43,7 +43,7 @@ describe("classifyChatIntent", () => {
 });
 
 describe("loadingMessageForIntent", () => {
-  it("preserves Hermes planning copy for plan intent", () => {
-    expect(loadingMessageForIntent("plan")).toContain("Hermes is planning");
+  it("uses Jarvis planning copy for plan intent", () => {
+    expect(loadingMessageForIntent("plan")).toContain("Understanding request");
   });
 });

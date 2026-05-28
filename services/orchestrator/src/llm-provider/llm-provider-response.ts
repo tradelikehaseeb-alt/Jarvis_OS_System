@@ -11,6 +11,8 @@ export interface LlmProviderResponse {
   readonly model: string;
   readonly content: string;
   readonly streamed: boolean;
+  /** Round-trip latency in milliseconds when measured (Phase 89). */
+  readonly latencyMs?: number;
   readonly error?: {
     readonly code: string;
     readonly message: string;

@@ -26,7 +26,7 @@ describe("HermesPlanMessage", () => {
   it("renders goal, steps, and Hermes badge", () => {
     render(<HermesPlanMessage data={sampleData} />);
 
-    expect(screen.getByTestId("hermes-agent-badge")).toHaveTextContent("Hermes");
+    expect(screen.getByTestId("hermes-agent-badge")).toHaveTextContent("Jarvis");
     expect(screen.getByTestId("hermes-plan-goal")).toHaveTextContent("Plan my week");
     expect(screen.getByRole("list")).toBeInTheDocument();
     expect(screen.getAllByRole("listitem")).toHaveLength(3);

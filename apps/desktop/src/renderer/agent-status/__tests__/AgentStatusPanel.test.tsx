@@ -16,7 +16,7 @@ const planningStatus: AgentStatus = {
   hermes: "planning",
   openClaw: "idle",
   memoryUpdating: false,
-  displayMessage: "Hermes planning…",
+  displayMessage: "Understanding request…",
   isActive: true,
 };
 
@@ -42,7 +42,7 @@ describe("AgentStatusPanel", () => {
             id: "e1",
             kind: "hermes_planning",
             agent: "hermes",
-            message: "Hermes planning…",
+            message: "Understanding request…",
             timestamp: "2026-01-01T00:00:01.000Z",
           },
         ]}
@@ -50,7 +50,7 @@ describe("AgentStatusPanel", () => {
     );
 
     expect(screen.getByTestId("agent-status-thinking")).toHaveTextContent(
-      "Hermes planning…",
+      "Understanding request…",
     );
     expect(screen.getByTestId("agent-status-badge-hermes")).toHaveAttribute(
       "data-state",

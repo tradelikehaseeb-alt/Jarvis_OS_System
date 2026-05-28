@@ -56,3 +56,11 @@ export {
   createDefaultProviderSettingsRuntime,
   createTestProviderSettingsRuntime,
 } from "./create-default-provider-settings-runtime";
+export {
+  LIVE_PROVIDER_RESOLUTION_ORDER,
+  resolveFirstConfiguredProviderId,
+} from "./resolve-configured-provider-id";
+export {
+  parseOpenAiSseLine,
+  consumeOpenAiSseStream,
+} from "./parse-openai-sse-chunks";

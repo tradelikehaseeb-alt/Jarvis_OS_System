@@ -29,7 +29,7 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
       {messages.length === 0 ? (
         <p className="chat-bubble assistant">
           Send a message — Jarvis classifies your intent, submits a task, and
-          shows a structured Hermes plan when planning applies.
+          shows a structured action plan when planning applies.
         </p>
       ) : null}
       {messages.map((msg) => (

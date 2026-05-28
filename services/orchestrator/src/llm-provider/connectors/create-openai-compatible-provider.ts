@@ -14,7 +14,15 @@ import {
 export function createOpenAiCompatibleProvider(
   configuration: ProviderConfiguration,
   modelEnvVars: readonly string[],
+  extraHeaders?: Readonly<Record<string, string>>,
 ): LlmProvider {
+  const executorOptions = {
+    configuration,
+    resolveModel: (input: LlmProviderRequest) =>
+      resolveModelFromRequest(input, configuration, modelEnvVars),
+    extraHeaders,
+  };
+
   return {
     providerId: configuration.providerId,
     kind: configuration.kind,
@@ -30,15 +38,7 @@ export function createOpenAiCompatibleProvider(
     },
 
     executePrompt(request: LlmProviderRequest): Promise<LlmProviderResponse> {
-      return executeOpenAiCompatiblePrompt(
-        {
-          configuration,
-          resolveModel: (input) =>
-            resolveModelFromRequest(input, configuration, modelEnvVars),
-        },
-        request,
-        request.providerApiKey,
-      );
+      return executeOpenAiCompatiblePrompt(executorOptions, request, request.providerApiKey);
     },
 
     streamResponse(
@@ -46,11 +46,7 @@ export function createOpenAiCompatibleProvider(
       subscriber: LlmStreamSubscriber,
     ): Promise<LlmProviderResponse> {
       return streamOpenAiCompatibleResponse(
-        {
-          configuration,
-          resolveModel: (input) =>
-            resolveModelFromRequest(input, configuration, modelEnvVars),
-        },
+        executorOptions,
         request,
         subscriber,
         request.providerApiKey,

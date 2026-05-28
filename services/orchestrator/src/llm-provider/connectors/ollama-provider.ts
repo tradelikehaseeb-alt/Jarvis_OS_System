@@ -57,6 +57,7 @@ export class OllamaProvider implements LlmProvider {
     const validation = await this.validateProvider();
     const model = resolveOllamaModel(request);
     const baseUrl = resolveOllamaBaseUrl();
+    const startedAt = Date.now();
 
     if (!validation.valid) {
       return createStubLlmResponse(request, this.kind, this.providerId, { model });
@@ -91,18 +92,19 @@ export class OllamaProvider implements LlmProvider {
       const payload = (await response.json()) as OllamaChatResponse;
       const content = payload.message?.content?.trim() ?? "";
 
+      if (content.length === 0) {
+        return createStubLlmResponse(request, this.kind, this.providerId, { model });
+      }
+
       return {
-        success: content.length > 0,
+        success: true,
         providerId: this.providerId,
         kind: this.kind,
         stub: false,
         model,
         content,
         streamed: false,
-        error:
-          content.length > 0
-            ? undefined
-            : { code: "OLLAMA_EMPTY", message: "Ollama returned empty content" },
+        latencyMs: Date.now() - startedAt,
       };
     } catch (error) {
       return createStubLlmResponse(request, this.kind, this.providerId, {
@@ -120,16 +122,125 @@ export class OllamaProvider implements LlmProvider {
     request: LlmProviderRequest,
     subscriber: LlmStreamSubscriber,
   ): Promise<LlmProviderResponse> {
-    const result = await this.executePrompt(request);
-    if (result.success && result.content.length > 0) {
-      for (const chunk of result.content.split(" ")) {
-        subscriber.onChunk(`${chunk} `);
+    const validation = await this.validateProvider();
+    const model = resolveOllamaModel(request);
+    const baseUrl = resolveOllamaBaseUrl();
+    const startedAt = Date.now();
+
+    if (!validation.valid) {
+      const stub = createStubLlmResponse(request, this.kind, this.providerId, {
+        model,
+        streamed: true,
+      });
+      if (stub.content.length > 0) {
+        subscriber.onChunk(stub.content);
+        subscriber.onComplete?.({ content: stub.content });
       }
-      subscriber.onComplete?.({ content: result.content });
-      return { ...result, streamed: true };
+      return stub;
     }
 
-    return { ...result, streamed: true };
+    try {
+      const response = await fetch(`${baseUrl}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          stream: true,
+          messages: [
+            ...(request.systemPrompt
+              ? [{ role: "system", content: request.systemPrompt }]
+              : []),
+            { role: "user", content: request.prompt },
+          ],
+        }),
+      });
+
+      if (!response.ok || !response.body) {
+        const fallback = createStubLlmResponse(request, this.kind, this.providerId, {
+          model,
+          streamed: true,
+        });
+        if (fallback.content.length > 0) {
+          subscriber.onChunk(fallback.content);
+          subscriber.onComplete?.({ content: fallback.content });
+        }
+        return fallback;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let content = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) {
+            continue;
+          }
+
+          try {
+            const payload = JSON.parse(trimmed) as OllamaChatResponse;
+            const delta = payload.message?.content;
+            if (typeof delta === "string" && delta.length > 0) {
+              content += delta;
+              subscriber.onChunk(delta);
+            }
+          } catch {
+            // skip malformed stream lines
+          }
+        }
+      }
+
+      if (content.length === 0) {
+        const stub = createStubLlmResponse(request, this.kind, this.providerId, {
+          model,
+          streamed: true,
+        });
+        if (stub.content.length > 0) {
+          subscriber.onChunk(stub.content);
+          subscriber.onComplete?.({ content: stub.content });
+        }
+        return stub;
+      }
+
+      subscriber.onComplete?.({ content });
+
+      return {
+        success: true,
+        providerId: this.providerId,
+        kind: this.kind,
+        stub: false,
+        model,
+        content,
+        streamed: true,
+        latencyMs: Date.now() - startedAt,
+      };
+    } catch (error) {
+      const fallback = createStubLlmResponse(request, this.kind, this.providerId, {
+        model,
+        streamed: true,
+        error: {
+          code: "OLLAMA_UNAVAILABLE",
+          message:
+            error instanceof Error ? error.message : "Ollama provider unavailable",
+        },
+      });
+      if (fallback.content.length > 0) {
+        subscriber.onChunk(fallback.content);
+        subscriber.onComplete?.({ content: fallback.content });
+      }
+      return fallback;
+    }
   }
 }
 

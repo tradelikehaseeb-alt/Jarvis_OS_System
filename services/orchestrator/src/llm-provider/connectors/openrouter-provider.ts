@@ -3,10 +3,14 @@ import { createOpenAiCompatibleProvider } from "./create-openai-compatible-provi
 
 /** OpenRouter connector (Phase 82). */
 export class OpenRouterProvider {
-  readonly inner = createOpenAiCompatibleProvider(OPENROUTER_PROVIDER_CONFIGURATION, [
-    "OPENROUTER_MODEL",
-    "JARVIS_OPENROUTER_MODEL",
-  ]);
+  readonly inner = createOpenAiCompatibleProvider(
+    OPENROUTER_PROVIDER_CONFIGURATION,
+    ["OPENROUTER_MODEL", "JARVIS_OPENROUTER_MODEL"],
+    {
+      "HTTP-Referer": "https://jarvis.local",
+      "X-Title": "Jarvis OS",
+    },
+  );
 
   get providerId(): string {
     return this.inner.providerId;

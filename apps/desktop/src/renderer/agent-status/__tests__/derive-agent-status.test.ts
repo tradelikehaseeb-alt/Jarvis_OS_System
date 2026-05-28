@@ -29,7 +29,7 @@ describe("deriveAgentStatus", () => {
 
     expect(status.hermes).toBe("completed");
     expect(status.openClaw).toBe("executing");
-    expect(status.displayMessage).toContain("OpenClaw executing");
+    expect(status.displayMessage).toContain("Performing task");
   });
 
   it("shows memory updating state", () => {

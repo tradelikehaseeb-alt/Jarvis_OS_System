@@ -28,11 +28,11 @@ export interface ActivityEvent {
 export const ACTIVITY_EVENT_LABELS: Readonly<
   Record<ActivityEventKind, string>
 > = {
-  planning_started: "Planning started",
-  planning_completed: "Planning completed",
-  execution_started: "Execution started",
-  execution_completed: "Execution completed",
-  memory_saved: "Memory saved",
+  planning_started: "Understanding request",
+  planning_completed: "Request understood",
+  execution_started: "Performing task",
+  execution_completed: "Task complete",
+  memory_saved: "Memory updated",
   conversation_updated: "Conversation updated",
-  failed: "Error",
+  failed: "Something went wrong",
 };

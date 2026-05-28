@@ -24,11 +24,11 @@ export interface TimelineStep {
 }
 
 export const TIMELINE_STEP_LABELS: Readonly<Record<TimelineStepKind, string>> = {
-  planning_started: "Planning started",
-  planning_completed: "Planning completed",
-  execution_started: "Execution started",
-  action_progress: "Action progress",
-  completed: "Completed",
+  planning_started: "Understanding request",
+  planning_completed: "Request understood",
+  execution_started: "Performing task",
+  action_progress: "In progress",
+  completed: "Complete",
   failed: "Failed",
 };
 

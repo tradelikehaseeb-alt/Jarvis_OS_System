@@ -40,7 +40,7 @@ export function ProviderSettingsPage() {
     >
       <h3 id="settings-providers-heading">AI Providers</h3>
       <p className="settings-providers-note">
-        Configure real LLM providers for Hermes planning. API keys are stored locally
+        Configure real LLM providers for Jarvis. API keys are stored locally
         and never shown after save.
       </p>
 

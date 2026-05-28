@@ -5,6 +5,7 @@ import type { LlmProviderKind } from "../llm-provider";
 import { createStubLlmResponse } from "../llm-provider-utils";
 
 import type { ProviderConfiguration } from "./provider-configuration";
+import { consumeOpenAiSseStream } from "./parse-openai-sse-chunks";
 import { readEnvApiKey } from "./read-env-api-key";
 
 interface OpenAiChatResponse {
@@ -31,6 +32,34 @@ function buildMessages(request: LlmProviderRequest): readonly {
   ];
 }
 
+function buildSuccessResponse(
+  configuration: ProviderConfiguration,
+  model: string,
+  content: string,
+  options: {
+    readonly streamed: boolean;
+    readonly latencyMs: number;
+  },
+): LlmProviderResponse {
+  return {
+    success: content.length > 0,
+    providerId: configuration.providerId,
+    kind: configuration.kind,
+    stub: false,
+    model,
+    content,
+    streamed: options.streamed,
+    latencyMs: options.latencyMs,
+    error:
+      content.length > 0
+        ? undefined
+        : {
+            code: `${configuration.kind.toUpperCase()}_EMPTY`,
+            message: `${configuration.label} returned empty content`,
+          },
+  };
+}
+
 export async function executeOpenAiCompatiblePrompt(
   options: OpenAiCompatibleExecutorOptions,
   request: LlmProviderRequest,
@@ -39,6 +68,7 @@ export async function executeOpenAiCompatiblePrompt(
   const { configuration } = options;
   const model = options.resolveModel(request);
   const key = apiKey ?? request.providerApiKey ?? readEnvApiKey(configuration.apiKeyEnvVars);
+  const startedAt = Date.now();
 
   if (!key && configuration.kind !== "ollama") {
     return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
@@ -64,6 +94,7 @@ export async function executeOpenAiCompatiblePrompt(
       body: JSON.stringify({
         model,
         messages: buildMessages(request),
+        stream: false,
       }),
     });
 
@@ -80,22 +111,10 @@ export async function executeOpenAiCompatiblePrompt(
     const payload = (await response.json()) as OpenAiChatResponse;
     const content = payload.choices?.[0]?.message?.content?.trim() ?? "";
 
-    return {
-      success: content.length > 0,
-      providerId: configuration.providerId,
-      kind: configuration.kind,
-      stub: false,
-      model,
-      content,
+    return buildSuccessResponse(configuration, model, content, {
       streamed: false,
-      error:
-        content.length > 0
-          ? undefined
-          : {
-              code: `${configuration.kind.toUpperCase()}_EMPTY`,
-              message: `${configuration.label} returned empty content`,
-            },
-    };
+      latencyMs: Date.now() - startedAt,
+    });
   } catch (error) {
     return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
       model,
@@ -114,16 +133,98 @@ export async function streamOpenAiCompatibleResponse(
   subscriber: LlmStreamSubscriber,
   apiKey?: string,
 ): Promise<LlmProviderResponse> {
-  const result = await executeOpenAiCompatiblePrompt(options, request, apiKey);
-  if (result.success && result.content.length > 0) {
-    for (const chunk of result.content.split(" ")) {
-      subscriber.onChunk(`${chunk} `);
+  const { configuration } = options;
+  const model = options.resolveModel(request);
+  const key = apiKey ?? request.providerApiKey ?? readEnvApiKey(configuration.apiKeyEnvVars);
+  const startedAt = Date.now();
+
+  if (!key && configuration.kind !== "ollama") {
+    const stub = createStubLlmResponse(request, configuration.kind, configuration.providerId, {
+      model,
+      streamed: true,
+    });
+    if (stub.content.length > 0) {
+      subscriber.onChunk(stub.content);
+      subscriber.onComplete?.({ content: stub.content });
     }
-    subscriber.onComplete?.({ content: result.content });
-    return { ...result, streamed: true };
+    return stub;
   }
 
-  return { ...result, streamed: true };
+  if (!configuration.baseUrl) {
+    return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
+      model,
+      streamed: true,
+      error: { code: "PROVIDER_MISCONFIGURED", message: "Provider base URL missing" },
+    });
+  }
+
+  try {
+    const response = await fetch(`${configuration.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key ?? ""}`,
+        "Content-Type": "application/json",
+        Accept: "text/event-stream",
+        ...options.extraHeaders,
+      },
+      body: JSON.stringify({
+        model,
+        messages: buildMessages(request),
+        stream: true,
+      }),
+    });
+
+    if (!response.ok || !response.body) {
+      const fallback = createStubLlmResponse(
+        request,
+        configuration.kind,
+        configuration.providerId,
+        {
+          model,
+          streamed: true,
+          error: {
+            code: `${configuration.kind.toUpperCase()}_HTTP_ERROR`,
+            message: `${configuration.label} stream failed (${response.status})`,
+          },
+        },
+      );
+      if (fallback.content.length > 0) {
+        subscriber.onChunk(fallback.content);
+        subscriber.onComplete?.({ content: fallback.content });
+      }
+      return fallback;
+    }
+
+    const content = await consumeOpenAiSseStream(response.body, (chunk) => {
+      subscriber.onChunk(chunk);
+    });
+    subscriber.onComplete?.({ content });
+
+    return buildSuccessResponse(configuration, model, content, {
+      streamed: true,
+      latencyMs: Date.now() - startedAt,
+    });
+  } catch (error) {
+    const fallback = createStubLlmResponse(
+      request,
+      configuration.kind,
+      configuration.providerId,
+      {
+        model,
+        streamed: true,
+        error: {
+          code: `${configuration.kind.toUpperCase()}_UNAVAILABLE`,
+          message:
+            error instanceof Error ? error.message : `${configuration.label} unavailable`,
+        },
+      },
+    );
+    if (fallback.content.length > 0) {
+      subscriber.onChunk(fallback.content);
+      subscriber.onComplete?.({ content: fallback.content });
+    }
+    return fallback;
+  }
 }
 
 export function resolveModelFromRequest(
