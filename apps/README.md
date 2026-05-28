@@ -4,19 +4,22 @@
 
 | App | Path | Purpose |
 |-----|------|---------|
-| Web | `web/` | Next.js — primary Jarvis web client |
-| Desktop | `desktop/` | Electron — Jarvis desktop shell |
+| Web | `web/` | Next.js — Jarvis web client (scaffold) |
+| Desktop | `desktop/` | Electron — command center + voice-native UI |
+
+**Current desktop:** Phase **92** — see [`desktop/README.md`](desktop/README.md).
 
 ## Constraints
 
-- May call **services/api-gateway** over HTTP only.
+- Call **services/api-gateway** over HTTP only.
 - Must **not** import from `agents/`, `skills/openclaw`, or OpenClaw SDKs.
+- Voice uses `@jarvis/speech-service` in renderer, then API for task execution.
 - Shared UI logic lives in `packages/`, not duplicated across apps.
 
-## Phase 18 — Desktop UI
+## Documentation
 
-`apps/desktop` — Electron + React shell with Chat wired to `POST /tasks` and Hermes plan rendering (Phase 23). See `apps/desktop/README.md`.
-
-## Constraints (all phases)
-
-No OpenClaw/Hermes direct imports. HTTP to api-gateway only.
+| Doc | Purpose |
+|-----|---------|
+| [`../docs/SETUP.md`](../docs/SETUP.md) | Install and run |
+| [`../docs/VOICE.md`](../docs/VOICE.md) | Voice capabilities |
+| [`../docs/screenshots/README.md`](../docs/screenshots/README.md) | UI capture guide |

@@ -4,14 +4,25 @@ Command center switches to voice-native layout when `voiceSettings.voiceNativeUi
 
 ## Components
 
-- `LiveSpeechOrb` replaces `AIStatusOrb` during voice-native mode
-- `StreamingVoiceOverlay` shows partial STT + streaming TTS text
-- `VoiceInterruptController` stops assistant speech (barge-in)
+- `LiveSpeechOrb` — replaces `AIStatusOrb` in voice-native mode (Phase 92: Framer Motion + memoized waveform)
+- `StreamingVoiceOverlay` — partial STT + streaming TTS text
+- `VoiceInterruptController` — barge-in during assistant speech
 
-## Settings (`voice-settings.ts`)
+## Settings (`voice/voice-settings.ts`)
 
-- `listeningMode`: `push-to-talk` | `continuous` | `wake-word`
-- `wakeWordEnabled` / `wakePhrase` (default: `jarvis`)
-- `voiceNativeUi`: enables cinematic voice layout
+| Setting | Default |
+|---------|---------|
+| `voiceNativeUi` | `true` |
+| `listeningMode` | `push-to-talk` |
+| `wakeWordEnabled` | `true` |
+| `wakePhrase` | `jarvis` |
 
-Capture remains mock STT (`runMockVoiceCapture`) until real microphone adapters ship.
+## Capture
+
+Phase **91** added real microphone (`useRealMicrophone: true`, default). Set `useRealMicrophone: false` for mock/timer capture (tests).
+
+## Docs
+
+- Phase 91: `PHASE-91-README.md`
+- Phase 92 polish: `../polish/PHASE-92-README.md`
+- [`../../../../docs/VOICE.md`](../../../../docs/VOICE.md)

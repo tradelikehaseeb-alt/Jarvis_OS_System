@@ -36,3 +36,16 @@ Listening → Thinking → Executing → Speaking (no Hermes/OpenClaw labels in 
 ## Architecture preserved
 
 UI → API → Orchestrator → Agents → Skills — voice session delegates to existing task APIs only.
+
+## Phase 91+
+
+Real-time STT/TTS: `src/real-time/` — see `PHASE-91-README.md`.
+
+## Phase 92
+
+Transcript stabilization and natural word timing: `src/real-time/speech-timing.ts`.
+
+## Docs
+
+- Desktop: `apps/desktop/src/renderer/voice-native/PHASE-90-README.md`
+- [`../../../../docs/VOICE.md`](../../../../docs/VOICE.md)

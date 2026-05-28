@@ -260,6 +260,8 @@ export {
   resolveFirstConfiguredTtsProvider,
   createRealTimeVoiceCaptureDelegate,
   createRealTimeVoiceSpeechDelegate,
+  naturalWordDelayMs,
+  stabilizePartialTranscript,
 } from "./real-time";
 
 /** Module identifiers for structure tests. */

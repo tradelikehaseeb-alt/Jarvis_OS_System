@@ -19,6 +19,7 @@
     "@jarvis/speech-service": "*",
     "@jarvis/types": "*",
     "electron": "^36.3.2",
+    "framer-motion": "^12.40.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

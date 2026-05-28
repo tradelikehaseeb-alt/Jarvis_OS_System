@@ -29,3 +29,13 @@ Replaces mock capture with real microphone + streaming STT/TTS when configured.
 `BrowserMicrophoneRuntime` uses `getUserMedia` + Web Audio; falls back to synthetic mic in tests.
 
 Set `voiceSettings.useRealMicrophone = false` to keep Phase 25 mock capture.
+
+## Phase 92
+
+- `speech-timing.ts` — `stabilizePartialTranscript()`, `naturalWordDelayMs()`
+- Shared with desktop `polish/transcript-stabilizer.ts`
+
+## Docs
+
+- [`../../../../docs/VOICE.md`](../../../../docs/VOICE.md)
+- [`../../../../docs/PROVIDERS.md`](../../../../docs/PROVIDERS.md)

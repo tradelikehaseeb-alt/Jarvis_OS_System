@@ -5,8 +5,12 @@ Desktop settings for configuring real LLM providers.
 ## Flow
 
 ```
-SettingsPage → ProviderSettingsPage → IPC → ProviderSettingsRuntime → Hermes/OpenClaw
+SettingsPage → ProviderSettingsPage → IPC → ProviderSettingsRuntime → Orchestrator LLM runtime
 ```
+
+Supported providers: OpenAI, Groq, Gemini, OpenRouter, DeepSeek, Minimax, Ollama.
+
+See [`../../../../docs/PROVIDERS.md`](../../../../docs/PROVIDERS.md).
 
 ## Components
 

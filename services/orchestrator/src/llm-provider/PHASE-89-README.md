@@ -20,6 +20,7 @@ npm run test --workspace=@jarvis/orchestrator -- --run src/llm-provider/__tests_
 npm run test --workspace=@jarvis/orchestrator -- --run src/llm-provider/connectors/__tests__/parse-openai-sse-chunks.test.ts
 ```
 
-## Env keys
+## Docs
 
-See `.env.example` — set any one provider key to enable live inference. Without keys, stub fallback remains active.
+- [`../../../../docs/PROVIDERS.md`](../../../../docs/PROVIDERS.md)
+- [`connectors/README.md`](connectors/README.md)

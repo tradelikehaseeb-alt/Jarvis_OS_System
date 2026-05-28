@@ -6,7 +6,7 @@ import { ChatMessages } from "../ChatMessages";
 describe("ChatMessages", () => {
   it("renders empty hint", () => {
     render(<ChatMessages messages={[]} />);
-    expect(screen.getByText(/Send a message/)).toBeInTheDocument();
+    expect(screen.getByText(/Ask Jarvis anything/)).toBeInTheDocument();
   });
 
   it("renders user and assistant bubbles", () => {

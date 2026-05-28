@@ -1,0 +1,69 @@
+/* Phase 92 — Jarvis quality & responsiveness polish */
+
+:root {
+  --jarvis-font-display: "Segoe UI", system-ui, sans-serif;
+  --jarvis-space-xs: 0.35rem;
+  --jarvis-space-sm: 0.65rem;
+  --jarvis-space-md: 1rem;
+  --jarvis-space-lg: 1.5rem;
+  --jarvis-text-muted: rgba(148, 163, 184, 0.92);
+}
+
+.chat-messages--polished {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jarvis-space-sm);
+}
+
+.chat-empty-state {
+  margin: 0;
+  padding: var(--jarvis-space-md) 0;
+  color: var(--jarvis-text-muted);
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.spinner--subtle {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.45rem;
+  opacity: 0.85;
+}
+
+.live-execution-panel__complete {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(134, 239, 172, 0.95);
+  letter-spacing: 0.03em;
+}
+
+.streaming-voice-overlay__telemetry {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--jarvis-text-muted);
+}
+
+.live-speech-orb__glow {
+  will-change: transform, opacity;
+}
+
+.live-speech-orb__core {
+  will-change: transform;
+}
+
+.live-speech-orb__bar {
+  will-change: transform;
+}
+
+.command-center-transcript {
+  gap: var(--jarvis-space-md);
+}
+
+.floating-command-input {
+  backdrop-filter: blur(16px);
+}

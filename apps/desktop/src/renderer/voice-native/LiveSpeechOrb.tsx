@@ -1,5 +1,10 @@
+import { memo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+
 import type { VoiceSessionState } from "@jarvis/speech-service";
 
+import { WaveformBars } from "../polish/WaveformBars";
+import { fadeScale, orbPulse, panelTransition } from "../polish/motion-presets";
 import { buildWaveformLevels } from "./voice-waveform";
 import { voiceSessionLabel } from "./voice-session-labels";
 
@@ -13,9 +18,9 @@ export interface LiveSpeechOrbProps {
 }
 
 /**
- * Central animated voice orb with live microphone waveform (Phase 90 / 91).
+ * Central animated voice orb with Framer Motion polish (Phase 92).
  */
-export function LiveSpeechOrb({
+export const LiveSpeechOrb = memo(function LiveSpeechOrb({
   state,
   partialTranscript = "",
   active = false,
@@ -31,36 +36,48 @@ export function LiveSpeechOrb({
   const speaking = state === "speaking";
 
   return (
-    <div
+    <motion.div
       className={`live-speech-orb live-speech-orb--${state}${active ? " live-speech-orb--active" : ""}${speaking ? " live-speech-orb--speaking-animation" : ""}`}
       data-testid="live-speech-orb"
       data-state={state}
       role="status"
       aria-live="polite"
       aria-label={label}
+      variants={fadeScale}
+      initial="hidden"
+      animate="visible"
+      transition={panelTransition}
     >
-      <div className="live-speech-orb__glow" aria-hidden />
-      <div className="live-speech-orb__core" aria-hidden />
-      <div className="live-speech-orb__waveform" aria-hidden>
-        {levels.map((level, index) => (
-          <span
-            key={`wave-${index}`}
-            className="live-speech-orb__bar"
-            style={{ transform: `scaleY(${Math.max(0.12, level).toFixed(2)})` }}
-          />
-        ))}
-      </div>
+      <motion.div
+        className="live-speech-orb__glow"
+        aria-hidden
+        variants={orbPulse}
+        animate={active || speaking ? "active" : "idle"}
+      />
+      <motion.div
+        className="live-speech-orb__core"
+        aria-hidden
+        animate={{
+          scale: speaking ? [1, 1.03, 1] : active ? [1, 1.02, 1] : 1,
+        }}
+        transition={{
+          duration: speaking ? 0.9 : 1.6,
+          repeat: active || speaking ? Infinity : 0,
+          ease: "easeInOut",
+        }}
+      />
+      <WaveformBars levels={levels} />
       <p className="live-speech-orb__label">{label}</p>
       {typeof confidence === "number" ? (
         <p className="live-speech-orb__meta" data-testid="voice-transcript-confidence">
-          Confidence {Math.round(confidence * 100)}%
+          {Math.round(confidence * 100)}% confident
         </p>
       ) : null}
       {typeof latencyMs === "number" ? (
         <p className="live-speech-orb__meta" data-testid="voice-stt-latency">
-          {latencyMs}ms
+          {latencyMs} ms
         </p>
       ) : null}
-    </div>
+    </motion.div>
   );
-}
+});

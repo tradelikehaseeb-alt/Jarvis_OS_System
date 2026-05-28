@@ -19,6 +19,7 @@ import {
   type WakeWordConfig,
   type WakeWordState,
 } from "./wake-word-state";
+import { naturalWordDelayMs } from "../real-time/speech-timing";
 
 export interface VoiceSessionCaptureResult {
   readonly transcript: string;
@@ -96,7 +97,7 @@ function defaultSpeechDelegate(): VoiceSessionSpeechDelegate {
           return;
         }
         onChunk(`${word} `);
-        await new Promise((resolve) => setTimeout(resolve, 40));
+        await new Promise((resolve) => setTimeout(resolve, naturalWordDelayMs(word)));
       }
     },
   };

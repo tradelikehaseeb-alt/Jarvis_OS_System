@@ -22,6 +22,7 @@ import { DEFAULT_VOICE_SETTINGS } from "../voice/voice-settings";
 import type { VoiceStatus } from "../voice/voice-types";
 
 import { BrowserMicrophoneRuntime } from "./browser-microphone-runtime";
+import { useStablePartialTranscript, useThrottledMicLevels } from "../polish";
 
 function mapSessionStateToVoiceStatus(state: VoiceSessionState): VoiceStatus {
   switch (state) {
@@ -201,9 +202,12 @@ export function useVoiceSession(
       setMicLevels([...capture.getMicLevels()]);
       setTranscriptConfidence(capture.getConfidence());
       setSttLatencyMs(capture.getLatencyMs());
-    }, 60);
+    }, 120);
     return () => window.clearInterval(timer);
   }, [sessionState]);
+
+  const stablePartialTranscript = useStablePartialTranscript(partialTranscript);
+  const throttledMicLevels = useThrottledMicLevels(micLevels, 120);
 
   useEffect(() => {
     const unsubscribe = runtimeRef.current.subscribe((event) => {
@@ -262,6 +266,7 @@ export function useVoiceSession(
 
   const interruptSpeaking = useCallback(() => {
     runtimeRef.current.interruptSpeaking("user-barge-in");
+    setStreamingResponse("");
   }, []);
 
   const cancel = useCallback(() => {
@@ -292,14 +297,14 @@ export function useVoiceSession(
   return {
     sessionState,
     wakeWordState,
-    partialTranscript,
+    partialTranscript: stablePartialTranscript,
     streamingResponse,
     status,
     transcript,
     error,
     isActive,
     isSpeaking,
-    micLevels,
+    micLevels: throttledMicLevels,
     transcriptConfidence,
     sttLatencyMs,
     toggleListening,

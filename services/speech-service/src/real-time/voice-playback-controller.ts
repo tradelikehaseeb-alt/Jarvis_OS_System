@@ -1,6 +1,7 @@
 import type { SpeechResponse } from "../adapters/speech-response";
 
 import { createDefaultTtsProviderRuntime, type TtsProviderRuntime } from "./tts-provider-runtime";
+import { naturalWordDelayMs } from "./speech-timing";
 
 export interface VoicePlaybackChunk {
   readonly text: string;
@@ -66,7 +67,7 @@ export class VoicePlaybackController {
         audioBase64: response.audioBase64,
         mimeType: response.mimeType,
       });
-      await new Promise((resolve) => setTimeout(resolve, 35));
+      await new Promise((resolve) => setTimeout(resolve, naturalWordDelayMs(word)));
     }
 
     this.speaking = false;

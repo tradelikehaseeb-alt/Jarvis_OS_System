@@ -1,6 +1,7 @@
 # Desktop voice shell (Phase 25–38, 72)
 
-UI-only mock voice capture — **no STT, TTS, or microphone APIs**.
+> **Voice-native mode (default):** use `voice-native/` when `voiceNativeUi: true`.  
+> This module is the **legacy** shell when voice-native is disabled.
 
 ## Flow (Chat)
 
@@ -9,7 +10,12 @@ Voice Input → Speech Runtime → Intent Classification → API → Orchestrato
   → Hermes/OpenClaw → Execution Lifecycle → Activity Stream → Desktop Response
 ```
 
-Legacy path preserved: mock capture → chat input → manual Send.
+## When to use
+
+| Setting | UI |
+|---------|-----|
+| `voiceNativeUi: true` | `LiveSpeechOrb`, `StreamingVoiceOverlay` (Phase 90+) |
+| `voiceNativeUi: false` | `VoiceShell`, `VoiceTranscriptPanel` (this module) |
 
 ## Components
 
@@ -17,50 +23,26 @@ Legacy path preserved: mock capture → chat input → manual Send.
 |-------|------|
 | `useMockVoiceInput` | Timer-based mock capture state |
 | `useVoiceExecution` | Voice → speech → API task pipeline (Phase 72) |
-| `runMockVoiceCapture` | Produces static transcript lines |
 | `VoiceButton` | Microphone toggle |
-| `VoiceStatusIndicator` | idle / listening / processing / error |
-| `VoiceTranscriptPanel` | Original + normalized transcript, corrections, listening wave |
+| `VoiceTranscriptPanel` | Original + normalized transcript, corrections |
 | `VoiceShell` | Composes voice UI (`full` or `chat` variant) |
 
-## Settings (`localStorage`)
+## Real microphone
 
-- Show transcript panel in Chat
-- Push transcript to chat input
-- Enable speech normalization before intent classification
-- Auto-execute voice pipeline through Jarvis runtime (Phase 72, default on)
-- Simulate capture error (UI testing)
+When `useRealMicrophone: true`, `useVoiceSession` in `voice-native/` handles capture — not this mock shell.
 
-## Normalization (Phase 27)
+See [`../../../../docs/VOICE.md`](../../../../docs/VOICE.md).
 
-- Uses `@jarvis/speech-service` `SpeechNormalizer`
-- Deterministic text rules only (Roman Urdu + English)
-- Shows:
-  - **Original transcript**
-  - **Normalized transcript**
-  - **Corrections applied** rule ids
-- Toggle in Settings can disable normalization (pass-through behavior)
-- Includes dedicated `normalizing` loading status in the voice indicator/panel
+## Settings (`localStorage`: `jarvis.desktop.voiceSettings`)
 
-## Speech metadata panel (Phase 38)
+See `voice-settings.ts` for full list. Key flags:
 
-Voice transcript panel now also shows deterministic gateway metadata:
+- `showTranscriptPanel`, `pushToChatInput`, `enableNormalization`
+- `autoExecuteVoicePipeline` (default on)
+- `voiceNativeUi`, `useRealMicrophone`
 
-- **detected action**
-- **normalized transcript**
-- **conversation state**
-- **provider decision**
-- **trace summary**
+## Tests
 
-## Voice execution (Phase 72)
-
-`useVoiceExecution()` supports:
-
-- `startVoiceExecution()` / `stopVoiceExecution()`
-- `processVoiceInput()` — speech normalize + `submitChatAsTask` + activity stream ingest
-
-When `autoExecuteVoicePipeline` is enabled, voice completion triggers the full chain automatically.
-
-## Future integration
-
-Replace `runMockVoiceCapture` with a real STT adapter; keep the same hook surface and components.
+```bash
+npm run test --workspace=@jarvis/desktop -- --run src/renderer/voice
+```

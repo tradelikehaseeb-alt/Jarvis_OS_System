@@ -1,5 +1,8 @@
 # Jarvis OS Architecture
 
+> **Current snapshot:** [PROJECT_STATUS.md](./PROJECT_STATUS.md) (Phase 92).  
+> **Historical diagrams:** [ARCHITECTURE_SNAPSHOT.md](./ARCHITECTURE_SNAPSHOT.md) (Phase 15 baseline).
+
 ## Layer model
 
 ```
@@ -41,6 +44,46 @@ UI → API Gateway → Orchestrator → Agents → Skills
 5. TypeScript strict; tests per module
 6. Production-ready, modular, SOLID-friendly design
 7. OpenClaw execution requires permission checks and sandbox boundaries
+
+## Current capabilities (Phase 92)
+
+### Desktop command center
+
+- `JarvisCommandCenter` — primary surface; voice-native layout when `voiceNativeUi: true`
+- User-facing copy in `execution-display-labels.ts` — no Hermes/OpenClaw names
+- `LiveExecutionPanel` — progressive streaming + completion states
+
+### Voice stack
+
+```
+Renderer (useVoiceSession)
+  → @jarvis/speech-service (normalize, voice-session, real-time STT/TTS)
+  → IntentClassifier → API POST /tasks
+  → Orchestrator → agents → skills
+```
+
+Real mic: `BrowserMicrophoneRuntime`. Tests: synthetic capture (`useRealMicrophone: false`).
+
+See [VOICE.md](./VOICE.md).
+
+### LLM inference
+
+- `LlmProviderRuntime` + multi-provider connectors (OpenAI, Groq, Gemini, OpenRouter, DeepSeek, Minimax, Ollama)
+- SSE streaming (Phase 89); stub fallback without keys
+
+See [PROVIDERS.md](./PROVIDERS.md).
+
+### Orchestrator runtime (selected)
+
+| Module | Role |
+|--------|------|
+| `execution/` | Task lifecycle, handshake |
+| `execution-lifecycle/` | Planning → executing → completed |
+| `llm-provider/` | Provider registry, validation, streaming |
+| `speech-realtime/` | Speech bridge for voice sessions |
+| `activity/`, `timeline/` | Activity stream, execution timeline |
+| `memory/`, `local-memory/` | Persistence adapters |
+| `runtime-health/`, `runtime-startup/` | Health dashboard, startup recovery |
 
 ## Phase 12 — Capability routing (current)
 

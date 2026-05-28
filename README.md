@@ -1,15 +1,8 @@
 # Jarvis OS
 
-Production-grade AI Operating System and SaaS platform.
+Production-grade AI Operating System and SaaS platform — planning, execution, voice, memory, and multi-provider inference behind a single **Jarvis** experience.
 
-**Phase 20:** `@jarvis/runtime-manager` — mock runtime detection/health for Hermes and OpenClaw providers.  
-**Phase 21:** Official runtime discovery adapters (`HermesRuntimeDiscoveryAdapter`, `OpenClawRuntimeDiscoveryAdapter`) — env + safe HTTP probe, integrated via `createHybridRuntimeManager` / `createDiscoveryRuntimeResolver`.  
-**Phase 22:** `HermesPlanningAdapter` — first controlled Hermes planning capability via `HermesAdapter` / `HermesAgent` (`goal` + `steps`, no LLM or autonomous execution).  
-**Phase 23:** Desktop Chat renders Hermes structured plans (`Goal`, `Steps`, collapsible Planning Details, Hermes badge) from `POST /tasks` output.  
-**Phase 24:** Desktop `IntentClassifier` — deterministic pre-submit intent (`plan`, `research`, `automate`, `search`, `conversation`) with UI badge; maps to API `intent.kind` without API changes.  
-**Phase 25:** Desktop voice shell — mock mic, listening animation, transcript panel, settings; pushes text into Chat → existing intent + task flow (no STT/TTS/device).  
-**Phase 26:** `@jarvis/speech-service` — deterministic transcript normalization (Roman Urdu + English, STT homophone rules).
-**Phase 27:** Desktop voice pipeline integrates `SpeechNormalizer` before intent classification; shows original/normalized transcripts + corrections with a Settings toggle.
+**Current checkpoint:** Phase **92** — quality & responsiveness polish (Framer Motion, voice smoothness, streaming UX, performance).
 
 ## Architecture
 
@@ -20,43 +13,57 @@ UI (apps) → API Gateway (services) → Orchestrator → Agents → Skills
 | Layer | Path | Stack |
 |-------|------|-------|
 | Web UI | `apps/web` | Next.js, TypeScript |
-| Desktop UI | `apps/desktop` | Electron, TypeScript |
+| Desktop UI | `apps/desktop` | Electron, React, TypeScript |
 | API Gateway | `services/api-gateway` | FastAPI (Python) |
 | Orchestrator | `services/orchestrator` | TypeScript (`@jarvis/orchestrator`) |
-| Memory | `services/memory-service` | TypeScript (`@jarvis/memory-service`) |
-| Agents | `agents/` | Hermes, OpenClaw (Phase 2+) |
-| Skills | `skills/` | Capability modules |
-| Plugins | `plugins/` | Extension registry |
-| Packages | `packages/` | types, logger, config, shared-utils |
-| Database | `database/` | Schemas, migrations |
-| Infrastructure | `infrastructure/` | Docker, deployment |
-| Docs | `docs/` | Architecture and guides |
-| Tests | `tests/` | Cross-cutting integration tests |
+| Speech | `services/speech-service` | TypeScript (`@jarvis/speech-service`) |
+| Memory | `services/memory-service`, `services/local-memory` | TypeScript |
+| Agents | `agents/` | Hermes (planning), OpenClaw (execution) |
+| Skills | `skills/` | search, browser, file |
+| Packages | `packages/` | types, logger, config, shared-utils, provider-registry, runtime-manager |
+| Docs | `docs/` | Architecture, setup, phases, voice, providers |
+
+## Recent phases (88–92)
+
+| Phase | Scope |
+|-------|--------|
+| **88** | Real AI response validation — live provider detection, streaming, stub fallback |
+| **89** | Jarvis Command Center UI + real provider SSE streaming + user-facing execution labels |
+| **90** | Voice-native UI — orb, overlay, wake word, interruption (mock capture path) |
+| **91** | Real-time voice — browser mic, streaming STT/TTS adapters, orchestrator speech bridge |
+| **92** | Quality pass — Framer Motion, transcript stabilization, throttled waveforms, progressive streaming |
+
+Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Providers: `docs/PROVIDERS.md`
+
+## Desktop capabilities (today)
+
+- **Command center** — glassmorphism layout, live execution panel, activity stream, minimal sidebar
+- **Voice-native mode** — `LiveSpeechOrb`, partial transcript overlay, barge-in interrupt (default on)
+- **Real microphone** — `getUserMedia` + streaming STT when `useRealMicrophone: true` (default)
+- **LLM providers** — OpenAI, Groq, Gemini, OpenRouter, DeepSeek, Minimax, Ollama (Settings → Providers)
+- **Intent routing** — deterministic classifier → `POST /tasks` → Hermes plan + OpenClaw execution
+- **Polish (92)** — memoized waveforms, stabilized partials, progressive response rendering
+
+UI screenshots: `docs/screenshots/README.md`
 
 ## Tech stack
 
 - **Turborepo** — monorepo orchestration
-- **TypeScript** — apps and packages (strict)
-- **Next.js** — Jarvis web UI (user-facing only)
-- **Electron** — Jarvis desktop shell
-- **FastAPI** — API gateway layer
-- **Docker** — local and deployment containers
-
-## Packages
-
-| Package | Purpose |
-|---------|---------|
-| `@jarvis/types` | Shared types and constants |
-| `@jarvis/logger` | Logging interfaces |
-| `@jarvis/config` | Configuration types |
-| `@jarvis/shared-utils` | Utility helpers |
+- **TypeScript strict** — apps, services, agents, skills
+- **Next.js** — web UI
+- **Electron + Vite** — desktop shell
+- **FastAPI** — API gateway
+- **Framer Motion** — desktop transitions (Phase 92)
+- **Vitest** — unit and integration tests
 
 ## Prerequisites
 
 - Node.js ≥ 20
 - npm ≥ 10
-- Python ≥ 3.11 (for `services/api-gateway`, Phase 2+)
-- Docker (optional, for `infrastructure/`)
+- Python ≥ 3.11 (API gateway)
+- Docker (optional — `infrastructure/`)
+- Ollama (optional — local LLM)
+- Microphone (optional — real voice; tests use synthetic capture)
 
 ## Quick start
 
@@ -66,13 +73,48 @@ npm run build
 cp .env.example .env
 ```
 
-See `services/api-gateway/README.md` and `infrastructure/README.md` for Python and Docker setup.
+**Desktop + API (dev):**
+
+```bash
+# Terminal 1 — API gateway
+cd services/api-gateway
+pip install -r requirements.txt
+set JARVIS_ORCHESTRATOR_CLIENT=local_bridge   # Windows
+uvicorn app.main:app --reload --port 8000
+
+# Terminal 2 — Desktop
+npm run dev --workspace=@jarvis/desktop
+```
+
+Full setup: [`docs/SETUP.md`](docs/SETUP.md)
+
+## Tests (last verified — Phase 92)
+
+```bash
+npm run test --workspace=@jarvis/desktop          # 180 tests
+npm run test --workspace=@jarvis/speech-service   # 84 tests
+npm run test --workspace=@jarvis/orchestrator     # 243 tests
+```
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [`docs/README.md`](docs/README.md) | Documentation index |
+| [`docs/SETUP.md`](docs/SETUP.md) | Install, env, run desktop/API/voice |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Layer rules and module map |
+| [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md) | Current implementation snapshot |
+| [`docs/PHASES.md`](docs/PHASES.md) | Delivery phase table |
+| [`docs/VOICE.md`](docs/VOICE.md) | Voice & speech runtime capabilities |
+| [`docs/PROVIDERS.md`](docs/PROVIDERS.md) | LLM + STT/TTS provider support |
+| [`RESUME_POINT.md`](RESUME_POINT.md) | Restart guide after a break |
 
 ## Rules
 
+- User only sees **Jarvis** — never Hermes/OpenClaw in the client UI.
 - Frontend never calls OpenClaw directly.
 - Hermes uses Jarvis Memory Service APIs for persistent memory.
-- See `.cursor/rules/jarvis-os.mdc` for full project rules.
+- See [`.cursor/rules/jarvis-os.mdc`](.cursor/rules/jarvis-os.mdc) for full project rules.
 
 ## License
 

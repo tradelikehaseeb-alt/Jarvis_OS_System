@@ -32,6 +32,10 @@ export {
   resolveFirstConfiguredTtsProvider,
 } from "./speech-provider-resolver";
 
+export {
+  naturalWordDelayMs,
+  stabilizePartialTranscript,
+} from "./speech-timing";
 export type { RealTimeVoiceCaptureResult } from "./create-real-time-voice-capture-delegate";
 export { createRealTimeVoiceCaptureDelegate } from "./create-real-time-voice-capture-delegate";
 

@@ -1,45 +1,36 @@
 # Jarvis OS — Project Status
 
 **Checkpoint date:** May 2026  
-**Current phase:** 15 complete  
-**Monorepo:** `jarvis-os` (Turborepo, npm workspaces)
+**Current phase:** **92 complete**  
+**Monorepo:** Turborepo, npm workspaces
 
 ---
 
 ## Executive summary
 
-Jarvis OS is a production-oriented AI operating system monorepo with a strict layered architecture. Phases **0 through 15** are complete. The system supports an end-to-end **mock/static** task lifecycle from `POST /tasks` through capability routing, agent execution, skill dispatch, and task persistence — with no authentication, database, LLM, or real automation yet.
+Jarvis OS is a production-oriented AI operating system with strict layered architecture. The desktop app delivers a **Jarvis Command Center** with voice-native interaction, multi-provider LLM inference (stub fallback), real-time speech adapters, and full task execution through API → Orchestrator → Hermes/OpenClaw → Skills.
 
-The codebase is **framework-ready** and **integration-pending** for real Hermes, OpenClaw, memory persistence, and production infrastructure.
-
----
-
-## Completed phases (0–15)
-
-| Phase | Status | One-line outcome |
-|-------|--------|------------------|
-| 0 | Done | Monorepo scaffold, Docker, docs, apps/services layout |
-| 1 | Done | Renamed api-gateway, memory-service, split packages |
-| 2 | Done | Jarvis Core contracts + orchestrator module skeleton |
-| 3 | Done | API gateway structure (routes, schemas, validators) |
-| 4 | Done | Orchestrator stub components wired internally |
-| 5 | Done | Memory service contracts + in-memory stubs |
-| 6 | Done | API routes → orchestrator (POST/GET tasks, conversations) |
-| 7 | Done | Orchestrator transport abstraction (LocalCli bridge) |
-| 8 | Done | Agent framework (`@jarvis/agents-shared`) |
-| 9 | Done | Skills framework (`@jarvis/skills-shared`) |
-| 10 | Done | Hermes + OpenClaw agent stubs |
-| 11 | Done | Agent→skill pipeline (`SkillExecutor`) |
-| 12 | Done | Capability-based orchestrator routing |
-| 13 | Done | Concrete skills (search, file, browser) + bindings |
-| 14 | Done | End-to-end API → orchestrator → agent → skill |
-| 15 | Done | `TaskStore` storage abstraction (memory + file) |
-
-See [COMPLETED_PHASES.md](./COMPLETED_PHASES.md) for full detail per phase.
+Phases **0–92** are implemented in code. Authentication, multi-tenancy, production transport, and full web UI remain planned.
 
 ---
 
-## Current architecture (enforced)
+## Test coverage (Phase 92 verified)
+
+| Workspace | Tests |
+|-----------|-------|
+| `@jarvis/desktop` | 180 |
+| `@jarvis/speech-service` | 84 |
+| `@jarvis/orchestrator` | 243 |
+
+```bash
+npm run test --workspace=@jarvis/desktop
+npm run test --workspace=@jarvis/speech-service
+npm run test --workspace=@jarvis/orchestrator
+```
+
+---
+
+## Architecture (enforced)
 
 ```
 UI (apps) → API Gateway → Orchestrator → Agents → Skills
@@ -47,128 +38,75 @@ UI (apps) → API Gateway → Orchestrator → Agents → Skills
 
 | Rule | Status |
 |------|--------|
-| User only sees Jarvis UI | Enforced by design |
+| User only sees Jarvis UI | Enforced — execution labels hide Hermes/OpenClaw |
 | Frontend never calls OpenClaw | Enforced |
-| Hermes memory via Memory Service APIs only | Contract + docs; HTTP memory not wired |
-| Orchestrator selects agents; agents call skills via `SkillExecutor` | Implemented (static) |
-| No duplicate frameworks | Shared packages reused |
+| Hermes memory via Memory Service APIs | Contract + local memory runtime |
+| Voice → API → Orchestrator for tasks | Enforced |
+| No duplicate state systems | Single voice session + conversation hooks |
 
 ---
 
-## Implemented modules
+## Desktop (`apps/desktop`) — current
 
-### Applications (`apps/`)
+| Feature | State |
+|---------|--------|
+| Command center layout | Phase 89 — `JarvisCommandCenter`, glassmorphism |
+| Voice-native UI | Phase 90 — orb, overlay, interrupt (default on) |
+| Real microphone + streaming STT | Phase 91 — `BrowserMicrophoneRuntime` |
+| UX polish | Phase 92 — Framer Motion, stabilized partials, progressive streaming |
+| Provider settings UI | Phase 83 — API keys, model selection |
+| Intent classification | Phase 24 — badge + API `intent.kind` |
+| Hermes plan rendering | Phase 23 — goal, steps, collapsible details |
+| Runtime health / startup | Phases 73–74 |
+| Activity stream + timeline | Phases 71, 75 |
+| Conversation workspace | Phase 76 |
 
-| Path | Package / app | State |
-|------|---------------|-------|
-| `apps/web` | Next.js web UI | Scaffold |
-| `apps/desktop` | Electron shell | Scaffold |
-
-### Services (`services/`)
-
-| Path | Name | State |
-|------|------|-------|
-| `services/api-gateway` | FastAPI HTTP boundary | Routes, controllers, validation, error envelope, orchestrator clients |
-| `services/orchestrator` | `@jarvis/orchestrator` | Stubs + live task execution + capability routing + storage |
-| `services/memory-service` | `@jarvis/memory-service` | Contracts + in-memory stubs only |
-
-### Agents (`agents/`)
-
-| Package | Role | State |
-|---------|------|-------|
-| `@jarvis/agents-shared` | `BaseAgent`, `SkillExecutor`, bindings, pipeline | Production framework |
-| `@jarvis/hermes` | Planner agent | Stub → `SearchSkill` |
-| `@jarvis/openclaw` | Execution gateway | Stub → `BrowserSkill`, `FileSkill` |
-| `@jarvis/agents-bootstrap` | Default registration | Wired |
-
-### Skills (`skills/`)
-
-| Package | Skill ID | Bound agent |
-|---------|----------|-------------|
-| `@jarvis/skills-shared` | Framework | — |
-| `@jarvis/search-skill` | `search-skill` | Hermes |
-| `@jarvis/file-skill` | `file-skill` | OpenClaw |
-| `@jarvis/browser-skill` | `browser-skill` | OpenClaw |
-
-### Shared packages (`packages/`)
-
-| Package | Purpose |
-|---------|---------|
-| `@jarvis/types` | Core + API + memory contracts |
-| `@jarvis/logger` | Logging interfaces |
-| `@jarvis/config` | Configuration types |
-| `@jarvis/shared-utils` | Utilities |
-
-### Other areas
-
-| Path | State |
-|------|-------|
-| `plugins/` | Scaffold / registry placeholder |
-| `database/` | Schema/migration placeholders |
-| `infrastructure/` | Docker + deployment scaffold |
-| `tests/` | Cross-cutting test placeholder |
+See `apps/desktop/README.md`, `docs/VOICE.md`, `docs/screenshots/README.md`.
 
 ---
 
-## Active npm workspaces
+## Services — current
 
-From root `package.json`:
-
-- `apps/*`
-- `packages/*`
-- `services/orchestrator`
-- `services/memory-service`
-- `services/api-gateway` (Python; not npm workspace — separate `requirements.txt`)
-- `agents/shared`, `agents/hermes`, `agents/openclaw`, `agents/bootstrap`
-- `skills/shared`, `skills/search-skill`, `skills/file-skill`, `skills/browser-skill`
+| Service | State |
+|---------|--------|
+| `api-gateway` | FastAPI — tasks, conversations, orchestrator clients |
+| `orchestrator` | Live execution, capability routing, LLM providers, speech bridge, memory |
+| `speech-service` | Normalization, voice session, real-time STT/TTS, voice execution |
+| `memory-service` | Contracts + stubs |
+| `local-memory` | File-backed persistence via orchestrator |
 
 ---
 
-## Runtime flows (current behavior)
+## Agents & skills
 
-All flows below use **static/mock** data unless noted.
+| Agent | Role | Integration |
+|-------|------|-------------|
+| Hermes | Planning, reasoning | LLM provider runtime + planning adapter |
+| OpenClaw | Browser/desktop execution | Gateway + sandbox boundaries |
 
-### API flow
+| Skill | Bound to |
+|-------|----------|
+| `search-skill` | Hermes |
+| `browser-skill`, `file-skill` | OpenClaw |
 
-1. `POST /tasks` → `TasksController` → validation → `OrchestratorClient`
-2. Stub client (tests) or `LocalBridgeOrchestratorClient` (dev) → Node `orchestrator-bridge/cli.ts`
-3. Response: `CreateTaskResponse` with `status: completed` (stub path)
-4. `GET /tasks/{taskId}` → stored task status + skill output in `output`
+---
 
-### Orchestrator flow
+## Providers
 
-1. `OrchestratorServiceImpl.executeCreateTask()`
-2. `TaskRouter` → `ContextManager` → `WorkflowManager`
-3. `CapabilityRouter` → `LiveAgentRegistry` (metadata)
-4. Resolve executable agent → `agent.execute()`
-5. Agent uses `SkillExecutor` → `SkillRegistry` → concrete skill
-6. `TaskStore.save()` → `CreateTaskResponse` + `TaskStatusResponse`
+Seven LLM providers + Ollama; four STT and three TTS adapters. Stub fallback when unconfigured.
 
-### Storage flow
-
-- **Tests:** `InMemoryTaskStore` via `TaskStoreFactory.createInMemory()`
-- **Default / CLI bridge:** `FileTaskStore` (JSON at `services/api-gateway/.jarvis-task-store/tasks.json`)
-- **Interface:** `TaskStore` — ready for future DB/Redis backends (not implemented)
-
-### Agent → skill bindings
-
-| Agent | Skills |
-|-------|--------|
-| `hermes` | `search-skill` |
-| `openclaw-gateway` | `browser-skill`, `file-skill` |
+Full matrix: [PROVIDERS.md](./PROVIDERS.md)
 
 ---
 
 ## What is NOT implemented yet
 
-- Real Hermes (LLM / official adapter)
-- Real OpenClaw (automation / official adapter)
-- Memory HTTP API and persistence
-- SQL/NoSQL `TaskStore` backend
-- Authentication / multi-tenancy
-- Production orchestrator transport (HTTP/gRPC/MQ)
-- Electron feature UI, STT/TTS, voice routing
-- Plugins runtime, SaaS billing, production deployment
+- Production orchestrator transport (HTTP/gRPC replacing LocalCli bridge)
+- PostgreSQL / Redis backends for tasks and memory
+- Authentication / multi-tenancy / SaaS billing
+- Full `apps/web` product UI
+- Committed UI screenshot assets (paths documented only)
+- Official Hermes/OpenClaw vendor SDKs in production deployment
 
 See [NEXT_STEPS.md](./NEXT_STEPS.md).
 
@@ -177,18 +115,32 @@ See [NEXT_STEPS.md](./NEXT_STEPS.md).
 ## Verification commands
 
 ```bash
-# TypeScript workspaces
 npm install
-npm run test --workspace=@jarvis/orchestrator
-npm run test --workspace=@jarvis/agents-shared
-npm run test --workspace=@jarvis/search-skill
+npm run build
 
-# API gateway (stub orchestrator — no Node required)
+npm run test --workspace=@jarvis/desktop
+npm run test --workspace=@jarvis/speech-service
+npm run test --workspace=@jarvis/orchestrator
+```
+
+**API gateway:**
+
+```bash
 cd services/api-gateway
 pip install -r requirements.txt
-set JARVIS_ORCHESTRATOR_CLIENT=stub   # Windows
+set JARVIS_ORCHESTRATOR_CLIENT=stub
 pytest
 ```
+
+**Desktop dev:**
+
+```bash
+set JARVIS_ORCHESTRATOR_CLIENT=local_bridge
+cd services/api-gateway && uvicorn app.main:app --reload --port 8000
+npm run dev --workspace=@jarvis/desktop
+```
+
+Setup guide: [SETUP.md](./SETUP.md)
 
 ---
 
@@ -196,8 +148,9 @@ pytest
 
 | Document | Purpose |
 |----------|---------|
-| [COMPLETED_PHASES.md](./COMPLETED_PHASES.md) | Phase-by-phase delivery log |
-| [ARCHITECTURE_SNAPSHOT.md](./ARCHITECTURE_SNAPSHOT.md) | Diagrams and layer detail |
-| [NEXT_STEPS.md](./NEXT_STEPS.md) | Planned work |
+| [COMPLETED_PHASES.md](./COMPLETED_PHASES.md) | Phase delivery log |
 | [PHASES.md](./PHASES.md) | Official phase table |
-| [../RESUME_POINT.md](../RESUME_POINT.md) | Restart guide + recommended next phase |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Layer rules |
+| [VOICE.md](./VOICE.md) | Voice capabilities |
+| [PROVIDERS.md](./PROVIDERS.md) | Provider matrix |
+| [../RESUME_POINT.md](../RESUME_POINT.md) | Restart guide |

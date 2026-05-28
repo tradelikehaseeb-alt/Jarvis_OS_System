@@ -1,6 +1,8 @@
 # Jarvis OS — Architecture Snapshot
 
-Point-in-time view after **Phase 15**. All execution paths described below use **stub/static** implementations unless marked future.
+> **Historical baseline** after Phase 15. For **current** state see [PROJECT_STATUS.md](./PROJECT_STATUS.md) (Phase 92) and [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+Point-in-time view after **Phase 15**. Execution paths below used **stub/static** implementations unless marked future.
 
 ---
 

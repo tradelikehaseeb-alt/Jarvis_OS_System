@@ -252,4 +252,24 @@ Delivery log for all finished work. Each phase built on prior contracts; no laye
 
 ## Next phase
 
-See [../RESUME_POINT.md](../RESUME_POINT.md) — **Phase 16: Real Hermes/OpenClaw adapters**.
+See [../RESUME_POINT.md](../RESUME_POINT.md) — **Phase 93+** (production transport, auth, web UI).
+
+---
+
+## Phases 16–92 (summary)
+
+Phases 16–44 established adapter boundaries, speech-service pipeline (normalization → gateway → telemetry → recovery), provider registry, and runtime managers.
+
+Phases 45–76 added orchestrator execution lifecycle, memory persistence, event streaming, storage runtime, transport, activity stream, voice execution chain, runtime startup/health, execution timeline, and conversation workspace.
+
+Phases 77–87 delivered live provider runtime, user session, desktop E2E validation, and API runtime integration.
+
+| Phase | Outcome |
+|-------|---------|
+| **88** | Real AI validation — provider detection, streaming, stub fallback |
+| **89** | Command Center UI; true SSE LLM streaming; Jarvis-facing execution labels |
+| **90** | Voice-native orb, overlay, wake word, interruption |
+| **91** | Browser mic, streaming STT/TTS adapters, orchestrator speech bridge |
+| **92** | Framer Motion polish, transcript stabilization, throttled waveforms, progressive streaming |
+
+Phase READMEs: [PHASES.md](./PHASES.md). Capability docs: [VOICE.md](./VOICE.md), [PROVIDERS.md](./PROVIDERS.md).

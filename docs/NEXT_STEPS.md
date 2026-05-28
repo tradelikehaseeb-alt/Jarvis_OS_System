@@ -1,26 +1,36 @@
 # Jarvis OS — Next Steps (Planned Work)
 
-Items below are **not implemented** as of Phase 15. Ordered by architectural dependency where possible.
+Items below are **not fully implemented** as of **Phase 92**. Completed items are marked ✅.
+
+---
+
+## Completed since Phase 15 ✅
+
+| Item | Phase |
+|------|-------|
+| LLM multi-provider connectors + Settings UI | 82–83 |
+| Real provider validation + streaming | 88–89 |
+| Command Center desktop UI | 89 |
+| Voice-native UI (orb, overlay, interrupt) | 90 |
+| Real-time mic + STT/TTS adapters | 91 |
+| UX polish (motion, latency, performance) | 92 |
+| Voice → API → orchestrator execution chain | 72 |
+| Activity stream, timeline, runtime health | 71–75 |
 
 ---
 
 ## Immediate recommended phase
 
-### Phase 16 — Real Hermes / OpenClaw adapters
+### Phase 93+ — Production platform
 
-**Scope:** Official integration adapters only — no copied third-party code.
+**Scope:** Production-ready deployment path.
 
-| Adapter | Responsibility | Constraints |
-|---------|----------------|-------------|
-| **Hermes adapter** | LLM/reasoning via supported official APIs | Memory still via Memory Service only |
-| **OpenClaw adapter** | Execution gateway via official OpenClaw integration | Sandbox + permissions; UI never calls OpenClaw |
-
-**Suggested deliverables:**
-
-- `agents/hermes-adapter/` or adapter module behind `HermesAgent` interface
-- `agents/openclaw-adapter/` behind `OpenClawAgent` interface
-- Feature flags to fall back to stub mode for CI
-- Contract tests proving adapter swap does not break `SkillExecutor` pipeline
+| Workstream | Goal |
+|------------|------|
+| **Orchestrator transport** | HTTP/gRPC client replacing `LocalCliTransport` |
+| **Auth & tenancy** | API gateway identity, scoped tasks |
+| **Database TaskStore** | PostgreSQL behind existing interface |
+| **Web UI** | Parity with desktop task/voice surfaces |
 
 See [../RESUME_POINT.md](../RESUME_POINT.md).
 
@@ -41,13 +51,13 @@ See [../RESUME_POINT.md](../RESUME_POINT.md).
 
 ## Product and UX
 
-| Item | Description |
-|------|-------------|
-| **Electron UI** | Feature-complete desktop shell wired to API gateway only |
-| **Web UI** | Task creation, status, conversation surfaces in `apps/web` |
-| **STT** | Speech-to-text input path into API/conversation |
-| **TTS** | Text-to-speech output for responses |
-| **Voice routing** | Route voice intents through orchestrator (same as text tasks) |
+| Item | Description | Status |
+|------|-------------|--------|
+| **Electron UI** | Command center, voice-native, providers | ✅ Phases 89–92 |
+| **STT / TTS** | Streaming adapters + browser mic | ✅ Phase 91 |
+| **Voice routing** | Voice → intent → orchestrator | ✅ Phase 72 |
+| **Web UI** | Task creation, status, conversation in `apps/web` | Planned |
+| **UI screenshot assets** | Committed PNG/GIF per `docs/screenshots/` | Planned |
 
 ---
 

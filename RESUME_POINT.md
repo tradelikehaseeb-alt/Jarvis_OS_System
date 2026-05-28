@@ -1,112 +1,102 @@
 # Jarvis OS — Resume Point
 
-Use this file after a break or context reset to continue development without re-discovering the repo.
+Use this file after a break or context reset.
 
-**Last completed phase:** 15  
-**Checkpoint docs:** `docs/PROJECT_STATUS.md`, `docs/COMPLETED_PHASES.md`, `docs/ARCHITECTURE_SNAPSHOT.md`, `docs/NEXT_STEPS.md`
+**Last completed phase:** **92** (quality & responsiveness polish)  
+**Checkpoint docs:** `docs/PROJECT_STATUS.md`, `docs/PHASES.md`, `docs/SETUP.md`, `docs/VOICE.md`
 
 ---
 
 ## Where the project stands
 
-- Monorepo scaffold and contracts: **done** (Phases 0–2)
-- API gateway + orchestrator + memory skeletons: **done** (Phases 3–7)
-- Agent and skill frameworks: **done** (Phases 8–9)
-- Hermes/OpenClaw **stubs** + concrete **mock** skills: **done** (Phases 10–13)
-- End-to-end `POST /tasks` → agent → skill: **done** (Phase 14)
-- `TaskStore` abstraction (memory + file): **done** (Phase 15)
+- Monorepo + E2E task pipeline: **done** (Phases 0–15)
+- Runtime, memory, activity, timeline, workspace: **done** (Phases 45–76)
+- Live LLM providers + validation: **done** (Phases 82–88)
+- Command Center UI + provider streaming: **done** (Phase 89)
+- Voice-native UI + real-time mic/STT/TTS: **done** (Phases 90–91)
+- UX polish (motion, latency, performance): **done** (Phase 92)
 
-**Not done:** real LLM, real OpenClaw automation, memory HTTP, database, auth, production transport, voice, plugins, SaaS.
-
----
-
-## Next recommended phase after restart
-
-### Phase 16: Real Hermes / OpenClaw adapters
-
-**Official integrations only — do not copy external code into the monorepo.**
-
-| Workstream | Goal |
-|------------|------|
-| **Hermes adapter** | Replace stub planning/reasoning with official Hermes (or approved) API integration behind existing `HermesAgent` + `SkillExecutor` |
-| **OpenClaw adapter** | Replace stub execution with official OpenClaw gateway integration behind `OpenClawAgent` |
-| **Compatibility** | Keep `CapabilityRouter`, bindings, and skill ids stable; swap adapter internals |
-| **CI** | Retain stub mode via env flag for tests without external services |
-
-**Suggested first tasks:**
-
-1. Read `agents/hermes/src/hermes-agent.ts` and `agents/openclaw/src/openclaw-agent.ts` — extension points for adapters.
-2. Define adapter interfaces in `agents/shared` (or thin `agents/hermes-adapter`, `agents/openclaw-adapter` packages).
-3. Wire adapters in `@jarvis/agents-bootstrap` with stub fallback.
-4. Add integration tests behind feature flags; do not break Phase 14 API E2E stub client tests.
-
-**Out of scope for Phase 16 (defer):**
-
-- PostgreSQL / Redis `TaskStore`
-- Memory Service HTTP persistence
-- Authentication
-- Electron/STT/TTS/voice
+**Not done:** production transport, auth/tenancy, PostgreSQL task store, full web UI, SaaS billing, committed screenshot assets.
 
 ---
 
-## Quick orientation commands
+## Test baseline (Phase 92)
 
 ```bash
-# Install
+npm run test --workspace=@jarvis/desktop          # 180
+npm run test --workspace=@jarvis/speech-service   # 84
+npm run test --workspace=@jarvis/orchestrator     # 243
+```
+
+---
+
+## Quick start
+
+```bash
 npm install
-
-# Orchestrator + agents + skills tests
-npm run test --workspace=@jarvis/orchestrator
-npm run test --workspace=@jarvis/agents-shared
-npm run test --workspace=@jarvis/agents-bootstrap
-
-# API gateway (no Node required)
-cd services/api-gateway
-pip install -r requirements.txt
-set JARVIS_ORCHESTRATOR_CLIENT=stub
-pytest
+npm run build
+cp .env.example .env
 ```
 
-**Dev API with live orchestrator bridge:**
+See [docs/SETUP.md](docs/SETUP.md) for API gateway + desktop + voice toggles.
+
+**Dev stack:**
 
 ```bash
-set JARVIS_ORCHESTRATOR_CLIENT=local_bridge
+# Terminal 1
 cd services/api-gateway
+set JARVIS_ORCHESTRATOR_CLIENT=local_bridge
 uvicorn app.main:app --reload --port 8000
+
+# Terminal 2
+npm run dev --workspace=@jarvis/desktop
 ```
 
 ---
 
-## Architecture reminder (one line)
+## Architecture (one line)
 
 ```
 UI → API Gateway → Orchestrator → CapabilityRouter → Agent → SkillExecutor → Skill → TaskStore → Response
 ```
 
+Voice tasks use the same API path after `@jarvis/speech-service` normalization and intent classification.
+
 ---
 
-## Key files to open first in Phase 16
+## Key areas (Phase 92)
 
 | Area | Path |
 |------|------|
-| Hermes agent | `agents/hermes/src/hermes-agent.ts` |
-| OpenClaw agent | `agents/openclaw/src/openclaw-agent.ts` |
-| Bootstrap wiring | `agents/bootstrap/src/index.ts` |
-| Skill pipeline | `agents/shared/src/create-skill-pipeline.ts` |
-| Task execution | `services/orchestrator/src/task-execution/create-task-executor.ts` |
-| Capability routing | `services/orchestrator/src/capability-routing/capability-router.ts` |
-| API entry | `services/api-gateway/app/controllers/tasks.py` |
+| Command center | `apps/desktop/src/renderer/command-center/` |
+| Voice-native | `apps/desktop/src/renderer/voice-native/` |
+| Polish (92) | `apps/desktop/src/renderer/polish/` |
+| Speech real-time | `services/speech-service/src/real-time/` |
+| LLM providers | `services/orchestrator/src/llm-provider/` |
+| Voice settings | `apps/desktop/src/renderer/voice/voice-settings.ts` |
+
+---
+
+## Next recommended work (Phase 93+)
+
+1. **Production transport** — HTTP/gRPC orchestrator client replacing LocalCli bridge
+2. **Web UI parity** — task/voice surfaces in `apps/web`
+3. **Auth + tenancy** — API gateway middleware, user scoping
+4. **Database TaskStore** — PostgreSQL behind existing `TaskStore` interface
+5. **UI assets** — capture screenshots per `docs/screenshots/README.md`
+
+See [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md).
 
 ---
 
 ## Rules (do not violate)
 
 1. Frontend never controls OpenClaw directly.
-2. Hermes uses Memory Service APIs for persistent memory (when implemented).
+2. Hermes uses Memory Service APIs for persistent memory.
 3. User only sees Jarvis UI.
-4. Use `@jarvis/types` contracts; no duplicate frameworks.
+4. No duplicate state systems or runtime layers.
 5. TypeScript strict; tests per module.
-6. Official adapter integrations only in Phase 16 — no copied vendor code.
+6. Scan repo before creating files — reuse existing modules.
 
 ---
 
@@ -114,9 +104,9 @@ UI → API Gateway → Orchestrator → CapabilityRouter → Agent → SkillExec
 
 | File | Purpose |
 |------|---------|
-| [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Current state snapshot |
-| [docs/COMPLETED_PHASES.md](docs/COMPLETED_PHASES.md) | Phases 0–15 log |
-| [docs/ARCHITECTURE_SNAPSHOT.md](docs/ARCHITECTURE_SNAPSHOT.md) | Diagrams and flows |
-| [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md) | Full backlog |
-| [docs/PHASES.md](docs/PHASES.md) | Official phase table |
+| [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Current state |
+| [docs/SETUP.md](docs/SETUP.md) | Install & run |
+| [docs/VOICE.md](docs/VOICE.md) | Voice capabilities |
+| [docs/PROVIDERS.md](docs/PROVIDERS.md) | Provider matrix |
+| [docs/PHASES.md](docs/PHASES.md) | Phase table |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layer rules |

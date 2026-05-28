@@ -1,10 +1,45 @@
 # @jarvis/speech-service
 
-**Speech transcript normalization** (Phase 26) — deterministic text cleanup for Roman Urdu + English mixed voice input.
+**Speech runtime for Jarvis** — normalization, voice sessions, real-time STT/TTS, and voice→task execution.
 
-Prepares transcripts **before** future STT integration. No STT, TTS, microphone APIs, or LLM calls.
+**Current:** Phase **92** (timing + transcript stabilization). Tests: **84**.
 
-## Modules
+## Quick reference
+
+| Capability | Module | Desktop wired? |
+|------------|--------|----------------|
+| Roman Urdu + English normalization | `normalization/` | ✅ |
+| Voice session (wake word, interrupt) | `voice-session/` | ✅ |
+| Real-time mic + streaming STT/TTS | `real-time/` | ✅ Phase 91 |
+| Natural speech timing + stable partials | `real-time/speech-timing.ts` | ✅ Phase 92 |
+| Voice execution delegate | `voice-execution/` | ✅ |
+
+Docs: [`../../docs/VOICE.md`](../../docs/VOICE.md) · Phase READMEs: `src/real-time/PHASE-91-README.md`, `src/voice-session/PHASE-90-README.md`
+
+## Pipeline (normalization)
+
+```
+transcript text
+  → LanguageDetector
+  → TranscriptCorrection (domain-aware)
+  → NormalizationRules (language-aware)
+  → normalized transcript
+```
+
+## Real-time voice (Phase 91+)
+
+```
+MicrophoneRuntime → StreamingSpeechRuntime → RealTimeTranscriptionSession
+  → VoicePlaybackController → TtsProviderRuntime
+```
+
+STT: `whisper`, `deepgram`, `groq-whisper`, `openai-realtime`  
+TTS: `elevenlabs`, `openai-tts`, `edge-tts`  
+Stub fallback when API keys missing.
+
+---
+
+## Modules (full index)
 
 | Module | Role |
 |--------|------|
@@ -61,10 +96,32 @@ console.log(urdu.normalized); // "open my gold chart"
 
 ## Constraints
 
-- **Text in / text out** only
-- **Deterministic** rule tables — extend `TRANSCRIPT_CORRECTION_RULES` and `NORMALIZATION_RULES`
-- Not wired to Desktop or API yet — consume from voice/STT layer in a later phase
-- Adapter layer is **stub-only** in this phase (no microphone/device permissions, no external STT/TTS APIs)
+- **Deterministic** normalization rules — extend `TRANSCRIPT_CORRECTION_RULES` and `NORMALIZATION_RULES`
+- STT/TTS adapters use stub fallback without keys (CI-safe)
+- Task execution stays in orchestrator — speech-service does not call agents directly
+
+## Desktop integration
+
+- Voice-native: `apps/desktop/src/renderer/voice-native/use-voice-session.ts`
+- Legacy shell: `apps/desktop/src/renderer/voice/useMockVoiceInput.ts`
+- Polish re-exports: `apps/desktop/src/renderer/polish/transcript-stabilizer.ts`
+
+Integration tests:
+
+- `src/__tests__/speech-service-integration.test.ts`
+- `apps/desktop/src/renderer/voice/__tests__/voice-gateway-pipeline.integration.test.ts`
+- `apps/desktop/src/renderer/voice-native/__tests__/voice-session.integration.test.ts`
+
+## Tests
+
+```bash
+npm run test --workspace=@jarvis/speech-service   # 84 tests
+npm run build --workspace=@jarvis/speech-service
+```
+
+---
+
+## Historical module index (Phases 26–40)
 
 ## Speech Adapter Architecture (Phase 28)
 
@@ -467,32 +524,6 @@ Supported operations:
 - `validateCompatibility()`
 - `getSupportedVersions()`
 
-## Tests
+## Phase 38+ Desktop integration
 
-```bash
-npm run test --workspace=@jarvis/speech-service
-npm run build --workspace=@jarvis/speech-service
-```
-
-## Phase 38 Desktop integration
-
-Desktop voice pipeline now wires `@jarvis/speech-service` gateway + telemetry internally via `useMockVoiceInput`.
-No API, orchestrator, or Hermes/OpenClaw changes.
-
-Integration coverage:
-
-- `src/__tests__/speech-service-integration.test.ts` (service-level)
-- `apps/desktop/src/renderer/voice/__tests__/voice-gateway-pipeline.integration.test.ts` (desktop hook)
-
-`src/__tests__/speech-service-integration.test.ts` validates deterministic in-memory integration flow:
-
-1. Normal conversation flow  
-   Transcript → `SpeechNormalizer` → `ConversationManager` → `SpeechActionRouter` → `SpeechEventBus` → `SpeechSessionManager` → response/session complete
-2. Interruption flow  
-   Start conversation → interrupt → resume → complete
-3. Voice command flow  
-   `stop`, `repeat`, `open-settings`
-4. Transcript normalization flow  
-   Roman Urdu + English behavior, correction/rule application, conversation metadata preservation
-5. Failure flow  
-   Invalid action, invalid session, invalid conversation
+Desktop voice pipeline wires `@jarvis/speech-service` gateway + telemetry. Phase 91+ adds real-time STT/TTS via `voice-native/`. See [`../../docs/VOICE.md`](../../docs/VOICE.md).

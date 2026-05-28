@@ -32,7 +32,7 @@ export function DynamicActivityPanel({
       aria-label="Active capabilities"
       data-testid="dynamic-activity-panel"
     >
-      <h3 className="dynamic-activity-panel__title">Active now</h3>
+      <h3 className="dynamic-activity-panel__title">Now</h3>
       <ul className="dynamic-activity-panel__list">
         {visible.map((event) => (
           <li

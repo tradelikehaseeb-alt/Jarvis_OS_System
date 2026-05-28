@@ -1,16 +1,19 @@
+import { memo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+
 import type { ChatIntentType } from "../intent/intent-types";
 import type { HermesPlanMessageData } from "../types/hermes-plan";
 
 import { ChatMessageBubble } from "./ChatMessageBubble";
+import { fadeSlideUp, panelTransition } from "../polish/motion-presets";
+
 export type ChatMessageRole = "user" | "assistant" | "loading" | "error";
 
 export interface ChatMessage {
   readonly id: string;
   readonly role: ChatMessageRole;
   readonly text: string;
-  /** Desktop intent classification shown on user messages (Phase 24). */
   readonly detectedIntent?: ChatIntentType;
-  /** Present when assistant message includes Hermes structured planning (Phase 23). */
   readonly hermesPlan?: HermesPlanMessageData;
 }
 
@@ -19,22 +22,29 @@ export interface ChatMessagesProps {
 }
 
 /**
- * Scrollable chat transcript (Phase 18–24).
- *
- * User messages, Hermes plan cards, loading, and error states.
+ * Scrollable chat transcript with motion polish (Phase 92).
  */
-export function ChatMessages({ messages }: ChatMessagesProps) {
+export const ChatMessages = memo(function ChatMessages({ messages }: ChatMessagesProps) {
   return (
-    <div className="chat-messages" role="log" aria-live="polite">
+    <div className="chat-messages chat-messages--polished" role="log" aria-live="polite">
       {messages.length === 0 ? (
-        <p className="chat-bubble assistant">
-          Send a message — Jarvis classifies your intent, submits a task, and
-          shows a structured action plan when planning applies.
-        </p>
+        <p className="chat-empty-state">Ask Jarvis anything — voice or text.</p>
       ) : null}
-      {messages.map((msg) => (
-        <ChatMessageBubble key={msg.id} message={msg} />
-      ))}
+      <AnimatePresence initial={false}>
+        {messages.map((msg) => (
+          <motion.div
+            key={msg.id}
+            variants={fadeSlideUp}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={panelTransition}
+            layout
+          >
+            <ChatMessageBubble message={msg} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
-}
+});
