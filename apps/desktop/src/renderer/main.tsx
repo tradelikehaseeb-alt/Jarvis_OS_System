@@ -5,6 +5,7 @@ import { App } from "./App";
 import "./styles/app.css";
 import "./styles/runtime-dashboard.css";
 import "./styles/command-center.css";
+import "./styles/voice-native.css";
 
 const root = document.getElementById("root");
 if (!root) {

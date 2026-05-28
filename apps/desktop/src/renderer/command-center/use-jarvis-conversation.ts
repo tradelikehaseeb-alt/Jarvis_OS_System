@@ -14,6 +14,7 @@ import {
   useVoiceExecution,
   type VoiceSettings,
 } from "../voice";
+import { useVoiceSession } from "../voice-native";
 import type { CreateTaskResponse, TaskStatusResponse } from "@jarvis/types";
 
 import { useConversationWorkspace } from "../workspace/use-conversation-workspace";
@@ -86,24 +87,16 @@ export function useJarvisConversation() {
     [workspace],
   );
 
-  const handleVoiceExecutionComplete = useCallback(
-    (result: {
-      status?: TaskStatusResponse;
-      normalizedInput: string;
-      success: boolean;
-    }) => {
-      if (!result.status) {
-        return;
-      }
-
+  const handleVoiceTaskComplete = useCallback(
+    (status: TaskStatusResponse, normalized: string) => {
       setCreateResult({
-        taskId: result.status.taskId,
-        status: result.status.status,
-        createdAt: result.status.updatedAt,
+        taskId: status.taskId,
+        status: status.status,
+        createdAt: status.updatedAt,
       });
 
-      const plan = buildPlanMessageData(result.status);
-      const reply = plan ? "" : formatAssistantReply(result.status);
+      const plan = buildPlanMessageData(status);
+      const reply = plan ? "" : formatAssistantReply(status);
 
       setMessages((prev) => {
         const next = [
@@ -115,18 +108,60 @@ export function useJarvisConversation() {
             ...(plan ? { hermesPlan: plan } : {}),
           },
         ];
-        applyTaskResult(result.status!, next);
+        applyTaskResult(status, next);
         return next;
       });
     },
     [applyTaskResult],
   );
 
+  const voiceSession = useVoiceSession({
+    settings: voiceSettings,
+    activity: timeline,
+    disabled: loading,
+    onTranscriptReady: (normalized) => {
+      setVoiceNormalizerError(null);
+      setInput(normalized);
+    },
+    onCommandRecognized: (normalized) => {
+      if (!voiceSettings.autoExecuteVoicePipeline) {
+        return;
+      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: nextMessageId(),
+          role: "user",
+          text: normalized,
+          detectedIntent: classifyChatIntent(normalized).intent,
+        },
+        {
+          id: nextMessageId(),
+          role: "loading",
+          text: loadingMessageForJarvisIntent(classifyChatIntent(normalized).intent),
+        },
+      ]);
+      setLoading(true);
+    },
+    onExecutionComplete: (status) => {
+      handleVoiceTaskComplete(status, "");
+      setLoading(false);
+    },
+    onError: (message) => {
+      setTaskError(message);
+      setLoading(false);
+      setMessages((prev) => [
+        ...prev.filter((m) => m.role !== "loading"),
+        { id: nextMessageId(), role: "error", text: message },
+      ]);
+    },
+  });
+
   const voiceExecution = useVoiceExecution({
     activity: timeline,
     onComplete: (result) => {
       if (result.status) {
-        handleVoiceExecutionComplete(result);
+        handleVoiceTaskComplete(result.status, result.normalizedInput);
         return;
       }
       if (!result.success) {
@@ -140,7 +175,7 @@ export function useJarvisConversation() {
     },
   });
 
-  const voice = useMockVoiceInput({
+  const legacyVoice = useMockVoiceInput({
     settings: voiceSettings,
     onTranscriptReady: (normalized) => {
       setVoiceNormalizerError(null);
@@ -173,8 +208,22 @@ export function useJarvisConversation() {
         setVoiceNormalizerError(null);
       }
     },
-    disabled: loading,
+    disabled: loading || voiceSettings.voiceNativeUi,
   });
+
+  const voice = voiceSettings.voiceNativeUi
+    ? {
+        status: voiceSession.status,
+        transcript: voiceSession.transcript,
+        normalization: null,
+        metadata: null,
+        error: voiceSession.error,
+        isActive: voiceSession.isActive,
+        toggleListening: voiceSession.toggleListening,
+        cancel: voiceSession.cancel,
+        clearTranscript: voiceSession.clearTranscript,
+      }
+    : legacyVoice;
 
   const handleSubmit = useCallback(async () => {
     const text = input.trim();
@@ -247,6 +296,23 @@ export function useJarvisConversation() {
   }, [applyTaskResult, input, loading, timeline, voice]);
 
   const orbState = useMemo(() => {
+    if (voiceSettings.voiceNativeUi && voiceSession.sessionState !== "idle") {
+      if (voiceSession.sessionState === "error") {
+        return "error" as const;
+      }
+      if (voiceSession.sessionState === "executing") {
+        return "executing" as const;
+      }
+      if (
+        voiceSession.sessionState === "thinking" ||
+        voiceSession.sessionState === "speaking"
+      ) {
+        return "streaming" as const;
+      }
+      if (voiceSession.sessionState === "listening") {
+        return "streaming" as const;
+      }
+    }
     if (taskError) {
       return "error" as const;
     }
@@ -257,7 +323,14 @@ export function useJarvisConversation() {
       return "complete" as const;
     }
     return "idle" as const;
-  }, [agentStatus.status, loading, taskError, timeline.isStreaming]);
+  }, [
+    agentStatus.status,
+    loading,
+    taskError,
+    timeline.isStreaming,
+    voiceSession.sessionState,
+    voiceSettings.voiceNativeUi,
+  ]);
 
   const providerTelemetry = useMemo(() => {
     const llm = statusResult?.output?.llmProvider as
@@ -287,6 +360,7 @@ export function useJarvisConversation() {
     voiceNormalizerError,
     agentStatus,
     voice,
+    voiceSession,
     handleSubmit,
     orbState,
     providerTelemetry,

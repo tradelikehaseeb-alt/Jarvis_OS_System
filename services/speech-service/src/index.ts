@@ -206,6 +206,28 @@ export type {
 } from "./voice-execution";
 export { createDefaultVoiceExecutionRuntime } from "./voice-execution";
 
+export type {
+  WakeWordState,
+  WakeWordConfig,
+  WakeWordDetectionResult,
+  VoiceSessionState,
+  VoiceSessionMode,
+  VoiceSessionCaptureResult,
+  VoiceSessionCaptureDelegate,
+  VoiceSessionSpeechDelegate,
+  VoiceSessionStateChangeEvent,
+  VoiceSessionListener,
+  VoiceSessionRuntime,
+  CreateDefaultVoiceSessionRuntimeOptions,
+} from "./voice-session";
+export {
+  DEFAULT_WAKE_WORD_CONFIG,
+  detectWakeWord,
+  VOICE_SESSION_STATE_LABELS,
+  DEFAULT_VOICE_SESSION_MODE,
+  createDefaultVoiceSessionRuntime,
+} from "./voice-session";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -225,6 +247,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "recovery",
   "contracts",
   "voice-execution",
+  "voice-session",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];

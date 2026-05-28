@@ -1,6 +1,8 @@
 /**
- * Desktop voice shell preferences (Phase 25) — local only, no device APIs.
+ * Desktop voice shell preferences (Phase 25 / Phase 90).
  */
+import type { VoiceSessionMode } from "@jarvis/speech-service";
+
 export interface VoiceSettings {
   /** Show transcript panel above chat composer. */
   readonly showTranscriptPanel: boolean;
@@ -12,6 +14,14 @@ export interface VoiceSettings {
   readonly enableNormalization: boolean;
   /** Run voice transcript through Jarvis execution pipeline (Phase 72). */
   readonly autoExecuteVoicePipeline: boolean;
+  /** Voice interaction mode (Phase 90). */
+  readonly listeningMode: VoiceSessionMode;
+  /** Enable wake phrase gating. */
+  readonly wakeWordEnabled: boolean;
+  /** Wake phrase (case-insensitive). */
+  readonly wakePhrase: string;
+  /** Use voice-native orb overlay UI. */
+  readonly voiceNativeUi: boolean;
 }
 
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
@@ -20,6 +30,10 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   simulateCaptureError: false,
   enableNormalization: true,
   autoExecuteVoicePipeline: true,
+  listeningMode: "push-to-talk",
+  wakeWordEnabled: true,
+  wakePhrase: "jarvis",
+  voiceNativeUi: true,
 };
 
 const STORAGE_KEY = "jarvis.desktop.voiceSettings";

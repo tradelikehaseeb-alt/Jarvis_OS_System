@@ -22,6 +22,7 @@ describe("speech-service structure", () => {
       "recovery",
       "contracts",
       "voice-execution",
+      "voice-session",
     ]);
   });
 });

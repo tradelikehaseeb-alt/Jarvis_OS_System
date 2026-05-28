@@ -32,6 +32,7 @@ export * from "./context";
 export * from "./memory-recall";
 export * from "./activity";
 export * from "./voice-execution";
+export * from "./voice-session";
 export * from "./runtime-startup";
 export * from "./runtime-health";
 export * from "./timeline";
@@ -65,6 +66,7 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "memory-recall",
   "activity",
   "voice-execution",
+  "voice-session",
   "runtime-startup",
   "runtime-health",
   "timeline",
