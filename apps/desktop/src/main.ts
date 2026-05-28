@@ -7,6 +7,11 @@ import path from "node:path";
 import { app, BrowserWindow } from "electron";
 
 import { registerApiHandlers, initializeApiRuntime } from "./ipc/api-handlers";
+import {
+  isApiRuntimeInitialized,
+  markApiRuntimeInitialized,
+  markMainWindowCrashHandlerAttached,
+} from "./ipc/desktop-crash-recovery";
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -25,10 +30,21 @@ function createWindow(): void {
 
   const rendererHtml = path.join(__dirname, "renderer", "index.html");
   void win.loadFile(rendererHtml);
+
+  if (markMainWindowCrashHandlerAttached()) {
+    win.webContents.on("render-process-gone", (_event, details) => {
+      if (details.reason !== "clean-exit") {
+        console.warn("[jarvis] renderer process gone:", details.reason);
+      }
+    });
+  }
 }
 
 void app.whenReady().then(async () => {
-  await initializeApiRuntime();
+  if (!isApiRuntimeInitialized()) {
+    await initializeApiRuntime();
+    markApiRuntimeInitialized();
+  }
   registerApiHandlers();
   createWindow();
 

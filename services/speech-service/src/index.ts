@@ -263,6 +263,7 @@ export {
   naturalWordDelayMs,
   stabilizePartialTranscript,
 } from "./real-time";
+export * from "./hardening";
 
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [

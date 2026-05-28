@@ -2,7 +2,7 @@
 
 Use this file after a break or context reset.
 
-**Last completed phase:** **93** (memory & context intelligence)  
+**Last completed phase:** **94** (production hardening & stability)  
 **Checkpoint docs:** `docs/PROJECT_STATUS.md`, `docs/PHASES.md`, `docs/SETUP.md`, `docs/VOICE.md`
 
 ---

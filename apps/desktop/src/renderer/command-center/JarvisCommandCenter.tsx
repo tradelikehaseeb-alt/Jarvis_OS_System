@@ -17,6 +17,7 @@ import { JARVIS_EXECUTION_LABELS } from "./execution-display-labels";
 import { LiveExecutionPanel } from "./LiveExecutionPanel";
 import { useJarvisConversation } from "./use-jarvis-conversation";
 import { MemoryContextIndicator } from "../memory/MemoryContextIndicator";
+import { ReconnectIndicator } from "../hardening/ReconnectIndicator";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -41,7 +42,17 @@ export function JarvisCommandCenter() {
     orbState,
     providerTelemetry,
     memoryRecallView,
+    statusResult,
   } = conversation;
+
+  const reconnectVisible =
+    Boolean(taskError) ||
+    providerTelemetry?.label?.includes("offline") ||
+    (statusResult?.output?.stability as { degraded?: boolean } | undefined)?.degraded ===
+      true;
+  const reconnectMessage =
+    (statusResult?.output?.stability as { message?: string } | undefined)?.message ??
+    (taskError ? "Reconnecting…" : undefined);
 
   const voiceNative = voiceSettings.voiceNativeUi;
 
@@ -121,6 +132,14 @@ export function JarvisCommandCenter() {
                 latencyMs={voiceSession.sttLatencyMs}
               />
             ) : null}
+            <ReconnectIndicator
+              visible={reconnectVisible}
+              message={reconnectMessage}
+              degraded={
+                (statusResult?.output?.stability as { degraded?: boolean } | undefined)
+                  ?.degraded
+              }
+            />
             <MemoryContextIndicator
               visible={Boolean(memoryRecallView?.message)}
               message={memoryRecallView?.message}

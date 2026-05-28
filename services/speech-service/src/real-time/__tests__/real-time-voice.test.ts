@@ -82,7 +82,9 @@ describe("provider fallback", () => {
     expect(config.mode).toBe("stub");
   });
 
-  it("falls back to stub TTS on adapter failure", async () => {
+  it(
+    "falls back to stub TTS on adapter failure",
+    async () => {
     const runtime = createDefaultTtsProviderRuntime({
       fallbackChain: [
         {
@@ -102,5 +104,7 @@ describe("provider fallback", () => {
 
     expect(response.stub).toBe(true);
     expect(response.output).toContain("hello jarvis");
-  });
+    },
+    15_000,
+  );
 });

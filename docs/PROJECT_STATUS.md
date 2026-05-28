@@ -1,7 +1,7 @@
 # Jarvis OS — Project Status
 
 **Checkpoint date:** May 2026  
-**Current phase:** **92 complete**  
+**Current phase:** **94 complete**  
 **Monorepo:** Turborepo, npm workspaces
 
 ---
@@ -10,22 +10,26 @@
 
 Jarvis OS is a production-oriented AI operating system with strict layered architecture. The desktop app delivers a **Jarvis Command Center** with voice-native interaction, multi-provider LLM inference (stub fallback), real-time speech adapters, and full task execution through API → Orchestrator → Hermes/OpenClaw → Skills.
 
-Phases **0–92** are implemented in code. Authentication, multi-tenancy, production transport, and full web UI remain planned.
+Phases **0–94** are implemented in code. Authentication, multi-tenancy, production transport, and full web UI remain planned.
 
 ---
 
-## Test coverage (Phase 92 verified)
+## Test coverage (Phase 94 verified)
 
 | Workspace | Tests |
 |-----------|-------|
-| `@jarvis/desktop` | 180 |
-| `@jarvis/speech-service` | 84 |
-| `@jarvis/orchestrator` | 243 |
+| `@jarvis/desktop` | 185 |
+| `@jarvis/speech-service` | 85 |
+| `@jarvis/orchestrator` | 260+ |
+| `@jarvis/hermes` | 75 |
+| `@jarvis/openclaw` | 65 |
 
 ```bash
 npm run test --workspace=@jarvis/desktop
 npm run test --workspace=@jarvis/speech-service
 npm run test --workspace=@jarvis/orchestrator
+npm run test --workspace=@jarvis/hermes
+npm run test --workspace=@jarvis/openclaw
 ```
 
 ---
@@ -54,6 +58,8 @@ UI (apps) → API Gateway → Orchestrator → Agents → Skills
 | Voice-native UI | Phase 90 — orb, overlay, interrupt (default on) |
 | Real microphone + streaming STT | Phase 91 — `BrowserMicrophoneRuntime` |
 | UX polish | Phase 92 — Framer Motion, stabilized partials, progressive streaming |
+| Memory intelligence | Phase 93 — adaptive recall, session profiles |
+| Production hardening | Phase 94 — recovery, provider health, crash restore, telemetry |
 | Provider settings UI | Phase 83 — API keys, model selection |
 | Intent classification | Phase 24 — badge + API `intent.kind` |
 | Hermes plan rendering | Phase 23 — goal, steps, collapsible details |

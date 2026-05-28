@@ -14,6 +14,11 @@ export {
   resolveSessionMemoryProfile,
 } from "./session-memory-profile-store";
 export {
+  saveRuntimeCheckpoint,
+  loadRuntimeCheckpoint,
+  type RuntimeCheckpointRecord,
+} from "./runtime-checkpoint";
+export {
   FileLocalMemoryRepository,
   InMemoryLocalMemoryRepository,
   DEFAULT_LOCAL_MEMORY_FILE,

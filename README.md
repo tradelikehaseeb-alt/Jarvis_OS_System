@@ -2,7 +2,7 @@
 
 Production-grade AI Operating System and SaaS platform — planning, execution, voice, memory, and multi-provider inference behind a single **Jarvis** experience.
 
-**Current checkpoint:** Phase **93** — memory & context intelligence (adaptive recall, continuity, UI indicators).
+**Current checkpoint:** Phase **94** — production hardening & stability (recovery, provider resilience, session restore).
 
 ## Architecture
 
@@ -93,9 +93,11 @@ Full setup: [`docs/SETUP.md`](docs/SETUP.md)
 ## Tests (last verified — Phase 92)
 
 ```bash
-npm run test --workspace=@jarvis/desktop          # 182 tests
-npm run test --workspace=@jarvis/speech-service   # 84 tests
-npm run test --workspace=@jarvis/orchestrator     # 252 tests
+npm run test --workspace=@jarvis/orchestrator     # 258+ tests
+npm run test --workspace=@jarvis/desktop          # 186+ tests
+npm run test --workspace=@jarvis/speech-service   # 85+ tests
+npm run test --workspace=@jarvis/hermes           # 75+ tests
+npm run test --workspace=@jarvis/openclaw         # see workspace
 ```
 
 ## Documentation

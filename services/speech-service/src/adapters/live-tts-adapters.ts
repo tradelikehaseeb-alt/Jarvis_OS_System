@@ -17,6 +17,7 @@ async function synthesizeHttp(
   url: string,
   apiKey: string | undefined,
   body: unknown,
+  timeoutMs = 8_000,
 ): Promise<{ audioBase64: string; mimeType: string }> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -24,19 +25,26 @@ async function synthesizeHttp(
   if (apiKey) {
     headers.Authorization = `Bearer ${apiKey}`;
   }
-  const response = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) {
-    throw new Error(`TTS request failed: ${response.status}`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      throw new Error(`TTS request failed: ${response.status}`);
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    return {
+      audioBase64: buffer.toString("base64"),
+      mimeType: response.headers.get("content-type") ?? "audio/mpeg",
+    };
+  } finally {
+    clearTimeout(timer);
   }
-  const buffer = Buffer.from(await response.arrayBuffer());
-  return {
-    audioBase64: buffer.toString("base64"),
-    mimeType: response.headers.get("content-type") ?? "audio/mpeg",
-  };
 }
 
 /**

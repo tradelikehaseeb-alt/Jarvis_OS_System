@@ -90,10 +90,14 @@ import {
 import { createDefaultMemoryRecallRuntime } from "../memory-recall/create-default-memory-recall-runtime";
 import type { MemoryRecallRuntime } from "../memory-recall/memory-recall-runtime";
 import { buildTaskMemoryRecallView } from "../memory-intelligence/build-task-memory-recall-view";
+import { SafeExecutionFallbackRuntime } from "../runtime-hardening/safe-execution-fallback-runtime";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
 import type { TaskExecutionRecord, TaskStore } from "../storage";
+
+/** Shared safe execution evaluator (Phase 94). */
+const safeExecutionFallbackRuntime = new SafeExecutionFallbackRuntime();
 
 /** API gateway user id for stub lifecycle (no auth). */
 export const DEFAULT_API_USER_ID = "user-api-stub" as const;
@@ -811,6 +815,11 @@ export async function executeCreateTask(
           summary: contextRecord.summary,
         },
         memoryRecall: buildTaskMemoryRecallView(recalledMemories),
+        stability: {
+          mode: "degraded",
+          message: "Execution failed — safe mode available",
+          degraded: true,
+        },
       },
       agentResult.error,
     );
@@ -860,6 +869,13 @@ export async function executeCreateTask(
   const activityEvents = activityRuntime.getEvents(streamSessionId);
   const timelineEvents = timelineRuntime.getEvents(timelineId);
   const skillOutput = extractSkillOutput(agentResult.payload);
+  const executionStability = safeExecutionFallbackRuntime.computeDecision({
+    providerId: llmProviderResponse?.providerId ?? llmProviderValidation?.providerId,
+    providerHealthy:
+      (llmProviderValidation?.valid ?? true) && !(llmProviderResponse?.stub ?? false),
+    offline: false,
+    lastProgressAt: finalSession.updatedAt,
+  });
   const output: Readonly<Record<string, unknown>> = {
     stub: true,
     phase: 47,
@@ -976,6 +992,11 @@ export async function executeCreateTask(
       summary: contextRecord.summary,
     },
     memoryRecall: buildTaskMemoryRecallView(recalledMemories),
+    stability: {
+      mode: executionStability.mode,
+      message: executionStability.message,
+      degraded: executionStability.mode !== "normal",
+    },
   };
 
   const taskStatus = buildTaskStatus(
