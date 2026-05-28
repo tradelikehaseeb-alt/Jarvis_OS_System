@@ -30,7 +30,8 @@
 | **94** | Production hardening & stability | Done |
 | **95** | Real browser & desktop execution runtime | Done |
 | **96** | Real demo & human interaction validation | Done |
-| **97+** | Web UI, SaaS, auth | Planned |
+| **97** | Personal AI workforce & multi-agent coordination | Done |
+| **98+** | Web UI, SaaS, auth | Planned |
 
 **Target value:** 1–4 hours/day saved (5–8+ heavy users).
 
@@ -46,6 +47,7 @@
 | 94 | `services/orchestrator/src/runtime-hardening/PHASE-94-README.md`, `docs/STABILITY.md` |
 | 95 | `agents/openclaw/src/execution-runtime/PHASE-95-README.md`, `docs/EXECUTION.md` |
 | 96 | `services/orchestrator/src/demo-validation/`, `docs/DEMO.md` |
+| 97 | `services/orchestrator/src/agent-workforce/PHASE-97-README.md`, `docs/AGENTS.md`, `docs/VISION.md` |
 
 Detailed log for Phases 0–15: [COMPLETED_PHASES.md](./COMPLETED_PHASES.md).  
 Summary for Phases 16–92: same file (append section).

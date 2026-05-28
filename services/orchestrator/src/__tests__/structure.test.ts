@@ -26,6 +26,7 @@ describe("orchestrator structure", () => {
       "runtime-hardening",
       "execution-runtime",
       "demo-validation",
+      "agent-workforce",
       "activity",
       "voice-execution",
       "voice-session",

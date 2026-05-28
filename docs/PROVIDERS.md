@@ -89,3 +89,4 @@ npm run test --workspace=@jarvis/speech-service -- --run src/real-time
 - Frontend selects providers through Settings — **never** embeds keys in renderer bundle.
 - OpenClaw execution stays behind orchestrator; UI does not call OpenClaw APIs directly.
 - User-facing labels say **Jarvis** — not Hermes/OpenClaw.
+- Workforce coordination (Phase 97) uses the same provider stack for LLM steps; parallel workers share orchestrator context — no duplicate provider clients in the desktop app.

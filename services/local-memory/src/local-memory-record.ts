@@ -6,7 +6,8 @@ export type LocalMemoryType =
   | "execution"
   | "activity"
   | "summary"
-  | "session-profile";
+  | "session-profile"
+  | "workforce-session";
 
 /**
  * Persisted local memory record — SQLite-ready shape (Phase 62).

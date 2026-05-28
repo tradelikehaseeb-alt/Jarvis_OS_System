@@ -2,7 +2,7 @@
 
 Production-grade AI Operating System and SaaS platform — planning, execution, voice, memory, and multi-provider inference behind a single **Jarvis** experience.
 
-**Current checkpoint:** Phase **94** — production hardening & stability (recovery, provider resilience, session restore).
+**Current checkpoint:** Phase **97** — personal AI workforce & multi-agent coordination.
 
 ## Architecture
 
@@ -33,8 +33,12 @@ UI (apps) → API Gateway (services) → Orchestrator → Agents → Skills
 | **91** | Real-time voice — browser mic, streaming STT/TTS adapters |
 | **92** | Quality pass — Framer Motion, transcript stabilization, progressive streaming |
 | **93** | Memory intelligence — adaptive recall, continuity profiles, "Remembered context" UI |
+| **94** | Production hardening — recovery, provider health, safe fallbacks |
+| **95** | Real browser & desktop execution runtime |
+| **96** | Demo & human interaction validation |
+| **97** | Personal AI workforce — parallel workers, delegation, live timeline UI |
 
-Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMORY.md` · Providers: `docs/PROVIDERS.md`
+Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMORY.md` · Providers: `docs/PROVIDERS.md` · Agents: `docs/AGENTS.md` · Vision: `docs/VISION.md`
 
 ## Desktop capabilities (today)
 
@@ -45,6 +49,7 @@ Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMOR
 - **Intent routing** — deterministic classifier → `POST /tasks` → Hermes plan + OpenClaw execution
 - **Polish (92)** — memoized waveforms, stabilized partials, progressive response rendering
 - **Memory intelligence (93)** — adaptive recall, session continuity, subtle context indicators
+- **AI workforce (97)** — multi-agent coordination, live workforce timeline, user-facing task labels
 
 UI screenshots: `docs/screenshots/README.md`
 

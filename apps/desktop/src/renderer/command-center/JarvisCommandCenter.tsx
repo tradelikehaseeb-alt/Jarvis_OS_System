@@ -24,6 +24,7 @@ import {
   useExecutionRuntime,
 } from "../execution";
 import { DemoExecutionFlow, useDemoInteraction } from "../demo";
+import { WorkforceActivityPanel, useWorkforceActivity } from "../workforce";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -70,6 +71,11 @@ export function JarvisCommandCenter() {
     loading: timeline.isStreaming || loading,
     progress: timeline.progress,
     displayMessage: agentStatus.status.displayMessage,
+  });
+
+  const workforceActivity = useWorkforceActivity({
+    taskOutput: statusResult?.output,
+    loading: timeline.isStreaming || loading,
   });
 
   const voiceNative = voiceSettings.voiceNativeUi;
@@ -164,6 +170,12 @@ export function JarvisCommandCenter() {
               message={demoInteraction.demoMessage}
               progress={timeline.progress}
             />
+            <WorkforceActivityPanel
+              visible={workforceActivity.showWorkforce && voiceNative}
+              workforce={workforceActivity.workforce}
+              loading={timeline.isStreaming || loading}
+              displayLabel={workforceActivity.displayLabel}
+            />
             <MemoryContextIndicator
               visible={Boolean(memoryRecallView?.message)}
               message={memoryRecallView?.message}
@@ -204,6 +216,9 @@ export function JarvisCommandCenter() {
                 onDenyPermission={executionRuntimeState.denyPermission}
                 onCancelExecution={executionRuntimeState.cancelExecution}
                 cancelled={executionRuntimeState.cancelled}
+                workforce={workforceActivity.workforce}
+                workforceVisible={workforceActivity.showWorkforce}
+                workforceDisplayLabel={workforceActivity.displayLabel}
               />
             </aside>
           ) : null}

@@ -98,4 +98,9 @@ npm run test --workspace=@jarvis/orchestrator -- --run src/speech-realtime
 - Phase 90: `apps/desktop/src/renderer/voice-native/PHASE-90-README.md`
 - Phase 91: `services/speech-service/src/real-time/PHASE-91-README.md`
 - Phase 92: `apps/desktop/src/renderer/polish/PHASE-92-README.md`
+- Phase 97 workforce UI: `apps/desktop/src/renderer/workforce/`
 - Legacy shell: `apps/desktop/src/renderer/voice/README.md`
+
+## Voice + workforce (Phase 97)
+
+Voice commands that trigger multi-step research or automation intents (e.g. "research AI news and prepare a brief") flow through the same API → orchestrator pipeline. Progress appears as user-facing labels (**Researching…**, **Analyzing…**, **Completed.**) in the command center — never internal agent names.

@@ -57,3 +57,13 @@ createDefaultContextRuntimeBundle({ useMemoryIntelligence: false });
 ```
 
 Phase README: `services/orchestrator/src/memory-intelligence/PHASE-93-README.md`
+
+## Workforce sessions (Phase 97)
+
+Multi-agent tasks persist workforce session metadata via `services/local-memory/src/workforce-session-store.ts`:
+
+- Type: `workforce-session`
+- API: `saveWorkforceSession`, `loadWorkforceSession`, `listWorkforceSessions`
+- Shared context ref links workers to conversation/task context
+
+Tests: `npm run test --workspace=@jarvis/local-memory -- --run workforce-session-store`

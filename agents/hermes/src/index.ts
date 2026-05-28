@@ -20,6 +20,7 @@ export * from "./live-provider";
 export * from "./user-session";
 export * from "./hardening";
 export * from "./demo-validation";
+export * from "./workforce";
 
 /** Create Hermes with {@link SkillExecutor} and optional {@link HermesAdapter}. */
 export function createHermesAgent(

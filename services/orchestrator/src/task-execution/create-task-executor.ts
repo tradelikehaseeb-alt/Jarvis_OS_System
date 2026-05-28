@@ -96,6 +96,10 @@ import {
   createDefaultWorkflowExecutionEngine,
   type WorkflowDefinition,
 } from "../execution-runtime";
+import {
+  createDefaultAgentWorkforceRuntime,
+  type WorkforceCoordinationResult,
+} from "../agent-workforce";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -507,11 +511,23 @@ export async function executeCreateTask(
   let learnedRules: readonly AdaptiveExecutionRule[] = DEFAULT_STUB_ADAPTIVE_RULES;
   let handshake = false;
   const workflowEngine = createDefaultWorkflowExecutionEngine();
+  const agentWorkforceRuntime = createDefaultAgentWorkforceRuntime();
   const executionSafetyRuntime = createDefaultOrchestratorExecutionSafetyRuntime();
   const executionStartedAt = new Date().toISOString();
   let executionStepCount = 0;
   const workflowDefinition: WorkflowDefinition | undefined =
     workflowEngine.buildWorkflowFromIntent(task.intent);
+
+  let workforceResult: WorkforceCoordinationResult | undefined;
+  if (agentWorkforceRuntime.shouldCoordinate(task.intent.description, task.intent.kind)) {
+    workforceResult = await agentWorkforceRuntime.coordinate({
+      description: task.intent.description,
+      intentKind: task.intent.kind,
+      userId: task.userId,
+      conversationId,
+      sharedContextRef: contextRef,
+    });
+  }
 
   const executeOpenClawStep = async (
     descriptor: HermesOpenClawTaskDescriptor,
@@ -1047,6 +1063,18 @@ export async function executeCreateTask(
             permissionRequired: Boolean(
               agentResult.payload?.browserRuntime?.permissionRequired,
             ),
+          },
+        }
+      : {}),
+    ...(workforceResult
+      ? {
+          workforce: {
+            sessionId: workforceResult.sessionId,
+            success: workforceResult.success,
+            summary: workforceResult.summary,
+            activities: workforceResult.activities,
+            workerCount: workforceResult.plan.items.length,
+            parallel: workforceResult.plan.parallel,
           },
         }
       : {}),

@@ -19,6 +19,12 @@ export {
   type RuntimeCheckpointRecord,
 } from "./runtime-checkpoint";
 export {
+  saveWorkforceSession,
+  loadWorkforceSession,
+  listWorkforceSessions,
+  type StoredWorkforceSession,
+} from "./workforce-session-store";
+export {
   FileLocalMemoryRepository,
   InMemoryLocalMemoryRepository,
   DEFAULT_LOCAL_MEMORY_FILE,

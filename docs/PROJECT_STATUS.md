@@ -1,7 +1,7 @@
 # Jarvis OS — Project Status
 
 **Checkpoint date:** May 2026  
-**Current phase:** **96 complete**  
+**Current phase:** **97 complete**  
 **Monorepo:** Turborepo, npm workspaces
 
 ---
@@ -10,19 +10,19 @@
 
 Jarvis OS is a production-oriented AI operating system with strict layered architecture. The desktop app delivers a **Jarvis Command Center** with voice-native interaction, multi-provider LLM inference (stub fallback), real-time speech adapters, and full task execution through API → Orchestrator → Hermes/OpenClaw → Skills.
 
-Phases **0–96** are implemented in code. Authentication, multi-tenancy, production transport, and full web UI remain planned.
+Phases **0–97** are implemented in code. Authentication, multi-tenancy, production transport, and full web UI remain planned.
 
 ---
 
-## Test coverage (Phase 94 verified)
+## Test coverage (Phase 97 verified)
 
 | Workspace | Tests |
 |-----------|-------|
-| `@jarvis/desktop` | 185 |
-| `@jarvis/speech-service` | 85 |
-| `@jarvis/orchestrator` | 260+ |
-| `@jarvis/hermes` | 75 |
-| `@jarvis/openclaw` | 65 |
+| `@jarvis/desktop` | 190+ |
+| `@jarvis/speech-service` | 88+ |
+| `@jarvis/orchestrator` | 270+ |
+| `@jarvis/hermes` | 77+ |
+| `@jarvis/openclaw` | 70+ |
 
 ```bash
 npm run test --workspace=@jarvis/desktop
@@ -62,6 +62,7 @@ UI (apps) → API Gateway → Orchestrator → Agents → Skills
 | Production hardening | Phase 94 — recovery, provider health, crash restore, telemetry |
 | Browser & desktop execution | Phase 95 — Playwright pipeline, workflows, permission UI |
 | Demo & human interaction validation | Phase 96 — voice workflows, demo scenarios, interaction metrics |
+| AI workforce & multi-agent coordination | Phase 97 — delegation, parallel workers, workforce timeline UI |
 | Provider settings UI | Phase 83 — API keys, model selection |
 | Intent classification | Phase 24 — badge + API `intent.kind` |
 | Hermes plan rendering | Phase 23 — goal, steps, collapsible details |

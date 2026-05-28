@@ -11,6 +11,8 @@ import { MemoryContextIndicator } from "../memory/MemoryContextIndicator";
 import { BrowserStateIndicator } from "../execution/BrowserStateIndicator";
 import { ExecutionPermissionPrompt } from "../execution/ExecutionPermissionPrompt";
 import type { BrowserStateView, ExecutionPermissionView } from "../execution/execution-runtime-types";
+import { WorkforceActivityPanel } from "../workforce/WorkforceActivityPanel";
+import type { WorkforceActivityViewState } from "../workforce/workforce-types";
 
 export interface LiveExecutionPanelProps {
   readonly steps: readonly TimelineStep[];
@@ -29,6 +31,9 @@ export interface LiveExecutionPanelProps {
   readonly onDenyPermission?: () => void;
   readonly onCancelExecution?: () => void;
   readonly cancelled?: boolean;
+  readonly workforce?: WorkforceActivityViewState;
+  readonly workforceVisible?: boolean;
+  readonly workforceDisplayLabel?: string;
 }
 
 /**
@@ -51,6 +56,9 @@ export const LiveExecutionPanel = memo(function LiveExecutionPanel({
   onDenyPermission,
   onCancelExecution,
   cancelled = false,
+  workforce,
+  workforceVisible = false,
+  workforceDisplayLabel,
 }: LiveExecutionPanelProps) {
   const showPanel = loading || steps.length > 0 || Boolean(error) || events.length > 0;
   const complete = !loading && !error && progress >= 1;
@@ -118,6 +126,13 @@ export const LiveExecutionPanel = memo(function LiveExecutionPanel({
           ) : null}
 
           <DynamicActivityPanel events={events} loading={loading} />
+
+          <WorkforceActivityPanel
+            visible={workforceVisible}
+            workforce={workforce}
+            loading={loading}
+            displayLabel={workforceDisplayLabel}
+          />
 
           <div
             className="live-execution-panel__progress"

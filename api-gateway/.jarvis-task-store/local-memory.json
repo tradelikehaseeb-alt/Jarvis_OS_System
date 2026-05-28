@@ -482,6 +482,54 @@
         "timestamp": "2026-05-28T10:25:05.192Z"
       },
       "schemaVersion": 1
+    },
+    "conv-turn-1779965223792-1": {
+      "recordId": "conv-turn-1779965223792-1",
+      "type": "conversation",
+      "userId": "user-1",
+      "timestamp": "2026-05-28T10:47:03.790Z",
+      "conversationId": "conv-engine",
+      "content": {
+        "conversationId": "conv-engine",
+        "userId": "user-1",
+        "turnIndex": 11,
+        "role": "user",
+        "message": "Earlier discussion about dashboard rollout",
+        "timestamp": "2026-05-28T10:47:03.790Z"
+      },
+      "schemaVersion": 1
+    },
+    "conv-turn-1779965223940-1": {
+      "recordId": "conv-turn-1779965223940-1",
+      "type": "conversation",
+      "userId": "user-1",
+      "timestamp": "2026-05-28T10:47:03.938Z",
+      "conversationId": "conv-adaptive",
+      "content": {
+        "conversationId": "conv-adaptive",
+        "userId": "user-1",
+        "turnIndex": 21,
+        "role": "user",
+        "message": "Plan dashboard rollout milestones",
+        "timestamp": "2026-05-28T10:47:03.938Z"
+      },
+      "schemaVersion": 1
+    },
+    "conv-turn-1779965223942-2": {
+      "recordId": "conv-turn-1779965223942-2",
+      "type": "conversation",
+      "userId": "user-1",
+      "timestamp": "2026-05-28T10:47:03.942Z",
+      "conversationId": "conv-adaptive",
+      "content": {
+        "conversationId": "conv-adaptive",
+        "userId": "user-1",
+        "turnIndex": 22,
+        "role": "user",
+        "message": "Plan dashboard rollout milestones",
+        "timestamp": "2026-05-28T10:47:03.942Z"
+      },
+      "schemaVersion": 1
     }
   },
   "sessions": {}
