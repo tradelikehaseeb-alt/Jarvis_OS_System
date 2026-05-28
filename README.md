@@ -2,7 +2,7 @@
 
 Production-grade AI Operating System and SaaS platform — planning, execution, voice, memory, and multi-provider inference behind a single **Jarvis** experience.
 
-**Current checkpoint:** Phase **97** — personal AI workforce & multi-agent coordination.
+**Current checkpoint:** Phase **98** — daily life & productivity automation.
 
 ## Architecture
 
@@ -37,8 +37,9 @@ UI (apps) → API Gateway (services) → Orchestrator → Agents → Skills
 | **95** | Real browser & desktop execution runtime |
 | **96** | Demo & human interaction validation |
 | **97** | Personal AI workforce — parallel workers, delegation, live timeline UI |
+| **98** | Daily productivity — email/tasks/research/scheduling, dashboard UI, voice intents |
 
-Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMORY.md` · Providers: `docs/PROVIDERS.md` · Agents: `docs/AGENTS.md` · Vision: `docs/VISION.md`
+Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMORY.md` · Providers: `docs/PROVIDERS.md` · Agents: `docs/AGENTS.md` · Vision: `docs/VISION.md` · Productivity: `docs/PRODUCTIVITY.md`
 
 ## Desktop capabilities (today)
 
@@ -50,6 +51,7 @@ Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMOR
 - **Polish (92)** — memoized waveforms, stabilized partials, progressive response rendering
 - **Memory intelligence (93)** — adaptive recall, session continuity, subtle context indicators
 - **AI workforce (97)** — multi-agent coordination, live workforce timeline, user-facing task labels
+- **Productivity automation (98)** — daily assistant, email/task workflows, proactive suggestions
 
 UI screenshots: `docs/screenshots/README.md`
 

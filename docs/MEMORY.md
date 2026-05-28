@@ -66,4 +66,13 @@ Multi-agent tasks persist workforce session metadata via `services/local-memory/
 - API: `saveWorkforceSession`, `loadWorkforceSession`, `listWorkforceSessions`
 - Shared context ref links workers to conversation/task context
 
-Tests: `npm run test --workspace=@jarvis/local-memory -- --run workforce-session-store`
+Tests: `npm run test --workspace=@jarvis/local-memory -- --run productivity-session-store`
+
+## Productivity sessions (Phase 98)
+
+Daily productivity session metadata via `services/local-memory/src/productivity-session-store.ts`:
+
+- Type: `productivity-session`
+- API: `saveProductivitySession`, `loadProductivitySession`, `listProductivitySessions`
+
+See [PRODUCTIVITY.md](./PRODUCTIVITY.md).

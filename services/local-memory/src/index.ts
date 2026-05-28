@@ -25,6 +25,12 @@ export {
   type StoredWorkforceSession,
 } from "./workforce-session-store";
 export {
+  saveProductivitySession,
+  loadProductivitySession,
+  listProductivitySessions,
+  type StoredProductivitySession,
+} from "./productivity-session-store";
+export {
   FileLocalMemoryRepository,
   InMemoryLocalMemoryRepository,
   DEFAULT_LOCAL_MEMORY_FILE,

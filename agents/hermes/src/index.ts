@@ -21,6 +21,7 @@ export * from "./user-session";
 export * from "./hardening";
 export * from "./demo-validation";
 export * from "./workforce";
+export * from "./productivity";
 
 /** Create Hermes with {@link SkillExecutor} and optional {@link HermesAdapter}. */
 export function createHermesAgent(

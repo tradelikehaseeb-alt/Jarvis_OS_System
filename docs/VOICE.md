@@ -104,3 +104,7 @@ npm run test --workspace=@jarvis/orchestrator -- --run src/speech-realtime
 ## Voice + workforce (Phase 97)
 
 Voice commands that trigger multi-step research or automation intents (e.g. "research AI news and prepare a brief") flow through the same API → orchestrator pipeline. Progress appears as user-facing labels (**Researching…**, **Analyzing…**, **Completed.**) in the command center — never internal agent names.
+
+## Voice + productivity (Phase 98)
+
+Productivity voice intents (`mapVoiceTranscriptToProductivityIntent`) detect email, scheduling, research, and task-organization commands. Follow-up phrases (`and then`, `also`) enable smoother multi-step productivity sessions.

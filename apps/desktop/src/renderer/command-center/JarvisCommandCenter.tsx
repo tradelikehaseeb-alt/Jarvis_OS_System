@@ -25,6 +25,7 @@ import {
 } from "../execution";
 import { DemoExecutionFlow, useDemoInteraction } from "../demo";
 import { WorkforceActivityPanel, useWorkforceActivity } from "../workforce";
+import { ProductivityDashboard, useProductivitySession } from "../productivity";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -74,6 +75,11 @@ export function JarvisCommandCenter() {
   });
 
   const workforceActivity = useWorkforceActivity({
+    taskOutput: statusResult?.output,
+    loading: timeline.isStreaming || loading,
+  });
+
+  const productivitySession = useProductivitySession({
     taskOutput: statusResult?.output,
     loading: timeline.isStreaming || loading,
   });
@@ -176,6 +182,12 @@ export function JarvisCommandCenter() {
               loading={timeline.isStreaming || loading}
               displayLabel={workforceActivity.displayLabel}
             />
+            <ProductivityDashboard
+              visible={productivitySession.showProductivity && voiceNative}
+              productivity={productivitySession.productivity}
+              loading={timeline.isStreaming || loading}
+              displayLabel={productivitySession.displayLabel}
+            />
             <MemoryContextIndicator
               visible={Boolean(memoryRecallView?.message)}
               message={memoryRecallView?.message}
@@ -219,6 +231,9 @@ export function JarvisCommandCenter() {
                 workforce={workforceActivity.workforce}
                 workforceVisible={workforceActivity.showWorkforce}
                 workforceDisplayLabel={workforceActivity.displayLabel}
+                productivity={productivitySession.productivity}
+                productivityVisible={productivitySession.showProductivity}
+                productivityDisplayLabel={productivitySession.displayLabel}
               />
             </aside>
           ) : null}

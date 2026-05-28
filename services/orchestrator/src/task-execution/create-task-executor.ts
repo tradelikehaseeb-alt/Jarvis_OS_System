@@ -100,6 +100,10 @@ import {
   createDefaultAgentWorkforceRuntime,
   type WorkforceCoordinationResult,
 } from "../agent-workforce";
+import {
+  createDefaultProductivityWorkflowRuntime,
+  type ProductivityWorkflowResult,
+} from "../productivity-automation";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -512,6 +516,7 @@ export async function executeCreateTask(
   let handshake = false;
   const workflowEngine = createDefaultWorkflowExecutionEngine();
   const agentWorkforceRuntime = createDefaultAgentWorkforceRuntime();
+  const productivityWorkflowRuntime = createDefaultProductivityWorkflowRuntime();
   const executionSafetyRuntime = createDefaultOrchestratorExecutionSafetyRuntime();
   const executionStartedAt = new Date().toISOString();
   let executionStepCount = 0;
@@ -526,6 +531,16 @@ export async function executeCreateTask(
       userId: task.userId,
       conversationId,
       sharedContextRef: contextRef,
+    });
+  }
+
+  let productivityResult: ProductivityWorkflowResult | undefined;
+  if (productivityWorkflowRuntime.shouldActivate(task.intent.description, task.intent.kind)) {
+    productivityResult = await productivityWorkflowRuntime.run({
+      description: task.intent.description,
+      intentKind: task.intent.kind,
+      userId: task.userId,
+      conversationId,
     });
   }
 
@@ -1075,6 +1090,18 @@ export async function executeCreateTask(
             activities: workforceResult.activities,
             workerCount: workforceResult.plan.items.length,
             parallel: workforceResult.plan.parallel,
+          },
+        }
+      : {}),
+    ...(productivityResult
+      ? {
+          productivity: {
+            sessionId: productivityResult.sessionId,
+            success: productivityResult.success,
+            summary: productivityResult.summary,
+            activities: productivityResult.activities,
+            suggestions: productivityResult.suggestions,
+            taskCount: productivityResult.taskPlan?.tasks.length ?? 0,
           },
         }
       : {}),

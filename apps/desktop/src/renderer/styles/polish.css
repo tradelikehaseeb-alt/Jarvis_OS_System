@@ -267,6 +267,114 @@
   color: rgba(148, 163, 184, 0.88);
 }
 
+.productivity-dashboard {
+  position: relative;
+  margin: 0.35rem 0 0.55rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.68),
+    rgba(15, 23, 42, 0.85)
+  );
+  border: 1px solid rgba(52, 211, 153, 0.16);
+  overflow: hidden;
+}
+
+.productivity-dashboard__glow {
+  position: absolute;
+  inset: -35% auto auto -15%;
+  width: 50%;
+  height: 130%;
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.productivity-dashboard__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.productivity-dashboard__badge {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(110, 231, 183, 0.95);
+}
+
+.productivity-dashboard__count {
+  font-size: 0.72rem;
+  color: rgba(148, 163, 184, 0.85);
+}
+
+.productivity-dashboard__status {
+  margin: 0.35rem 0 0.45rem;
+  font-size: 0.82rem;
+  color: rgba(226, 232, 240, 0.92);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.productivity-dashboard__summary {
+  margin: 0.45rem 0 0;
+  font-size: 0.78rem;
+  color: rgba(203, 213, 225, 0.88);
+}
+
+.productivity-dashboard__suggestions {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.productivity-dashboard__suggestion {
+  font-size: 0.72rem;
+  color: rgba(167, 243, 208, 0.82);
+  padding-left: 0.5rem;
+  border-left: 2px solid rgba(52, 211, 153, 0.35);
+}
+
+.productivity-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.productivity-timeline__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  padding-left: 0.65rem;
+  border-left: 2px solid rgba(148, 163, 184, 0.22);
+}
+
+.productivity-timeline__item--active {
+  border-left-color: rgba(52, 211, 153, 0.75);
+}
+
+.productivity-timeline__item--complete {
+  border-left-color: rgba(52, 211, 153, 0.55);
+}
+
+.productivity-timeline__label {
+  font-size: 0.78rem;
+  color: rgba(226, 232, 240, 0.95);
+}
+
+.productivity-timeline__message {
+  font-size: 0.72rem;
+  color: rgba(148, 163, 184, 0.88);
+}
+
 .live-execution-panel__cancel {
   margin: 0.35rem 0 0.15rem;
 }

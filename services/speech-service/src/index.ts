@@ -216,6 +216,11 @@ export type {
   VoiceWorkflowSessionState,
 } from "./voice-execution";
 
+export {
+  mapVoiceTranscriptToProductivityIntent,
+} from "./productivity/productivity-voice-intent";
+export type { ProductivityVoiceIntent } from "./productivity/productivity-voice-intent";
+
 export type {
   WakeWordState,
   WakeWordConfig,

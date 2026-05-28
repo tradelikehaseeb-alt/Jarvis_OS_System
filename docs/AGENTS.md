@@ -79,4 +79,8 @@ workforce: {
 - `agents/hermes/src/workforce/__tests__/`
 - `agents/openclaw/src/workforce/__tests__/`
 
-See also: [MEMORY.md](./MEMORY.md) (workforce sessions), [EXECUTION.md](./EXECUTION.md), [VISION.md](./VISION.md).
+See also: [MEMORY.md](./MEMORY.md) (workforce sessions), [EXECUTION.md](./EXECUTION.md), [VISION.md](./VISION.md), [PRODUCTIVITY.md](./PRODUCTIVITY.md).
+
+## Productivity workers (Phase 98)
+
+Productivity workflows complement the Phase 97 workforce — focused on daily email, scheduling, research briefings, and task organization with proactive suggestions.
