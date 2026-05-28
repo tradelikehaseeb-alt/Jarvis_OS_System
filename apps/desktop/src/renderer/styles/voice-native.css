@@ -84,6 +84,18 @@
   z-index: 1;
 }
 
+.live-speech-orb__meta {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: rgba(148, 163, 184, 0.95);
+  z-index: 1;
+}
+
+.live-speech-orb--speaking-animation .live-speech-orb__core {
+  animation: orb-breathe 0.9s ease-in-out infinite;
+}
+
 .streaming-voice-overlay {
   position: relative;
   margin: 0.5rem 0;
@@ -107,6 +119,12 @@
   font-size: 0.95rem;
   line-height: 1.45;
   color: rgba(241, 245, 249, 0.95);
+}
+
+.streaming-voice-overlay__meta {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  color: rgba(148, 163, 184, 0.95);
 }
 
 .voice-interrupt-controller {

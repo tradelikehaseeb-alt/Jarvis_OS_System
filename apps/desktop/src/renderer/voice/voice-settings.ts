@@ -22,6 +22,12 @@ export interface VoiceSettings {
   readonly wakePhrase: string;
   /** Use voice-native orb overlay UI. */
   readonly voiceNativeUi: boolean;
+  /** Use real microphone + streaming STT (Phase 91). */
+  readonly useRealMicrophone: boolean;
+  /** Preferred STT provider id (auto when empty). */
+  readonly sttProviderId?: string;
+  /** Preferred TTS provider id (auto when empty). */
+  readonly ttsProviderId?: string;
 }
 
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
@@ -34,6 +40,7 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   wakeWordEnabled: true,
   wakePhrase: "jarvis",
   voiceNativeUi: true,
+  useRealMicrophone: true,
 };
 
 const STORAGE_KEY = "jarvis.desktop.voiceSettings";

@@ -88,6 +88,9 @@ export function JarvisCommandCenter() {
               state={voiceSession.sessionState}
               partialTranscript={voiceSession.partialTranscript}
               active={voiceSession.isActive || voiceSession.isSpeaking}
+              micLevels={voiceSession.micLevels}
+              confidence={voiceSession.transcriptConfidence}
+              latencyMs={voiceSession.sttLatencyMs}
             />
           ) : (
             <AIStatusOrb
@@ -112,6 +115,8 @@ export function JarvisCommandCenter() {
                 visible
                 streamingText={voiceSession.streamingResponse}
                 partialTranscript={voiceSession.partialTranscript}
+                confidence={voiceSession.transcriptConfidence}
+                latencyMs={voiceSession.sttLatencyMs}
               />
             ) : null}
             <ChatMessages messages={messages} />

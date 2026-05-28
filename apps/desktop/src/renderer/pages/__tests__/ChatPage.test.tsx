@@ -30,6 +30,7 @@ describe("ChatPage", () => {
         wakeWordEnabled: true,
         wakePhrase: "jarvis",
         voiceNativeUi: false,
+        useRealMicrophone: false,
       }),
     );
     window.jarvis = createMockJarvisApi({
@@ -159,6 +160,7 @@ describe("ChatPage", () => {
         simulateCaptureError: false,
         enableNormalization: false,
         voiceNativeUi: false,
+        useRealMicrophone: false,
       }),
     );
 
@@ -213,6 +215,7 @@ describe("ChatPage", () => {
         enableNormalization: true,
         autoExecuteVoicePipeline: true,
         voiceNativeUi: false,
+        useRealMicrophone: false,
       }),
     );
 

@@ -228,6 +228,40 @@ export {
   createDefaultVoiceSessionRuntime,
 } from "./voice-session";
 
+export type {
+  MicrophoneAudioFrame,
+  MicrophoneLevelSample,
+  MicrophoneCaptureOptions,
+  MicrophoneRuntime,
+  TranscriptionPartial,
+  TranscriptionListener,
+  StreamingSpeechRuntimeOptions,
+  VoicePlaybackChunk,
+  VoicePlaybackControllerOptions,
+  TtsProviderRuntimeOptions,
+  SpeechProviderDefinition,
+  RealTimeVoiceCaptureResult,
+  RealTimeVoiceSpeechDelegateOptions,
+} from "./real-time";
+export {
+  SyntheticMicrophoneRuntime,
+  RealTimeTranscriptionSession,
+  StreamingSpeechRuntime,
+  createDefaultStreamingSpeechRuntime,
+  VoicePlaybackController,
+  createDefaultVoicePlaybackController,
+  TtsProviderRuntime,
+  createDefaultTtsProviderRuntime,
+  STT_PROVIDER_DEFINITIONS,
+  TTS_PROVIDER_DEFINITIONS,
+  readEnvApiKey,
+  resolveSpeechProviderConfig,
+  resolveFirstConfiguredSttProvider,
+  resolveFirstConfiguredTtsProvider,
+  createRealTimeVoiceCaptureDelegate,
+  createRealTimeVoiceSpeechDelegate,
+} from "./real-time";
+
 /** Module identifiers for structure tests. */
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
@@ -248,6 +282,7 @@ export const SPEECH_SERVICE_MODULE_IDS = [
   "contracts",
   "voice-execution",
   "voice-session",
+  "real-time",
 ] as const;
 
 export type SpeechServiceModuleId = (typeof SPEECH_SERVICE_MODULE_IDS)[number];

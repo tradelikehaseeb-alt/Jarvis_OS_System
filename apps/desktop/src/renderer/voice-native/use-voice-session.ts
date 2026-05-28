@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createDefaultVoiceSessionRuntime,
+  createDefaultStreamingSpeechRuntime,
+  createRealTimeVoiceCaptureDelegate,
+  createRealTimeVoiceSpeechDelegate,
   type VoiceSessionRuntime,
   type VoiceSessionState,
   type WakeWordState,
@@ -17,6 +20,8 @@ import {
 import type { VoiceSettings } from "../voice/voice-settings";
 import { DEFAULT_VOICE_SETTINGS } from "../voice/voice-settings";
 import type { VoiceStatus } from "../voice/voice-types";
+
+import { BrowserMicrophoneRuntime } from "./browser-microphone-runtime";
 
 function mapSessionStateToVoiceStatus(state: VoiceSessionState): VoiceStatus {
   switch (state) {
@@ -55,6 +60,9 @@ export interface UseVoiceSessionResult {
   readonly error: string | null;
   readonly isActive: boolean;
   readonly isSpeaking: boolean;
+  readonly micLevels: readonly number[];
+  readonly transcriptConfidence?: number;
+  readonly sttLatencyMs?: number;
   readonly toggleListening: () => void;
   readonly pushToTalkDown: () => void;
   readonly pushToTalkUp: () => void;
@@ -76,6 +84,12 @@ export function useVoiceSession(
   const [streamingResponse, setStreamingResponse] = useState("");
   const [transcript, setTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [micLevels, setMicLevels] = useState<readonly number[]>([]);
+  const [transcriptConfidence, setTranscriptConfidence] = useState<number | undefined>();
+  const [sttLatencyMs, setSttLatencyMs] = useState<number | undefined>();
+  const realTimeCaptureRef = useRef<ReturnType<typeof createRealTimeVoiceCaptureDelegate> | null>(
+    null,
+  );
 
   const runtimeRef = useRef<VoiceSessionRuntime>(
     createDefaultVoiceSessionRuntime({
@@ -84,24 +98,38 @@ export function useVoiceSession(
         phrase: settings.wakePhrase,
         enabled: settings.wakeWordEnabled,
       },
-      captureDelegate: {
-        async capture({ signal }) {
-          const result = await runMockVoiceCapture({
-            simulateError: settings.simulateCaptureError,
-            listenMs: MOCK_VOICE_LISTEN_MS,
-            signal,
-          });
-          const partialChunks = result.transcript
-            .split(/\s+/)
-            .map((word, index, words) =>
-              index < words.length - 1 ? `${word} ` : word,
-            );
-          return {
-            transcript: result.transcript,
-            partialChunks,
-          };
-        },
-      },
+      captureDelegate: settings.useRealMicrophone
+        ? (() => {
+            const streamingRuntime = createDefaultStreamingSpeechRuntime({
+              microphone: new BrowserMicrophoneRuntime(),
+            });
+            const capture = createRealTimeVoiceCaptureDelegate({ streamingRuntime });
+            realTimeCaptureRef.current = capture;
+            return capture;
+          })()
+        : {
+            async capture({ signal }) {
+              if (settings.simulateCaptureError) {
+                throw new Error("Mock voice capture failed");
+              }
+              const result = await runMockVoiceCapture({
+                listenMs: MOCK_VOICE_LISTEN_MS,
+                signal,
+              });
+              const partialChunks = result.transcript
+                .split(/\s+/)
+                .map((word, index, words) =>
+                  index < words.length - 1 ? `${word} ` : word,
+                );
+              return {
+                transcript: result.transcript,
+                partialChunks,
+              };
+            },
+          },
+      speechDelegate: settings.useRealMicrophone
+        ? createRealTimeVoiceSpeechDelegate()
+        : undefined,
       taskExecutor: async (input) => {
         const classification = classifyChatIntent(input.normalizedText);
         const { create, status } = await submitChatAsTask(input.normalizedText, {
@@ -160,6 +188,22 @@ export function useVoiceSession(
   useEffect(() => {
     runtimeRef.current.setMode(settings.listeningMode);
   }, [settings.listeningMode]);
+
+  useEffect(() => {
+    if (sessionState !== "listening" || !realTimeCaptureRef.current) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      const capture = realTimeCaptureRef.current;
+      if (!capture) {
+        return;
+      }
+      setMicLevels([...capture.getMicLevels()]);
+      setTranscriptConfidence(capture.getConfidence());
+      setSttLatencyMs(capture.getLatencyMs());
+    }, 60);
+    return () => window.clearInterval(timer);
+  }, [sessionState]);
 
   useEffect(() => {
     const unsubscribe = runtimeRef.current.subscribe((event) => {
@@ -255,6 +299,9 @@ export function useVoiceSession(
     error,
     isActive,
     isSpeaking,
+    micLevels,
+    transcriptConfidence,
+    sttLatencyMs,
     toggleListening,
     pushToTalkDown,
     pushToTalkUp,

@@ -23,6 +23,7 @@ describe("speech-service structure", () => {
       "contracts",
       "voice-execution",
       "voice-session",
+      "real-time",
     ]);
   });
 });

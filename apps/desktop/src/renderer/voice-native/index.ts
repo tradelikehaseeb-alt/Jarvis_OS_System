@@ -16,4 +16,5 @@ export {
   VOICE_SESSION_DISPLAY_LABELS,
   voiceSessionLabel,
 } from "./voice-session-labels";
+export { BrowserMicrophoneRuntime } from "./browser-microphone-runtime";
 export { buildWaveformLevels } from "./voice-waveform";

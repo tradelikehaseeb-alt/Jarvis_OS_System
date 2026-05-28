@@ -1,7 +1,5 @@
 /**
- * Generic speech adapter response model (Phase 28).
- *
- * For stubs, `output` is deterministic mock text only.
+ * Generic speech adapter response model (Phase 28 / Phase 91).
  */
 export interface SpeechResponse {
   readonly requestId: string;
@@ -10,4 +8,8 @@ export interface SpeechResponse {
   readonly stub: boolean;
   readonly output: string;
   readonly createdAt: string;
+  readonly confidence?: number;
+  readonly latencyMs?: number;
+  readonly audioBase64?: string;
+  readonly mimeType?: string;
 }

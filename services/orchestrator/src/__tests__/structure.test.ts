@@ -25,6 +25,7 @@ describe("orchestrator structure", () => {
       "activity",
       "voice-execution",
       "voice-session",
+      "speech-realtime",
       "runtime-startup",
       "runtime-health",
       "timeline",
