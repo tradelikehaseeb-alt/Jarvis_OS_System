@@ -27,6 +27,7 @@ import { DemoExecutionFlow, useDemoInteraction } from "../demo";
 import { WorkforceActivityPanel, useWorkforceActivity } from "../workforce";
 import { ProductivityDashboard, useProductivitySession } from "../productivity";
 import { ContinuousPresencePanel, useContinuousPresence } from "../continuous";
+import { RealWorldExecutionIndicator, useRealWorldExecution } from "../real-world";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -88,6 +89,13 @@ export function JarvisCommandCenter() {
   const continuousPresence = useContinuousPresence({
     taskOutput: statusResult?.output,
     loading: timeline.isStreaming || loading,
+  });
+
+  const realWorldExecution = useRealWorldExecution({
+    lastCommand: lastUserCommand,
+    taskOutput: statusResult?.output,
+    loading: timeline.isStreaming || loading,
+    taskError: taskError ?? undefined,
   });
 
   const voiceNative = voiceSettings.voiceNativeUi;
@@ -170,7 +178,17 @@ export function JarvisCommandCenter() {
             ) : null}
             <ReconnectIndicator
               visible={reconnectVisible}
-              message={reconnectMessage}
+              message={reconnectMessage ?? realWorldExecution.statusLabel}
+              degraded={
+                (statusResult?.output?.stability as { degraded?: boolean } | undefined)
+                  ?.degraded
+              }
+            />
+            <RealWorldExecutionIndicator
+              visible={realWorldExecution.showIndicator}
+              statusLabel={realWorldExecution.statusLabel}
+              loading={timeline.isStreaming || loading}
+              providerOnline={realWorldExecution.providerOnline}
               degraded={
                 (statusResult?.output?.stability as { degraded?: boolean } | undefined)
                   ?.degraded

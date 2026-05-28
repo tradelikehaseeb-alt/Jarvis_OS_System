@@ -112,3 +112,7 @@ Productivity voice intents (`mapVoiceTranscriptToProductivityIntent`) detect ema
 ## Voice + continuous runtime (Phase 99)
 
 Continuous voice intents (`mapVoiceTranscriptToContinuousIntent`) support monitor/watch/remind/background commands with proactive spoken notifications. Wake-word readiness and interruption-aware background speech integrate through the existing voice session pipeline.
+
+## Real-world voice validation (Phase 100)
+
+Canonical commands in `@jarvis/types` (`REAL_WORLD_VOICE_COMMANDS`). Validation covers wake word readiness, microphone capture, interruption recovery, and follow-up continuity via `mapRealWorldVoiceCommand`.

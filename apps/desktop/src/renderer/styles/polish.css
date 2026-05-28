@@ -502,6 +502,39 @@
   color: rgba(226, 232, 240, 0.9);
 }
 
+.real-world-execution-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.25rem 0 0.45rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.55rem;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.real-world-execution-indicator__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.65);
+}
+
+.real-world-execution-indicator__dot--live {
+  background: rgba(52, 211, 153, 0.85);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.35);
+}
+
+.real-world-execution-indicator__dot--degraded {
+  background: rgba(251, 191, 36, 0.85);
+}
+
+.real-world-execution-indicator__label {
+  line-height: 1.3;
+}
+
 .live-execution-panel__cancel {
   margin: 0.35rem 0 0.15rem;
 }

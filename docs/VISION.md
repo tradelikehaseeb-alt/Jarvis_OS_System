@@ -36,7 +36,7 @@ Jarvis becomes a **coordinated personal workforce**:
 
 | Horizon | Focus |
 |---------|--------|
-| **Now (Phases 88–99)** | Command center, voice, memory, execution, workforce, productivity, continuous runtime |
+| **Now (Phases 88–100)** | Command center, voice, memory, execution, workforce, productivity, continuous, real-world validation |
 | **Next** | Auth, multi-tenant SaaS, web UI parity, production transport |
 | **Mid** | Plugin marketplace, enterprise policies, team workspaces |
 | **Long** | Adaptive learning across users, cross-device continuity, autonomous workflows with guardrails |

@@ -91,3 +91,4 @@ npm run test --workspace=@jarvis/speech-service -- --run src/real-time
 - User-facing labels say **Jarvis** — not Hermes/OpenClaw.
 - Workforce coordination (Phase 97) uses the same provider stack for LLM steps; parallel workers share orchestrator context — no duplicate provider clients in the desktop app.
 - Productivity automation (Phase 98) reuses provider routing for email summaries, research briefings, and scheduling workflows.
+- Phase 100 validates real providers (OpenRouter, Groq, Gemini, OpenAI, DeepSeek) as primary path with stub as safety fallback only.

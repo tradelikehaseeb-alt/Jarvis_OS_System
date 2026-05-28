@@ -23,6 +23,7 @@ export * from "./execution-runtime";
 export * from "./workforce";
 export * from "./productivity";
 export * from "./continuous";
+export * from "./real-world";
 
 /** Create OpenClaw with {@link SkillExecutor} and optional {@link OpenClawAdapter}. */
 export function createOpenClawAgent(

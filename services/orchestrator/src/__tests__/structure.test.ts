@@ -29,6 +29,7 @@ describe("orchestrator structure", () => {
       "agent-workforce",
       "productivity-automation",
       "continuous-runtime",
+      "real-world-validation",
       "activity",
       "voice-execution",
       "voice-session",

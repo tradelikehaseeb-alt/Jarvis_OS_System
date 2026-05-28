@@ -226,6 +226,9 @@ export {
 } from "./continuous/continuous-voice-intent";
 export type { ContinuousVoiceIntent } from "./continuous/continuous-voice-intent";
 
+export { mapRealWorldVoiceCommand } from "./real-world/real-world-voice-validation";
+export type { RealWorldVoiceValidation } from "./real-world/real-world-voice-validation";
+
 export type {
   WakeWordState,
   WakeWordConfig,

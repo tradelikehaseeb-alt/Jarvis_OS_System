@@ -2,7 +2,7 @@
 
 Production-grade AI Operating System and SaaS platform — planning, execution, voice, memory, and multi-provider inference behind a single **Jarvis** experience.
 
-**Current checkpoint:** Phase **99** — autonomous continuous Jarvis runtime.
+**Current checkpoint:** Phase **100** — real world Jarvis validation.
 
 ## Architecture
 
@@ -39,8 +39,9 @@ UI (apps) → API Gateway (services) → Orchestrator → Agents → Skills
 | **97** | Personal AI workforce — parallel workers, delegation, live timeline UI |
 | **98** | Daily productivity — email/tasks/research/scheduling, dashboard UI, voice intents |
 | **99** | Continuous runtime — background workflows, proactive notifications, persistent presence |
+| **100** | Real-world validation — provider/voice/browser/daily usage quality gates |
 
-Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMORY.md` · Providers: `docs/PROVIDERS.md` · Agents: `docs/AGENTS.md` · Vision: `docs/VISION.md` · Productivity: `docs/PRODUCTIVITY.md` · Continuous: `docs/CONTINUOUS.md`
+Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMORY.md` · Providers: `docs/PROVIDERS.md` · Agents: `docs/AGENTS.md` · Vision: `docs/VISION.md` · Productivity: `docs/PRODUCTIVITY.md` · Continuous: `docs/CONTINUOUS.md` · Real world: `docs/REAL_WORLD_VALIDATION.md`
 
 ## Desktop capabilities (today)
 
@@ -54,6 +55,7 @@ Phase READMEs: `docs/PHASES.md` · Voice: `docs/VOICE.md` · Memory: `docs/MEMOR
 - **AI workforce (97)** — multi-agent coordination, live workforce timeline, user-facing task labels
 - **Productivity automation (98)** — daily assistant, email/task workflows, proactive suggestions
 - **Continuous runtime (99)** — background monitoring, smart notifications, persistent Jarvis presence
+- **Real-world validation (100)** — provider failover, voice/browser/daily usage quality gates
 
 UI screenshots: `docs/screenshots/README.md`
 

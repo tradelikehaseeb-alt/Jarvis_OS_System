@@ -37,6 +37,7 @@ export * from "./demo-validation";
 export * from "./agent-workforce";
 export * from "./productivity-automation";
 export * from "./continuous-runtime";
+export * from "./real-world-validation";
 export * from "./activity";
 export * from "./voice-execution";
 export * from "./voice-session";
@@ -79,6 +80,7 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "agent-workforce",
   "productivity-automation",
   "continuous-runtime",
+  "real-world-validation",
   "activity",
   "voice-execution",
   "voice-session",
