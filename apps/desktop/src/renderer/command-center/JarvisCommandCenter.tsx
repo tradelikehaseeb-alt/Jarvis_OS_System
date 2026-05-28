@@ -18,6 +18,11 @@ import { LiveExecutionPanel } from "./LiveExecutionPanel";
 import { useJarvisConversation } from "./use-jarvis-conversation";
 import { MemoryContextIndicator } from "../memory/MemoryContextIndicator";
 import { ReconnectIndicator } from "../hardening/ReconnectIndicator";
+import {
+  BrowserStateIndicator,
+  ExecutionPermissionPrompt,
+  useExecutionRuntime,
+} from "../execution";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -53,6 +58,10 @@ export function JarvisCommandCenter() {
   const reconnectMessage =
     (statusResult?.output?.stability as { message?: string } | undefined)?.message ??
     (taskError ? "Reconnecting…" : undefined);
+
+  const executionRuntimeState = useExecutionRuntime({
+    taskOutput: statusResult?.output,
+  });
 
   const voiceNative = voiceSettings.voiceNativeUi;
 
@@ -174,6 +183,12 @@ export function JarvisCommandCenter() {
                 latencyMs={providerTelemetry?.latencyMs}
                 memoryRecallMessage={memoryRecallView?.message}
                 memoryRecallCount={memoryRecallView?.snippets?.length ?? memoryRecallView?.count}
+                browserState={executionRuntimeState.executionRuntime?.browserState}
+                permission={executionRuntimeState.executionRuntime?.permission}
+                onApprovePermission={executionRuntimeState.approvePermission}
+                onDenyPermission={executionRuntimeState.denyPermission}
+                onCancelExecution={executionRuntimeState.cancelExecution}
+                cancelled={executionRuntimeState.cancelled}
               />
             </aside>
           ) : null}

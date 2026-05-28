@@ -1,4 +1,5 @@
 export type { BrowserExecutionRequest } from "./browser-execution-request";
+export type { BrowserWorkflowStep } from "./browser-workflow-step";
 export type { BrowserExecutionResult } from "./browser-execution-result";
 export type { BrowserAction } from "./browser-action";
 export { BROWSER_STUB_ACTIONS, resolveBrowserAction } from "./browser-action";

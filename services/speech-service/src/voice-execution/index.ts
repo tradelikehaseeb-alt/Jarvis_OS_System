@@ -14,3 +14,8 @@ export {
   createDefaultVoiceExecutionRuntime,
   type CreateDefaultVoiceExecutionRuntimeOptions,
 } from "./create-default-voice-execution-runtime";
+export {
+  mapVoiceTranscriptToBrowserWorkflow,
+  voiceHintToTaskIntent,
+  type VoiceBrowserWorkflowHint,
+} from "./browser-workflow-intent";

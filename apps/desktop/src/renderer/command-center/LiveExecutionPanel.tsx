@@ -8,6 +8,9 @@ import { DynamicActivityPanel } from "./DynamicActivityPanel";
 import { JARVIS_EXECUTION_LABELS } from "./execution-display-labels";
 import { fadeSlideUp, panelTransition } from "../polish/motion-presets";
 import { MemoryContextIndicator } from "../memory/MemoryContextIndicator";
+import { BrowserStateIndicator } from "../execution/BrowserStateIndicator";
+import { ExecutionPermissionPrompt } from "../execution/ExecutionPermissionPrompt";
+import type { BrowserStateView, ExecutionPermissionView } from "../execution/execution-runtime-types";
 
 export interface LiveExecutionPanelProps {
   readonly steps: readonly TimelineStep[];
@@ -20,6 +23,12 @@ export interface LiveExecutionPanelProps {
   readonly latencyMs?: number;
   readonly memoryRecallMessage?: string;
   readonly memoryRecallCount?: number;
+  readonly browserState?: BrowserStateView;
+  readonly permission?: ExecutionPermissionView;
+  readonly onApprovePermission?: () => void;
+  readonly onDenyPermission?: () => void;
+  readonly onCancelExecution?: () => void;
+  readonly cancelled?: boolean;
 }
 
 /**
@@ -36,6 +45,12 @@ export const LiveExecutionPanel = memo(function LiveExecutionPanel({
   latencyMs,
   memoryRecallMessage,
   memoryRecallCount,
+  browserState,
+  permission,
+  onApprovePermission,
+  onDenyPermission,
+  onCancelExecution,
+  cancelled = false,
 }: LiveExecutionPanelProps) {
   const showPanel = loading || steps.length > 0 || Boolean(error) || events.length > 0;
   const complete = !loading && !error && progress >= 1;
@@ -76,6 +91,31 @@ export const LiveExecutionPanel = memo(function LiveExecutionPanel({
             message={memoryRecallMessage}
             snippetCount={memoryRecallCount}
           />
+
+          <BrowserStateIndicator browserState={browserState} />
+
+          <ExecutionPermissionPrompt
+            permission={permission}
+            onApprove={onApprovePermission}
+            onDeny={onDenyPermission}
+          />
+
+          {loading && onCancelExecution ? (
+            <button
+              type="button"
+              className="live-execution-panel__cancel btn btn--ghost"
+              data-testid="execution-cancel-button"
+              onClick={onCancelExecution}
+            >
+              Stop execution
+            </button>
+          ) : null}
+
+          {cancelled ? (
+            <p className="live-execution-panel__hint" data-testid="execution-cancelled">
+              Execution stopped
+            </p>
+          ) : null}
 
           <DynamicActivityPanel events={events} loading={loading} />
 

@@ -19,6 +19,7 @@ export * from "./live-execution";
 export * from "./live-provider";
 export * from "./user-session";
 export * from "./hardening";
+export * from "./execution-runtime";
 
 /** Create OpenClaw with {@link SkillExecutor} and optional {@link OpenClawAdapter}. */
 export function createOpenClawAgent(

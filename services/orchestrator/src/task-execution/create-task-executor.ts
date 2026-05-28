@@ -91,6 +91,11 @@ import { createDefaultMemoryRecallRuntime } from "../memory-recall/create-defaul
 import type { MemoryRecallRuntime } from "../memory-recall/memory-recall-runtime";
 import { buildTaskMemoryRecallView } from "../memory-intelligence/build-task-memory-recall-view";
 import { SafeExecutionFallbackRuntime } from "../runtime-hardening/safe-execution-fallback-runtime";
+import {
+  createDefaultOrchestratorExecutionSafetyRuntime,
+  createDefaultWorkflowExecutionEngine,
+  type WorkflowDefinition,
+} from "../execution-runtime";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -501,13 +506,43 @@ export async function executeCreateTask(
   let llmProviderValidation: LlmProviderValidation | undefined;
   let learnedRules: readonly AdaptiveExecutionRule[] = DEFAULT_STUB_ADAPTIVE_RULES;
   let handshake = false;
+  const workflowEngine = createDefaultWorkflowExecutionEngine();
+  const executionSafetyRuntime = createDefaultOrchestratorExecutionSafetyRuntime();
+  const executionStartedAt = new Date().toISOString();
+  let executionStepCount = 0;
+  const workflowDefinition: WorkflowDefinition | undefined =
+    workflowEngine.buildWorkflowFromIntent(task.intent);
 
   const executeOpenClawStep = async (
     descriptor: HermesOpenClawTaskDescriptor,
     stepRequestId: string,
     stepContext: AgentContext,
-  ) =>
-    executeAgent(
+  ) => {
+    executionStepCount += 1;
+    const safety = executionSafetyRuntime.beforeStep({
+      stepCount: executionStepCount,
+      startedAt: executionStartedAt,
+      actionKey: descriptor.stepId,
+    });
+
+    if (!safety.allowed) {
+      return {
+        taskId: task.id,
+        requestId: stepRequestId,
+        agentId: OPENCLAW_AGENT_ID,
+        success: false,
+        payload: {
+          stub: true,
+          executionSafety: safety,
+        },
+        error: {
+          code: "EXECUTION_SAFETY_BLOCKED",
+          message: safety.message,
+        },
+      } satisfies AgentResult;
+    }
+
+    return executeAgent(
       executableRegistry,
       OPENCLAW_AGENT_ID,
       buildUserTaskFromDescriptor(
@@ -518,6 +553,7 @@ export async function executeCreateTask(
       stepRequestId,
       stepContext,
     );
+  };
 
   const taskChainRuntime =
     options.taskChainRuntime ??
@@ -992,6 +1028,28 @@ export async function executeCreateTask(
       summary: contextRecord.summary,
     },
     memoryRecall: buildTaskMemoryRecallView(recalledMemories),
+    ...(workflowDefinition
+      ? {
+          executionRuntime: {
+            workflow: {
+              workflowId: workflowDefinition.workflowId,
+              stepCount: workflowDefinition.steps.length,
+              progress: workflowEngine.summarizeProgress(
+                workflowDefinition,
+                adaptiveResult?.executionResults.length ??
+                  taskChainResult?.executionResults.length ??
+                  0,
+              ),
+            },
+            browserState:
+              agentResult.payload?.browserState ??
+              agentResult.payload?.browserRuntime?.browserState,
+            permissionRequired: Boolean(
+              agentResult.payload?.browserRuntime?.permissionRequired,
+            ),
+          },
+        }
+      : {}),
     stability: {
       mode: executionStability.mode,
       message: executionStability.message,

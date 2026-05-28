@@ -18,6 +18,8 @@ export function mapBrowserExecutionToActionRequest(
     taskId: request.taskId,
     requestId: request.requestId,
     url: request.url,
+    selector: request.selector,
+    text: request.text,
     handleId: request.handleId,
     stub: request.stub,
   };

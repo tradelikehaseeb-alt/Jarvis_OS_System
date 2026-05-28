@@ -18,9 +18,14 @@ import {
 } from "./gateway";
 import {
   buildBrowserExecutionRequest,
-  runBrowserRuntimePath,
   type BrowserRuntimeSession,
 } from "./browser-runtime";
+import {
+  createDefaultBrowserExecutionRuntime,
+  createDefaultDesktopActionRuntime,
+  parseDesktopActionFromIntent,
+  type BrowserExecutionRuntime,
+} from "./execution-runtime";
 import { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
 
 /**
@@ -37,6 +42,8 @@ export class OpenClawAgent extends AbstractBaseAgent {
       adapter,
     }),
     private readonly browserRuntimeSession?: BrowserRuntimeSession,
+    private readonly browserExecutionRuntime: BrowserExecutionRuntime = createDefaultBrowserExecutionRuntime(),
+    private readonly desktopActionRuntime = createDefaultDesktopActionRuntime(),
   ) {
     super();
   }
@@ -84,13 +91,23 @@ export class OpenClawAgent extends AbstractBaseAgent {
       correlationId: task.correlationId,
     };
 
-    const browserRuntimeResult = await runBrowserRuntimePath(
-      buildBrowserExecutionRequest(
-        buildOpenClawGatewayRequest(task, context.contextRef),
-        gatewayResponse.executionHandleId,
-      ),
-      this.browserRuntimeSession,
+    const browserRequest = buildBrowserExecutionRequest(
+      buildOpenClawGatewayRequest(task, context.contextRef),
+      gatewayResponse.executionHandleId,
     );
+
+    const browserRuntimeResult = await this.browserExecutionRuntime.execute(
+      browserRequest,
+    );
+
+    const desktopAction = parseDesktopActionFromIntent(task.intent.description);
+    const desktopResult = desktopAction
+      ? await this.desktopActionRuntime.execute({
+          ...desktopAction,
+          taskId: task.taskId,
+          requestId: task.requestId,
+        })
+      : undefined;
 
     if (!browserRuntimeResult.success) {
       return {
@@ -116,8 +133,8 @@ export class OpenClawAgent extends AbstractBaseAgent {
         ...base,
         skillId: BROWSER_SKILL_ID,
         parameters: {
-          action: "navigate",
-          url: "https://stub.local/task",
+          action: browserRequest.action,
+          url: browserRequest.url,
           intent: task.intent,
           handleId: gatewayResponse.executionHandleId,
         },
@@ -158,6 +175,9 @@ export class OpenClawAgent extends AbstractBaseAgent {
           contextRef: context.contextRef,
         },
         browserRuntime: browserRuntimeResult,
+        browserState: browserRuntimeResult.browserState,
+        workflowProgress: browserRuntimeResult.workflowProgress,
+        desktopAction: desktopResult,
         browser: browserResponse.data,
         file: fileResponse.data,
         skillExecutions: [browserResponse, fileResponse],

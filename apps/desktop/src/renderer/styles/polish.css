@@ -87,6 +87,54 @@
   }
 }
 
+.browser-state-indicator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+  margin: 0.35rem 0;
+  padding: 0.35rem 0.55rem;
+  border-radius: 0.55rem;
+  background: rgba(15, 23, 42, 0.45);
+  font-size: 0.74rem;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.browser-state-indicator__dot {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: rgba(52, 211, 153, 0.95);
+}
+
+.browser-state-indicator__url {
+  opacity: 0.85;
+  word-break: break-all;
+}
+
+.execution-permission-prompt {
+  margin: 0.45rem 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.execution-permission-prompt__message {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  color: rgba(253, 230, 138, 0.95);
+}
+
+.execution-permission-prompt__actions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.live-execution-panel__cancel {
+  margin: 0.35rem 0 0.15rem;
+}
+
 .streaming-voice-overlay__telemetry {
   display: flex;
   gap: 0.75rem;

@@ -15,6 +15,7 @@
     "@jarvis/agents-shared": "*",
     "@jarvis/hermes": "*",
     "@jarvis/local-memory": "*",
+    "@jarvis/openclaw": "*",
     "@jarvis/provider-runtime": "*",
     "@jarvis/speech-service": "*",
     "@jarvis/types": "*"
