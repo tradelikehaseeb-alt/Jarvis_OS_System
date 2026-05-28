@@ -76,3 +76,12 @@ Daily productivity session metadata via `services/local-memory/src/productivity-
 - API: `saveProductivitySession`, `loadProductivitySession`, `listProductivitySessions`
 
 See [PRODUCTIVITY.md](./PRODUCTIVITY.md).
+
+## Continuous sessions (Phase 99)
+
+Persistent background session metadata via `services/local-memory/src/continuous-session-store.ts`:
+
+- Type: `continuous-session`
+- API: `saveContinuousSession`, `loadContinuousSession`, `listContinuousSessions`
+
+See [CONTINUOUS.md](./CONTINUOUS.md).

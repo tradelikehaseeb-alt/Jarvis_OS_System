@@ -108,3 +108,7 @@ Voice commands that trigger multi-step research or automation intents (e.g. "res
 ## Voice + productivity (Phase 98)
 
 Productivity voice intents (`mapVoiceTranscriptToProductivityIntent`) detect email, scheduling, research, and task-organization commands. Follow-up phrases (`and then`, `also`) enable smoother multi-step productivity sessions.
+
+## Voice + continuous runtime (Phase 99)
+
+Continuous voice intents (`mapVoiceTranscriptToContinuousIntent`) support monitor/watch/remind/background commands with proactive spoken notifications. Wake-word readiness and interruption-aware background speech integrate through the existing voice session pipeline.

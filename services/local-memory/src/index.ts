@@ -31,6 +31,12 @@ export {
   type StoredProductivitySession,
 } from "./productivity-session-store";
 export {
+  saveContinuousSession,
+  loadContinuousSession,
+  listContinuousSessions,
+  type StoredContinuousSession,
+} from "./continuous-session-store";
+export {
   FileLocalMemoryRepository,
   InMemoryLocalMemoryRepository,
   DEFAULT_LOCAL_MEMORY_FILE,

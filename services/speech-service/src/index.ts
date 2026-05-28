@@ -221,6 +221,11 @@ export {
 } from "./productivity/productivity-voice-intent";
 export type { ProductivityVoiceIntent } from "./productivity/productivity-voice-intent";
 
+export {
+  mapVoiceTranscriptToContinuousIntent,
+} from "./continuous/continuous-voice-intent";
+export type { ContinuousVoiceIntent } from "./continuous/continuous-voice-intent";
+
 export type {
   WakeWordState,
   WakeWordConfig,

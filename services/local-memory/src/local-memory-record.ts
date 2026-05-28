@@ -8,7 +8,8 @@ export type LocalMemoryType =
   | "summary"
   | "session-profile"
   | "workforce-session"
-  | "productivity-session";
+  | "productivity-session"
+  | "continuous-session";
 
 /**
  * Persisted local memory record — SQLite-ready shape (Phase 62).

@@ -26,6 +26,7 @@ import {
 import { DemoExecutionFlow, useDemoInteraction } from "../demo";
 import { WorkforceActivityPanel, useWorkforceActivity } from "../workforce";
 import { ProductivityDashboard, useProductivitySession } from "../productivity";
+import { ContinuousPresencePanel, useContinuousPresence } from "../continuous";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -80,6 +81,11 @@ export function JarvisCommandCenter() {
   });
 
   const productivitySession = useProductivitySession({
+    taskOutput: statusResult?.output,
+    loading: timeline.isStreaming || loading,
+  });
+
+  const continuousPresence = useContinuousPresence({
     taskOutput: statusResult?.output,
     loading: timeline.isStreaming || loading,
   });
@@ -188,6 +194,12 @@ export function JarvisCommandCenter() {
               loading={timeline.isStreaming || loading}
               displayLabel={productivitySession.displayLabel}
             />
+            <ContinuousPresencePanel
+              visible={continuousPresence.showContinuous && voiceNative}
+              continuous={continuousPresence.continuous}
+              loading={timeline.isStreaming || loading}
+              displayLabel={continuousPresence.displayLabel}
+            />
             <MemoryContextIndicator
               visible={Boolean(memoryRecallView?.message)}
               message={memoryRecallView?.message}
@@ -234,6 +246,9 @@ export function JarvisCommandCenter() {
                 productivity={productivitySession.productivity}
                 productivityVisible={productivitySession.showProductivity}
                 productivityDisplayLabel={productivitySession.displayLabel}
+                continuous={continuousPresence.continuous}
+                continuousVisible={continuousPresence.showContinuous}
+                continuousDisplayLabel={continuousPresence.displayLabel}
               />
             </aside>
           ) : null}

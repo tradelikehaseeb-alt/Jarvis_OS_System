@@ -15,6 +15,8 @@ import { WorkforceActivityPanel } from "../workforce/WorkforceActivityPanel";
 import type { WorkforceActivityViewState } from "../workforce/workforce-types";
 import { ProductivityDashboard } from "../productivity/ProductivityDashboard";
 import type { ProductivityViewState } from "../productivity/productivity-types";
+import { ContinuousPresencePanel } from "../continuous/ContinuousPresencePanel";
+import type { ContinuousViewState } from "../continuous/continuous-types";
 
 export interface LiveExecutionPanelProps {
   readonly steps: readonly TimelineStep[];
@@ -39,6 +41,9 @@ export interface LiveExecutionPanelProps {
   readonly productivity?: ProductivityViewState;
   readonly productivityVisible?: boolean;
   readonly productivityDisplayLabel?: string;
+  readonly continuous?: ContinuousViewState;
+  readonly continuousVisible?: boolean;
+  readonly continuousDisplayLabel?: string;
 }
 
 /**
@@ -67,6 +72,9 @@ export const LiveExecutionPanel = memo(function LiveExecutionPanel({
   productivity,
   productivityVisible = false,
   productivityDisplayLabel,
+  continuous,
+  continuousVisible = false,
+  continuousDisplayLabel,
 }: LiveExecutionPanelProps) {
   const showPanel = loading || steps.length > 0 || Boolean(error) || events.length > 0;
   const complete = !loading && !error && progress >= 1;
@@ -147,6 +155,13 @@ export const LiveExecutionPanel = memo(function LiveExecutionPanel({
             productivity={productivity}
             loading={loading}
             displayLabel={productivityDisplayLabel}
+          />
+
+          <ContinuousPresencePanel
+            visible={continuousVisible}
+            continuous={continuous}
+            loading={loading}
+            displayLabel={continuousDisplayLabel}
           />
 
           <div

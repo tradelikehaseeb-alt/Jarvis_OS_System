@@ -32,7 +32,8 @@
 | **96** | Real demo & human interaction validation | Done |
 | **97** | Personal AI workforce & multi-agent coordination | Done |
 | **98** | Daily life & productivity automation | Done |
-| **99+** | Web UI, SaaS, auth | Planned |
+| **99** | Autonomous continuous Jarvis runtime | Done |
+| **100+** | Web UI, SaaS, auth | Planned |
 
 **Target value:** 1–4 hours/day saved (5–8+ heavy users).
 
@@ -50,6 +51,7 @@
 | 96 | `services/orchestrator/src/demo-validation/`, `docs/DEMO.md` |
 | 97 | `services/orchestrator/src/agent-workforce/PHASE-97-README.md`, `docs/AGENTS.md`, `docs/VISION.md` |
 | 98 | `services/orchestrator/src/productivity-automation/PHASE-98-README.md`, `docs/PRODUCTIVITY.md` |
+| 99 | `services/orchestrator/src/continuous-runtime/PHASE-99-README.md`, `docs/CONTINUOUS.md` |
 
 Detailed log for Phases 0–15: [COMPLETED_PHASES.md](./COMPLETED_PHASES.md).  
 Summary for Phases 16–92: same file (append section).

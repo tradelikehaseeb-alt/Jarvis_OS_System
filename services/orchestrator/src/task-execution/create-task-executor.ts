@@ -104,6 +104,10 @@ import {
   createDefaultProductivityWorkflowRuntime,
   type ProductivityWorkflowResult,
 } from "../productivity-automation";
+import {
+  createDefaultContinuousJarvisRuntime,
+  type ContinuousRuntimeResult,
+} from "../continuous-runtime";
 import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
@@ -517,6 +521,7 @@ export async function executeCreateTask(
   const workflowEngine = createDefaultWorkflowExecutionEngine();
   const agentWorkforceRuntime = createDefaultAgentWorkforceRuntime();
   const productivityWorkflowRuntime = createDefaultProductivityWorkflowRuntime();
+  const continuousJarvisRuntime = createDefaultContinuousJarvisRuntime();
   const executionSafetyRuntime = createDefaultOrchestratorExecutionSafetyRuntime();
   const executionStartedAt = new Date().toISOString();
   let executionStepCount = 0;
@@ -537,6 +542,16 @@ export async function executeCreateTask(
   let productivityResult: ProductivityWorkflowResult | undefined;
   if (productivityWorkflowRuntime.shouldActivate(task.intent.description, task.intent.kind)) {
     productivityResult = await productivityWorkflowRuntime.run({
+      description: task.intent.description,
+      intentKind: task.intent.kind,
+      userId: task.userId,
+      conversationId,
+    });
+  }
+
+  let continuousResult: ContinuousRuntimeResult | undefined;
+  if (continuousJarvisRuntime.shouldActivate(task.intent.description)) {
+    continuousResult = await continuousJarvisRuntime.run({
       description: task.intent.description,
       intentKind: task.intent.kind,
       userId: task.userId,
@@ -1102,6 +1117,20 @@ export async function executeCreateTask(
             activities: productivityResult.activities,
             suggestions: productivityResult.suggestions,
             taskCount: productivityResult.taskPlan?.tasks.length ?? 0,
+          },
+        }
+      : {}),
+    ...(continuousResult
+      ? {
+          continuous: {
+            sessionId: continuousResult.sessionId,
+            success: continuousResult.success,
+            summary: continuousResult.summary,
+            activities: continuousResult.activities,
+            notifications: continuousResult.notifications,
+            backgroundTaskCount: continuousResult.backgroundTaskCount,
+            continuous: continuousResult.continuous,
+            presence: continuousResult.presence,
           },
         }
       : {}),
