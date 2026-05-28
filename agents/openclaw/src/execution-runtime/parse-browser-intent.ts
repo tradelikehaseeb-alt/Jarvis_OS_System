@@ -5,6 +5,7 @@ const URL_HINTS: Readonly<Record<string, string>> = {
   "google mail": "https://mail.google.com",
   outlook: "https://outlook.live.com",
   youtube: "https://www.youtube.com",
+  tradingview: "https://www.tradingview.com",
   github: "https://github.com",
 };
 
@@ -57,7 +58,7 @@ export function parseBrowserIntent(description: string): {
     },
   ];
 
-  if (lower.includes("summarize") || lower.includes("extract") || lower.includes("read")) {
+  if (lower.includes("summarize") || lower.includes("extract") || lower.includes("read") || lower.includes("check")) {
     workflowSteps.push({
       action: "extract-content",
       url,
@@ -69,6 +70,13 @@ export function parseBrowserIntent(description: string): {
     workflowSteps.push({
       action: "click-element",
       selector: "[data-jarvis-target]",
+    });
+  }
+
+  if (lower.includes("prepare") || lower.includes("workspace")) {
+    workflowSteps.push({
+      action: "click-element",
+      selector: "[data-jarvis-workspace]",
     });
   }
 

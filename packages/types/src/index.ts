@@ -11,3 +11,4 @@ export * from "./memory";
 export * from "./live-execution";
 export * from "./live-provider";
 export * from "./user-session";
+export * from "./demo-validation";

@@ -1,5 +1,7 @@
 import {
   createDefaultVoiceExecutionRuntime,
+  mapVoiceTranscriptToBrowserWorkflow,
+  voiceHintToTaskIntent,
   type VoiceExecutionTaskExecutor,
 } from "@jarvis/speech-service";
 
@@ -23,11 +25,11 @@ export function createOrchestratorVoiceExecutionRuntime(
   const taskExecutor: VoiceExecutionTaskExecutor =
     options.taskExecutor ??
     (async (input) => {
+      const workflowHint = mapVoiceTranscriptToBrowserWorkflow(input.normalizedText);
       const classification = classifyChatIntent(input.normalizedText);
-      const intent = buildTaskIntentFromClassification(
-        input.normalizedText,
-        classification,
-      );
+      const intent = workflowHint
+        ? voiceHintToTaskIntent(workflowHint)
+        : buildTaskIntentFromClassification(input.normalizedText, classification);
 
       const { record } = await options.orchestrator.executeCreateTask({
         intent,
@@ -36,6 +38,7 @@ export function createOrchestratorVoiceExecutionRuntime(
         metadata: {
           ...input.metadata,
           source: "voice-execution",
+          voiceWorkflow: workflowHint,
           classifiedIntent: classification.intent,
           classificationRule: classification.ruleId,
           conversationId: input.conversationId,

@@ -14,6 +14,8 @@ export const JARVIS_EXECUTION_LABELS = {
   memoryUpdating: "Updating memory…",
   memorySaved: "Memory updated",
   streaming: "Generating response…",
+  demoLive: "Live demo in progress",
+  demoVoice: "Voice command received",
   completed: "Done",
   taskComplete: "All set",
   inProgress: "Working",

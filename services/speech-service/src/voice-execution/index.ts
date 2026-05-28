@@ -19,3 +19,9 @@ export {
   voiceHintToTaskIntent,
   type VoiceBrowserWorkflowHint,
 } from "./browser-workflow-intent";
+export {
+  VoiceWorkflowSession,
+  createVoiceWorkflowSession,
+  type VoiceWorkflowPhase,
+  type VoiceWorkflowSessionState,
+} from "./voice-workflow-session";

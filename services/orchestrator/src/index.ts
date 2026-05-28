@@ -33,6 +33,7 @@ export * from "./memory-recall";
 export * from "./memory-intelligence";
 export * from "./runtime-hardening";
 export * from "./execution-runtime";
+export * from "./demo-validation";
 export * from "./activity";
 export * from "./voice-execution";
 export * from "./voice-session";
@@ -71,6 +72,7 @@ export const ORCHESTRATOR_MODULE_IDS = [
   "memory-intelligence",
   "runtime-hardening",
   "execution-runtime",
+  "demo-validation",
   "activity",
   "voice-execution",
   "voice-session",

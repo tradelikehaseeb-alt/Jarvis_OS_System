@@ -23,6 +23,7 @@ import {
   ExecutionPermissionPrompt,
   useExecutionRuntime,
 } from "../execution";
+import { DemoExecutionFlow, useDemoInteraction } from "../demo";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -61,6 +62,14 @@ export function JarvisCommandCenter() {
 
   const executionRuntimeState = useExecutionRuntime({
     taskOutput: statusResult?.output,
+  });
+
+  const lastUserCommand = messages.filter((message) => message.role === "user").at(-1)?.text;
+  const demoInteraction = useDemoInteraction({
+    command: lastUserCommand,
+    loading: timeline.isStreaming || loading,
+    progress: timeline.progress,
+    displayMessage: agentStatus.status.displayMessage,
   });
 
   const voiceNative = voiceSettings.voiceNativeUi;
@@ -148,6 +157,12 @@ export function JarvisCommandCenter() {
                 (statusResult?.output?.stability as { degraded?: boolean } | undefined)
                   ?.degraded
               }
+            />
+            <DemoExecutionFlow
+              visible={demoInteraction.showDemoFlow}
+              phase={demoInteraction.demoPhase}
+              message={demoInteraction.demoMessage}
+              progress={timeline.progress}
             />
             <MemoryContextIndicator
               visible={Boolean(memoryRecallView?.message)}
