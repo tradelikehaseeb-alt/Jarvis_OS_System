@@ -205,6 +205,16 @@ export type {
   VoiceExecutionTaskExecutorOutput,
 } from "./voice-execution";
 export { createDefaultVoiceExecutionRuntime } from "./voice-execution";
+export {
+  mapVoiceTranscriptToBrowserWorkflow,
+  voiceHintToTaskIntent,
+  createVoiceWorkflowSession,
+} from "./voice-execution";
+export type {
+  VoiceBrowserWorkflowHint,
+  VoiceWorkflowPhase,
+  VoiceWorkflowSessionState,
+} from "./voice-execution";
 
 export type {
   WakeWordState,
