@@ -1,0 +1,2152 @@
+{
+  "at": "2026-05-30T07:26:37.514Z",
+  "port": 8791,
+  "envPath": null,
+  "groqKey": "missing",
+  "browserReal": "true",
+  "browserHeadless": "true",
+  "realBrowserEnabled": true,
+  "playwrightDirect": "ok",
+  "youtubeTitle": "YouTube",
+  "youtubeUrl": "https://www.youtube.com/",
+  "apiEndpoint": "http://127.0.0.1:8791",
+  "health": {
+    "status": "ok",
+    "service": "jarvis-api-runtime",
+    "orchestrator": "ok",
+    "checkedAt": "2026-05-30T07:26:44.215Z"
+  },
+  "createTask": {
+    "taskId": "task-1780126004255",
+    "status": "completed",
+    "createdAt": "2026-05-30T07:26:44.255Z"
+  },
+  "taskStatus": "completed",
+  "llmProvider": {
+    "providerId": "llm-stub",
+    "kind": "stub",
+    "stub": true,
+    "success": true,
+    "model": "stub-stub-model",
+    "validated": true,
+    "streamed": false,
+    "contentPreview": "[stub-stub] Planning context for: Hermes planning context for: Jarvis open YouTube and search AI news"
+  },
+  "browserState": {
+    "sessionId": "browser-exec-1",
+    "url": "https://www.youtube.com",
+    "active": true,
+    "stub": false,
+    "stepIndex": 3,
+    "totalSteps": 3
+  },
+  "openclaw": {
+    "workflow": {
+      "workflowId": "wf-auto-1780126004267",
+      "stepCount": 2,
+      "progress": [
+        {
+          "stepId": "step-browser-open",
+          "stepIndex": 0,
+          "totalSteps": 2,
+          "message": "Completed open-page",
+          "completed": true
+        },
+        {
+          "stepId": "step-browser-extract",
+          "stepIndex": 1,
+          "totalSteps": 2,
+          "message": "Completed extract-content",
+          "completed": true
+        }
+      ]
+    },
+    "browserState": {
+      "sessionId": "browser-exec-1",
+      "url": "https://www.youtube.com",
+      "active": true,
+      "stub": false,
+      "stepIndex": 3,
+      "totalSteps": 3
+    },
+    "permissionRequired": false
+  },
+  "fullOutput": {
+    "stub": true,
+    "phase": 47,
+    "routing": {
+      "selectedAgentId": "openclaw-gateway",
+      "reason": "Selected openclaw-gateway (score=1, stub)",
+      "policyId": "default-static-v1",
+      "matches": 1,
+      "handshake": true
+    },
+    "agent": {
+      "agentId": "openclaw-gateway",
+      "requestId": "req-stub-task-1780126004255-step-2",
+      "success": true
+    },
+    "skill": {
+      "skillIds": [
+        "browser-skill",
+        "file-skill"
+      ],
+      "browser": {
+        "stub": true,
+        "action": "workflow",
+        "url": "https://www.youtube.com",
+        "result": {
+          "status": "completed",
+          "title": "Stub Page Title",
+          "screenshotRef": null
+        }
+      },
+      "file": {
+        "stub": true,
+        "operation": "read",
+        "path": "/stub/workspace/output.txt",
+        "result": {
+          "status": "ok",
+          "bytes": 128,
+          "message": "Mock read completed on /stub/workspace/output.txt"
+        }
+      }
+    },
+    "agentPayload": {
+      "stub": true,
+      "adapter": {
+        "success": true,
+        "adapterId": "openclaw-local",
+        "stub": true,
+        "execution": {
+          "status": "accepted",
+          "sandbox": true,
+          "permissionsChecked": false,
+          "handleId": "handle-openclaw-local-task-1780126004255-step-2"
+        },
+        "approvedActions": [
+          "browser:local",
+          "file:local"
+        ]
+      },
+      "gateway": {
+        "success": true,
+        "stub": true,
+        "runtimeStatus": "stub",
+        "adapterId": "openclaw-local",
+        "executionHandleId": "handle-openclaw-local-task-1780126004255-step-2",
+        "approvedActions": [
+          "browser:local",
+          "file:local"
+        ],
+        "sandbox": true,
+        "permissionsChecked": false
+      },
+      "execution": {
+        "handleId": "handle-openclaw-local-task-1780126004255-step-2",
+        "runtimeStatus": "stub",
+        "contextRef": "ctx-stub-task-1780126004255"
+      },
+      "browserRuntime": {
+        "success": true,
+        "stub": false,
+        "action": "workflow",
+        "url": "https://www.youtube.com",
+        "status": "completed",
+        "message": "Workflow completed (3 steps)",
+        "executedAt": "2026-05-30T07:26:58.818Z",
+        "screenshotRef": null,
+        "browserState": {
+          "sessionId": "browser-exec-1",
+          "url": "https://www.youtube.com",
+          "active": true,
+          "stub": false,
+          "stepIndex": 3,
+          "totalSteps": 3
+        },
+        "workflowProgress": [
+          "Step 1/3: open page · 2026-05-30T07:26:54.407Z",
+          "Step 2/3: type text · 2026-05-30T07:26:58.498Z",
+          "Step 3/3: click element · 2026-05-30T07:26:58.677Z"
+        ],
+        "permissionRequired": false
+      },
+      "browserState": {
+        "sessionId": "browser-exec-1",
+        "url": "https://www.youtube.com",
+        "active": true,
+        "stub": false,
+        "stepIndex": 3,
+        "totalSteps": 3
+      },
+      "workflowProgress": [
+        "Step 1/3: open page · 2026-05-30T07:26:54.407Z",
+        "Step 2/3: type text · 2026-05-30T07:26:58.498Z",
+        "Step 3/3: click element · 2026-05-30T07:26:58.677Z"
+      ],
+      "browser": {
+        "stub": true,
+        "action": "workflow",
+        "url": "https://www.youtube.com",
+        "result": {
+          "status": "completed",
+          "title": "Stub Page Title",
+          "screenshotRef": null
+        }
+      },
+      "file": {
+        "stub": true,
+        "operation": "read",
+        "path": "/stub/workspace/output.txt",
+        "result": {
+          "status": "ok",
+          "bytes": 128,
+          "message": "Mock read completed on /stub/workspace/output.txt"
+        }
+      },
+      "skillExecutions": [
+        {
+          "executionId": "exec-req-stub-task-1780126004255-step-2",
+          "agentId": "openclaw-gateway",
+          "skillId": "browser-skill",
+          "success": true,
+          "data": {
+            "stub": true,
+            "action": "workflow",
+            "url": "https://www.youtube.com",
+            "result": {
+              "status": "completed",
+              "title": "Stub Page Title",
+              "screenshotRef": null
+            }
+          }
+        },
+        {
+          "executionId": "exec-req-stub-task-1780126004255-step-2-file",
+          "agentId": "openclaw-gateway",
+          "skillId": "file-skill",
+          "success": true,
+          "data": {
+            "stub": true,
+            "operation": "read",
+            "path": "/stub/workspace/output.txt",
+            "result": {
+              "status": "ok",
+              "bytes": 128,
+              "message": "Mock read completed on /stub/workspace/output.txt"
+            }
+          }
+        }
+      ]
+    },
+    "planningPayload": {
+      "stub": true,
+      "adapter": {
+        "success": true,
+        "adapterId": "hermes-local",
+        "stub": true,
+        "plan": {
+          "goal": "Jarvis open YouTube and search AI news",
+          "steps": [
+            "stub-plan",
+            "stub-review",
+            "stub-execute-via-skills"
+          ],
+          "intentKind": "automate",
+          "summary": "Hermes (local) (mock): Stub plan for: Jarvis open YouTube and search AI news (with 1 remembered context item(s))"
+        },
+        "reasoning": {
+          "summary": "[local] Stub reasoning (automate) — skills handle execution",
+          "confidence": 0.85
+        }
+      },
+      "gateway": {
+        "success": true,
+        "stub": true,
+        "runtimeStatus": "stub",
+        "adapterId": "hermes-local",
+        "plan": {
+          "goal": "Jarvis open YouTube and search AI news",
+          "steps": [
+            "stub-plan",
+            "stub-review",
+            "stub-execute-via-skills"
+          ],
+          "intentKind": "automate",
+          "summary": "Hermes (local) (mock): Stub plan for: Jarvis open YouTube and search AI news (with 1 remembered context item(s))"
+        },
+        "reasoning": {
+          "summary": "[local] Stub reasoning (automate) — skills handle execution",
+          "confidence": 0.85
+        }
+      },
+      "plan": {
+        "goal": "Jarvis open YouTube and search AI news",
+        "steps": [
+          "stub-plan",
+          "stub-review",
+          "stub-execute-via-skills"
+        ],
+        "intentKind": "automate",
+        "summary": "Hermes (local) (mock): Stub plan for: Jarvis open YouTube and search AI news (with 1 remembered context item(s))"
+      },
+      "structuredPlan": {
+        "goal": "Jarvis open YouTube and search AI news",
+        "steps": [
+          "stub-plan",
+          "stub-review",
+          "stub-execute-via-skills"
+        ]
+      },
+      "reasoning": {
+        "summary": "[local] Stub reasoning (automate) — skills handle execution",
+        "confidence": 0.85
+      },
+      "planning": {
+        "runtimeStatus": "stub",
+        "contextRef": "ctx-stub-task-1780126004255"
+      },
+      "search": {
+        "stub": true,
+        "query": "Jarvis open YouTube and search AI news",
+        "results": [
+          {
+            "title": "Stub result A",
+            "url": "https://stub.local/a",
+            "score": 0.9
+          },
+          {
+            "title": "Stub result B",
+            "url": "https://stub.local/b",
+            "score": 0.7
+          }
+        ],
+        "total": 2
+      },
+      "skillExecution": {
+        "executionId": "exec-req-stub-task-1780126004255",
+        "agentId": "hermes",
+        "skillId": "search-skill",
+        "success": true,
+        "data": {
+          "stub": true,
+          "query": "Jarvis open YouTube and search AI news",
+          "results": [
+            {
+              "title": "Stub result A",
+              "url": "https://stub.local/a",
+              "score": 0.9
+            },
+            {
+              "title": "Stub result B",
+              "url": "https://stub.local/b",
+              "score": 0.7
+            }
+          ],
+          "total": 2
+        }
+      },
+      "memoryAccess": "via-memory-service-api-only"
+    },
+    "taskChain": {
+      "chainId": "adaptive-task-1780126004255",
+      "success": true,
+      "stepCount": 3,
+      "stub": true,
+      "plan": {
+        "planId": "exec-plan-task-1780126004255",
+        "goal": "Jarvis open YouTube and search AI news",
+        "steps": [
+          {
+            "stepId": "task-1780126004255-step-0",
+            "index": 0,
+            "label": "stub-plan",
+            "description": "stub-plan",
+            "stub": true
+          },
+          {
+            "stepId": "task-1780126004255-step-1",
+            "index": 1,
+            "label": "stub-review",
+            "description": "stub-review",
+            "stub": true
+          },
+          {
+            "stepId": "task-1780126004255-step-2",
+            "index": 2,
+            "label": "stub-execute-via-skills",
+            "description": "stub-execute-via-skills",
+            "stub": true
+          }
+        ],
+        "stub": true,
+        "source": "agent_payload"
+      },
+      "events": [
+        {
+          "eventId": "task-chain-adaptive-started",
+          "chainId": "adaptive-task-1780126004255",
+          "kind": "chain_started",
+          "timestamp": "2026-05-30T07:26:58.819Z",
+          "message": "Executing 3 OpenClaw step(s) adaptively",
+          "stub": true
+        },
+        {
+          "eventId": "task-chain-adaptive-step-0",
+          "chainId": "adaptive-task-1780126004255",
+          "kind": "step_completed",
+          "stepIndex": 0,
+          "stepId": "task-1780126004255-step-0",
+          "timestamp": "2026-05-30T07:26:58.819Z",
+          "message": "OpenClaw step completed",
+          "stub": true
+        },
+        {
+          "eventId": "task-chain-adaptive-step-1",
+          "chainId": "adaptive-task-1780126004255",
+          "kind": "step_completed",
+          "stepIndex": 1,
+          "stepId": "task-1780126004255-step-1",
+          "timestamp": "2026-05-30T07:26:58.819Z",
+          "message": "OpenClaw step completed",
+          "stub": true
+        },
+        {
+          "eventId": "task-chain-adaptive-step-2",
+          "chainId": "adaptive-task-1780126004255",
+          "kind": "step_completed",
+          "stepIndex": 2,
+          "stepId": "task-1780126004255-step-2",
+          "timestamp": "2026-05-30T07:26:58.819Z",
+          "message": "OpenClaw step completed",
+          "stub": true
+        },
+        {
+          "eventId": "task-chain-adaptive-completed",
+          "chainId": "adaptive-task-1780126004255",
+          "kind": "chain_completed",
+          "timestamp": "2026-05-30T07:26:58.819Z",
+          "message": "Task chain completed",
+          "stub": true
+        }
+      ]
+    },
+    "adaptiveExecution": {
+      "executionId": "adaptive-task-1780126004255",
+      "success": true,
+      "stepCount": 3,
+      "stub": true,
+      "plan": {
+        "planId": "exec-plan-task-1780126004255",
+        "goal": "Jarvis open YouTube and search AI news",
+        "steps": [
+          {
+            "stepId": "task-1780126004255-step-0",
+            "index": 0,
+            "label": "stub-plan",
+            "description": "stub-plan",
+            "stub": true
+          },
+          {
+            "stepId": "task-1780126004255-step-1",
+            "index": 1,
+            "label": "stub-review",
+            "description": "stub-review",
+            "stub": true
+          },
+          {
+            "stepId": "task-1780126004255-step-2",
+            "index": 2,
+            "label": "stub-execute-via-skills",
+            "description": "stub-execute-via-skills",
+            "stub": true
+          }
+        ],
+        "stub": true,
+        "source": "agent_payload"
+      },
+      "decisions": [
+        {
+          "kind": "continue",
+          "reason": "Step succeeded — continue chain",
+          "ruleId": "stub-continue-on-success"
+        },
+        {
+          "kind": "continue",
+          "reason": "Step succeeded — continue chain",
+          "ruleId": "stub-continue-on-success"
+        },
+        {
+          "kind": "complete",
+          "reason": "Final step succeeded",
+          "ruleId": "stub-continue-on-success"
+        }
+      ],
+      "events": [
+        {
+          "eventId": "adaptive-evaluation_started-1",
+          "timestamp": "2026-05-30T07:26:44.287Z",
+          "kind": "evaluation_started",
+          "executionId": "adaptive-task-1780126004255",
+          "stepIndex": 0,
+          "stepId": "task-1780126004255-step-0",
+          "message": "Jarvis open YouTube and search AI news — stub-plan",
+          "stub": true
+        },
+        {
+          "eventId": "adaptive-decision_made-3",
+          "timestamp": "2026-05-30T07:26:49.194Z",
+          "kind": "decision_made",
+          "executionId": "adaptive-task-1780126004255",
+          "stepIndex": 0,
+          "stepId": "task-1780126004255-step-0",
+          "message": "Step succeeded — continue chain",
+          "stub": true,
+          "decisionKind": "continue"
+        },
+        {
+          "eventId": "adaptive-step_selected-4",
+          "timestamp": "2026-05-30T07:26:49.194Z",
+          "kind": "step_selected",
+          "executionId": "adaptive-task-1780126004255",
+          "stepIndex": 1,
+          "stepId": "task-1780126004255-step-1",
+          "message": "Jarvis open YouTube and search AI news — stub-review",
+          "stub": true,
+          "decisionKind": "continue"
+        },
+        {
+          "eventId": "adaptive-evaluation_started-5",
+          "timestamp": "2026-05-30T07:26:49.194Z",
+          "kind": "evaluation_started",
+          "executionId": "adaptive-task-1780126004255",
+          "stepIndex": 1,
+          "stepId": "task-1780126004255-step-1",
+          "message": "Jarvis open YouTube and search AI news — stub-review",
+          "stub": true
+        },
+        {
+          "eventId": "adaptive-decision_made-7",
+          "timestamp": "2026-05-30T07:26:54.087Z",
+          "kind": "decision_made",
+          "executionId": "adaptive-task-1780126004255",
+          "stepIndex": 1,
+          "stepId": "task-1780126004255-step-1",
+          "message": "Step succeeded — continue chain",
+          "stub": true,
+          "decisionKind": "continue"
+        },
+        {
+          "eventId": "adaptive-step_selected-8",
+          "timestamp": "2026-05-30T07:26:54.087Z",
+          "kind": "step_selected",
+          "executionId": "adaptive-task-1780126004255",
+          "stepIndex": 2,
+          "stepId": "task-1780126004255-step-2",
+          "message": "Jarvis open YouTube and search AI news — stub-execute-via-skills",
+          "stub": true,
+          "decisionKind": "continue"
+        },
+        {
+          "eventId": "adaptive-evaluation_started-9",
+          "timestamp": "2026-05-30T07:26:54.087Z",
+          "kind": "evaluation_started",
+          "executionId": "adaptive-task-1780126004255",
+          "stepIndex": 2,
+          "stepId": "task-1780126004255-step-2",
+          "message": "Jarvis open YouTube and search AI news — stub-execute-via-skills",
+          "stub": true
+        },
+        {
+          "eventId": "adaptive-decision_made-11",
+          "timestamp": "2026-05-30T07:26:58.819Z",
+          "kind": "decision_made",
+          "executionId": "adaptive-task-1780126004255",
+          "stepIndex": 2,
+          "stepId": "task-1780126004255-step-2",
+          "message": "Final step succeeded",
+          "stub": true,
+          "decisionKind": "complete"
+        },
+        {
+          "eventId": "adaptive-execution_completed-12",
+          "timestamp": "2026-05-30T07:26:58.819Z",
+          "kind": "execution_completed",
+          "executionId": "adaptive-task-1780126004255",
+          "message": "Final step succeeded",
+          "stub": true,
+          "decisionKind": "complete"
+        }
+      ]
+    },
+    "learningInsights": {
+      "userId": "user-api-stub",
+      "intentKind": "automate",
+      "recordCount": 1,
+      "successRate": 1,
+      "signals": [
+        {
+          "kind": "no_data",
+          "message": "Insufficient pattern — using deterministic fallback",
+          "confidence": 0.6,
+          "sampleSize": 1
+        }
+      ],
+      "stub": true
+    },
+    "learning": {
+      "signals": [
+        {
+          "kind": "no_data",
+          "message": "No execution learning history — using deterministic fallback",
+          "confidence": 1,
+          "sampleSize": 0
+        }
+      ],
+      "appliedRules": [
+        {
+          "ruleId": "stub-continue-on-success",
+          "when": "step_succeeded",
+          "action": "continue"
+        },
+        {
+          "ruleId": "stub-retry-on-failure",
+          "when": "step_failed",
+          "action": "retry",
+          "maxRetries": 1
+        },
+        {
+          "ruleId": "stub-abort-on-persistent-failure",
+          "when": "step_failed",
+          "action": "abort"
+        }
+      ]
+    },
+    "feedbackInsights": {
+      "userId": "user-api-stub",
+      "intentKind": "automate",
+      "feedbackCount": 0,
+      "positiveRate": 0,
+      "signals": [
+        {
+          "kind": "no_feedback",
+          "message": "No user feedback — using deterministic fallback",
+          "confidence": 1,
+          "sampleSize": 0
+        }
+      ],
+      "stub": true,
+      "learningRecordCount": 1
+    },
+    "feedback": {
+      "signals": [
+        {
+          "kind": "no_feedback",
+          "message": "No user feedback — using deterministic fallback",
+          "confidence": 1,
+          "sampleSize": 0
+        }
+      ],
+      "appliedRules": [
+        {
+          "ruleId": "stub-continue-on-success",
+          "when": "step_succeeded",
+          "action": "continue"
+        },
+        {
+          "ruleId": "stub-retry-on-failure",
+          "when": "step_failed",
+          "action": "retry",
+          "maxRetries": 1
+        },
+        {
+          "ruleId": "stub-abort-on-persistent-failure",
+          "when": "step_failed",
+          "action": "abort"
+        }
+      ]
+    },
+    "llmProvider": {
+      "providerId": "llm-stub",
+      "kind": "stub",
+      "stub": true,
+      "success": true,
+      "model": "stub-stub-model",
+      "validated": true,
+      "streamed": false,
+      "contentPreview": "[stub-stub] Planning context for: Hermes planning context for: Jarvis open YouTube and search AI news"
+    },
+    "executionLifecycle": {
+      "sessionId": "exec-session-task-1780126004255",
+      "state": "completed",
+      "activityCount": 10,
+      "activities": [
+        {
+          "activityId": "act-1780126004281-3",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "hermes",
+          "kind": "planning_started",
+          "timestamp": "2026-05-30T07:26:44.281Z",
+          "summary": "Hermes planning started"
+        },
+        {
+          "activityId": "act-1780126004284-5",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "hermes",
+          "kind": "plan_generated",
+          "timestamp": "2026-05-30T07:26:44.284Z",
+          "summary": "Plan generated: Jarvis open YouTube and search AI news",
+          "payload": {
+            "plan": {
+              "goal": "Jarvis open YouTube and search AI news",
+              "steps": [
+                "stub-plan",
+                "stub-review",
+                "stub-execute-via-skills"
+              ]
+            }
+          }
+        },
+        {
+          "activityId": "act-1780126004285-7",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "hermes",
+          "kind": "execution_progress",
+          "timestamp": "2026-05-30T07:26:44.285Z",
+          "summary": "Hermes gateway runtime status reported",
+          "payload": {
+            "runtimeStatus": "stub",
+            "stub": true
+          }
+        },
+        {
+          "activityId": "act-1780126004285-9",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "hermes",
+          "kind": "planning_completed",
+          "timestamp": "2026-05-30T07:26:44.285Z",
+          "summary": "Hermes planning completed",
+          "payload": {
+            "success": true
+          }
+        },
+        {
+          "activityId": "act-1780126004287-12",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "openclaw",
+          "kind": "execution_progress",
+          "timestamp": "2026-05-30T07:26:44.287Z",
+          "summary": "Adaptive step 1/3",
+          "payload": {
+            "executionId": "adaptive-task-1780126004255",
+            "stepId": "task-1780126004255-step-0",
+            "stepIndex": 0,
+            "adaptive": true
+          }
+        },
+        {
+          "activityId": "act-1780126009194-14",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "openclaw",
+          "kind": "execution_progress",
+          "timestamp": "2026-05-30T07:26:49.194Z",
+          "summary": "Adaptive step 2/3",
+          "payload": {
+            "executionId": "adaptive-task-1780126004255",
+            "stepId": "task-1780126004255-step-1",
+            "stepIndex": 1,
+            "adaptive": true
+          }
+        },
+        {
+          "activityId": "act-1780126014087-16",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "openclaw",
+          "kind": "execution_progress",
+          "timestamp": "2026-05-30T07:26:54.087Z",
+          "summary": "Adaptive step 3/3",
+          "payload": {
+            "executionId": "adaptive-task-1780126004255",
+            "stepId": "task-1780126004255-step-2",
+            "stepIndex": 2,
+            "adaptive": true
+          }
+        },
+        {
+          "activityId": "act-1780126018820-18",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "openclaw",
+          "kind": "execution_started",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "summary": "OpenClaw execution started"
+        },
+        {
+          "activityId": "act-1780126018820-20",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "openclaw",
+          "kind": "execution_progress",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "summary": "OpenClaw runtime status: stub",
+          "payload": {
+            "runtimeStatus": "stub",
+            "handleId": "handle-openclaw-local-task-1780126004255-step-2"
+          }
+        },
+        {
+          "activityId": "act-1780126018821-22",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "source": "openclaw",
+          "kind": "execution_completed",
+          "timestamp": "2026-05-30T07:26:58.821Z",
+          "summary": "OpenClaw execution completed",
+          "payload": {
+            "success": true,
+            "approvedActions": [
+              "browser:local",
+              "file:local"
+            ]
+          }
+        }
+      ],
+      "events": [
+        {
+          "eventId": "evt-1780126004255-1",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "session_started",
+          "state": "queued",
+          "timestamp": "2026-05-30T07:26:44.255Z",
+          "message": "Execution session queued"
+        },
+        {
+          "eventId": "evt-1780126004276-2",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "state_changed",
+          "state": "planning",
+          "timestamp": "2026-05-30T07:26:44.276Z",
+          "message": "Hermes planning phase"
+        },
+        {
+          "eventId": "evt-1780126004281-4",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "planning",
+          "timestamp": "2026-05-30T07:26:44.281Z",
+          "message": "Hermes planning started",
+          "activity": {
+            "activityId": "act-1780126004281-3",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "hermes",
+            "kind": "planning_started",
+            "timestamp": "2026-05-30T07:26:44.281Z",
+            "summary": "Hermes planning started"
+          }
+        },
+        {
+          "eventId": "evt-1780126004284-6",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "planning",
+          "timestamp": "2026-05-30T07:26:44.284Z",
+          "message": "Plan generated: Jarvis open YouTube and search AI news",
+          "activity": {
+            "activityId": "act-1780126004284-5",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "hermes",
+            "kind": "plan_generated",
+            "timestamp": "2026-05-30T07:26:44.284Z",
+            "summary": "Plan generated: Jarvis open YouTube and search AI news",
+            "payload": {
+              "plan": {
+                "goal": "Jarvis open YouTube and search AI news",
+                "steps": [
+                  "stub-plan",
+                  "stub-review",
+                  "stub-execute-via-skills"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "eventId": "evt-1780126004285-8",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "planning",
+          "timestamp": "2026-05-30T07:26:44.285Z",
+          "message": "Hermes gateway runtime status reported",
+          "activity": {
+            "activityId": "act-1780126004285-7",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "hermes",
+            "kind": "execution_progress",
+            "timestamp": "2026-05-30T07:26:44.285Z",
+            "summary": "Hermes gateway runtime status reported",
+            "payload": {
+              "runtimeStatus": "stub",
+              "stub": true
+            }
+          }
+        },
+        {
+          "eventId": "evt-1780126004285-10",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "planning",
+          "timestamp": "2026-05-30T07:26:44.285Z",
+          "message": "Hermes planning completed",
+          "activity": {
+            "activityId": "act-1780126004285-9",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "hermes",
+            "kind": "planning_completed",
+            "timestamp": "2026-05-30T07:26:44.285Z",
+            "summary": "Hermes planning completed",
+            "payload": {
+              "success": true
+            }
+          }
+        },
+        {
+          "eventId": "evt-1780126004286-11",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "state_changed",
+          "state": "executing",
+          "timestamp": "2026-05-30T07:26:44.286Z",
+          "message": "OpenClaw execution phase"
+        },
+        {
+          "eventId": "evt-1780126004287-13",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "executing",
+          "timestamp": "2026-05-30T07:26:44.287Z",
+          "message": "Adaptive step 1/3",
+          "activity": {
+            "activityId": "act-1780126004287-12",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-05-30T07:26:44.287Z",
+            "summary": "Adaptive step 1/3",
+            "payload": {
+              "executionId": "adaptive-task-1780126004255",
+              "stepId": "task-1780126004255-step-0",
+              "stepIndex": 0,
+              "adaptive": true
+            }
+          }
+        },
+        {
+          "eventId": "evt-1780126009194-15",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "executing",
+          "timestamp": "2026-05-30T07:26:49.194Z",
+          "message": "Adaptive step 2/3",
+          "activity": {
+            "activityId": "act-1780126009194-14",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-05-30T07:26:49.194Z",
+            "summary": "Adaptive step 2/3",
+            "payload": {
+              "executionId": "adaptive-task-1780126004255",
+              "stepId": "task-1780126004255-step-1",
+              "stepIndex": 1,
+              "adaptive": true
+            }
+          }
+        },
+        {
+          "eventId": "evt-1780126014087-17",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "executing",
+          "timestamp": "2026-05-30T07:26:54.087Z",
+          "message": "Adaptive step 3/3",
+          "activity": {
+            "activityId": "act-1780126014087-16",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-05-30T07:26:54.087Z",
+            "summary": "Adaptive step 3/3",
+            "payload": {
+              "executionId": "adaptive-task-1780126004255",
+              "stepId": "task-1780126004255-step-2",
+              "stepIndex": 2,
+              "adaptive": true
+            }
+          }
+        },
+        {
+          "eventId": "evt-1780126018820-19",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "executing",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "message": "OpenClaw execution started",
+          "activity": {
+            "activityId": "act-1780126018820-18",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "openclaw",
+            "kind": "execution_started",
+            "timestamp": "2026-05-30T07:26:58.820Z",
+            "summary": "OpenClaw execution started"
+          }
+        },
+        {
+          "eventId": "evt-1780126018820-21",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "executing",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "message": "OpenClaw runtime status: stub",
+          "activity": {
+            "activityId": "act-1780126018820-20",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-05-30T07:26:58.820Z",
+            "summary": "OpenClaw runtime status: stub",
+            "payload": {
+              "runtimeStatus": "stub",
+              "handleId": "handle-openclaw-local-task-1780126004255-step-2"
+            }
+          }
+        },
+        {
+          "eventId": "evt-1780126018821-23",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "activity",
+          "state": "executing",
+          "timestamp": "2026-05-30T07:26:58.821Z",
+          "message": "OpenClaw execution completed",
+          "activity": {
+            "activityId": "act-1780126018821-22",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "openclaw",
+            "kind": "execution_completed",
+            "timestamp": "2026-05-30T07:26:58.821Z",
+            "summary": "OpenClaw execution completed",
+            "payload": {
+              "success": true,
+              "approvedActions": [
+                "browser:local",
+                "file:local"
+              ]
+            }
+          }
+        },
+        {
+          "eventId": "evt-1780126019080-24",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "kind": "session_completed",
+          "state": "completed",
+          "timestamp": "2026-05-30T07:26:59.079Z",
+          "message": "Task completed"
+        }
+      ],
+      "handshake": {
+        "planningAgentId": "hermes",
+        "executionAgentId": "openclaw-gateway"
+      }
+    },
+    "memory": {
+      "summary": "Memory summary for user user-api-stub. Records: 27; tasks: 1. Last message (user): Jarvis open YouTube and search AI news Last execution state: completed. Current task: task-1780126004255.",
+      "conversationId": "conv-user-api-stub",
+      "recentActivity": [
+        {
+          "recordId": "mem-activity-1780126018820-20",
+          "userId": "user-api-stub",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "taskId": "task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "conversationId": "conv-user-api-stub",
+          "content": {
+            "eventKind": "activity",
+            "eventId": "evt-1780126018820-21",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "kind": "activity",
+            "state": "executing",
+            "timestamp": "2026-05-30T07:26:58.820Z",
+            "message": "OpenClaw runtime status: stub",
+            "activity": {
+              "activityId": "act-1780126018820-20",
+              "sessionId": "exec-session-task-1780126004255",
+              "taskId": "task-1780126004255",
+              "source": "openclaw",
+              "kind": "execution_progress",
+              "timestamp": "2026-05-30T07:26:58.820Z",
+              "summary": "OpenClaw runtime status: stub",
+              "payload": {
+                "runtimeStatus": "stub",
+                "handleId": "handle-openclaw-local-task-1780126004255-step-2"
+              }
+            }
+          },
+          "type": "activity"
+        },
+        {
+          "recordId": "mem-activity-1780126018820-21",
+          "userId": "user-api-stub",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "taskId": "task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "conversationId": "conv-user-api-stub",
+          "content": {
+            "activityId": "act-1780126018820-20",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-05-30T07:26:58.820Z",
+            "summary": "OpenClaw runtime status: stub",
+            "payload": {
+              "runtimeStatus": "stub",
+              "handleId": "handle-openclaw-local-task-1780126004255-step-2"
+            }
+          },
+          "type": "activity"
+        },
+        {
+          "recordId": "mem-activity-1780126018821-22",
+          "userId": "user-api-stub",
+          "timestamp": "2026-05-30T07:26:58.821Z",
+          "taskId": "task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "conversationId": "conv-user-api-stub",
+          "content": {
+            "eventKind": "activity",
+            "eventId": "evt-1780126018821-23",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "kind": "activity",
+            "state": "executing",
+            "timestamp": "2026-05-30T07:26:58.821Z",
+            "message": "OpenClaw execution completed",
+            "activity": {
+              "activityId": "act-1780126018821-22",
+              "sessionId": "exec-session-task-1780126004255",
+              "taskId": "task-1780126004255",
+              "source": "openclaw",
+              "kind": "execution_completed",
+              "timestamp": "2026-05-30T07:26:58.821Z",
+              "summary": "OpenClaw execution completed",
+              "payload": {
+                "success": true,
+                "approvedActions": [
+                  "browser:local",
+                  "file:local"
+                ]
+              }
+            }
+          },
+          "type": "activity"
+        },
+        {
+          "recordId": "mem-activity-1780126018821-23",
+          "userId": "user-api-stub",
+          "timestamp": "2026-05-30T07:26:58.821Z",
+          "taskId": "task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "conversationId": "conv-user-api-stub",
+          "content": {
+            "activityId": "act-1780126018821-22",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "source": "openclaw",
+            "kind": "execution_completed",
+            "timestamp": "2026-05-30T07:26:58.821Z",
+            "summary": "OpenClaw execution completed",
+            "payload": {
+              "success": true,
+              "approvedActions": [
+                "browser:local",
+                "file:local"
+              ]
+            }
+          },
+          "type": "activity"
+        },
+        {
+          "recordId": "mem-activity-1780126019080-24",
+          "userId": "user-api-stub",
+          "timestamp": "2026-05-30T07:26:59.080Z",
+          "taskId": "task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "conversationId": "conv-user-api-stub",
+          "content": {
+            "eventKind": "session_completed",
+            "eventId": "evt-1780126019080-24",
+            "sessionId": "exec-session-task-1780126004255",
+            "taskId": "task-1780126004255",
+            "kind": "session_completed",
+            "state": "completed",
+            "timestamp": "2026-05-30T07:26:59.079Z",
+            "message": "Task completed"
+          },
+          "type": "activity"
+        }
+      ],
+      "historyCount": 29
+    },
+    "stream": {
+      "streamSessionId": "stream-task-1780126004255",
+      "activeSessions": 0
+    },
+    "activityStream": {
+      "streamSessionId": "stream-task-1780126004255",
+      "events": [
+        {
+          "eventId": "transport-msg-1780126004256-1",
+          "type": "execution_started",
+          "timestamp": "2026-05-30T07:26:44.256Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Task execution stream opened"
+        },
+        {
+          "eventId": "transport-msg-1780126004257-2",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.257Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (conversation)",
+          "payload": {
+            "recordId": "mem-conversation-1780126004256-1",
+            "memoryType": "conversation"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004257-3",
+          "type": "conversation_updated",
+          "timestamp": "2026-05-30T07:26:44.257Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Conversation turn 1 (user)",
+          "payload": {
+            "recordId": "mem-conversation-1780126004256-1",
+            "role": "user",
+            "turnIndex": 1,
+            "message": "Jarvis open YouTube and search AI news"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004276-4",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.276Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004276-2",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004276-5",
+          "type": "planning_started",
+          "timestamp": "2026-05-30T07:26:44.276Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Hermes planning phase",
+          "payload": {
+            "lifecycleEventKind": "state_changed",
+            "state": "planning"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004281-6",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.281Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004281-3",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004282-7",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.282Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004282-4",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004284-8",
+          "type": "planning_started",
+          "timestamp": "2026-05-30T07:26:44.284Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Hermes planning started",
+          "source": "hermes",
+          "payload": {
+            "activityKind": "planning_started",
+            "source": "hermes"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004285-9",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.285Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004284-5",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004285-10",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.285Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004285-6",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004285-11",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.285Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004285-7",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004285-12",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.285Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004285-8",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004285-13",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.286Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004285-9",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004286-14",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.286Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004286-10",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004286-15",
+          "type": "planning_completed",
+          "timestamp": "2026-05-30T07:26:44.286Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Hermes planning completed",
+          "source": "hermes",
+          "payload": {
+            "activityKind": "planning_completed",
+            "source": "hermes"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004286-16",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.286Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004286-11",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004286-17",
+          "type": "execution_started",
+          "timestamp": "2026-05-30T07:26:44.286Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "OpenClaw execution phase",
+          "payload": {
+            "lifecycleEventKind": "state_changed",
+            "state": "executing"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004287-18",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.287Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004287-12",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126004287-19",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:44.287Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126004287-13",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126009194-20",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:49.194Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126009194-14",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126009194-21",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:49.194Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126009194-15",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126014087-22",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:54.087Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126014087-16",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126014088-23",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:54.088Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126014088-17",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126018820-24",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126018820-18",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126018820-25",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126018820-19",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126018820-26",
+          "type": "execution_started",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "OpenClaw execution started",
+          "source": "openclaw",
+          "payload": {
+            "activityKind": "execution_started",
+            "source": "openclaw"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126018820-27",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126018820-20",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126018820-28",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126018820-21",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126018821-29",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:58.821Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126018821-22",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126018821-30",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:58.821Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126018821-23",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126018821-31",
+          "type": "execution_completed",
+          "timestamp": "2026-05-30T07:26:58.821Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "OpenClaw execution completed",
+          "source": "openclaw",
+          "payload": {
+            "activityKind": "execution_completed",
+            "source": "openclaw"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126019080-32",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:59.080Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (activity)",
+          "payload": {
+            "recordId": "mem-activity-1780126019080-24",
+            "memoryType": "activity"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126019080-33",
+          "type": "execution_completed",
+          "timestamp": "2026-05-30T07:26:59.080Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Task completed",
+          "payload": {
+            "lifecycleEventKind": "session_completed",
+            "state": "completed"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126019080-34",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:59.080Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (execution)",
+          "payload": {
+            "recordId": "mem-execution-1780126019080-25",
+            "memoryType": "execution"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126019081-35",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:59.081Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (summary)",
+          "payload": {
+            "recordId": "mem-summary-1780126019081-26",
+            "memoryType": "summary"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126019081-36",
+          "type": "memory_saved",
+          "timestamp": "2026-05-30T07:26:59.081Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Memory record saved (conversation)",
+          "payload": {
+            "recordId": "mem-conversation-1780126019081-27",
+            "memoryType": "conversation"
+          }
+        },
+        {
+          "eventId": "transport-msg-1780126019081-37",
+          "type": "conversation_updated",
+          "timestamp": "2026-05-30T07:26:59.081Z",
+          "streamSessionId": "stream-task-1780126004255",
+          "sessionId": "exec-session-task-1780126004255",
+          "taskId": "task-1780126004255",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "message": "Conversation turn 2 (assistant)",
+          "payload": {
+            "recordId": "mem-conversation-1780126019081-27",
+            "role": "assistant",
+            "turnIndex": 2,
+            "message": "Memory summary for user user-api-stub. Records: 27; tasks: 1. Last message (user): Jarvis open YouTube and search AI news Last execution state: completed. Current task: task-1780126004255."
+          }
+        }
+      ]
+    },
+    "executionTimeline": {
+      "timelineId": "stream-task-1780126004255",
+      "events": [
+        {
+          "id": "transport-msg-1780126004276-5",
+          "kind": "planning_started",
+          "label": "Planning started",
+          "message": "Hermes planning phase",
+          "timestamp": "2026-05-30T07:26:44.276Z",
+          "status": "complete",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "transport-msg-1780126004284-8",
+          "kind": "planning_started",
+          "label": "Planning started",
+          "message": "Hermes planning started",
+          "timestamp": "2026-05-30T07:26:44.284Z",
+          "status": "complete",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "transport-msg-1780126004286-15",
+          "kind": "planning_completed",
+          "label": "Planning completed",
+          "message": "Hermes planning completed",
+          "timestamp": "2026-05-30T07:26:44.286Z",
+          "status": "complete",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "transport-msg-1780126004286-17",
+          "kind": "execution_started",
+          "label": "Execution started",
+          "message": "OpenClaw execution phase",
+          "timestamp": "2026-05-30T07:26:44.286Z",
+          "status": "complete",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "adaptive-evaluation_started-2",
+          "kind": "action_progress",
+          "label": "Action progress",
+          "message": "Jarvis open YouTube and search AI news — stub-plan",
+          "timestamp": "2026-05-30T07:26:44.287Z",
+          "status": "active",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "adaptive-evaluation_started-6",
+          "kind": "action_progress",
+          "label": "Action progress",
+          "message": "Jarvis open YouTube and search AI news — stub-review",
+          "timestamp": "2026-05-30T07:26:49.194Z",
+          "status": "active",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "adaptive-evaluation_started-10",
+          "kind": "action_progress",
+          "label": "Action progress",
+          "message": "Jarvis open YouTube and search AI news — stub-execute-via-skills",
+          "timestamp": "2026-05-30T07:26:54.088Z",
+          "status": "active",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "transport-msg-1780126018820-26",
+          "kind": "execution_started",
+          "label": "Execution started",
+          "message": "OpenClaw execution started",
+          "timestamp": "2026-05-30T07:26:58.820Z",
+          "status": "complete",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "transport-msg-1780126018821-31",
+          "kind": "completed",
+          "label": "Completed",
+          "message": "OpenClaw execution completed",
+          "timestamp": "2026-05-30T07:26:58.821Z",
+          "status": "complete",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "transport-msg-1780126019080-33",
+          "kind": "completed",
+          "label": "Completed",
+          "message": "Task completed",
+          "timestamp": "2026-05-30T07:26:59.080Z",
+          "status": "complete",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        },
+        {
+          "id": "timeline-manual-completed-1",
+          "kind": "completed",
+          "label": "Completed",
+          "message": "Task completed",
+          "timestamp": "2026-05-30T07:26:59.082Z",
+          "status": "complete",
+          "timelineId": "stream-task-1780126004255",
+          "taskId": "task-1780126004255"
+        }
+      ]
+    },
+    "streamEvents": [
+      {
+        "type": "execution_started",
+        "message": "Task execution stream opened",
+        "timestamp": "2026-05-30T07:26:44.256Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (conversation)",
+        "timestamp": "2026-05-30T07:26:44.257Z"
+      },
+      {
+        "type": "conversation_updated",
+        "message": "Conversation turn 1 (user)",
+        "timestamp": "2026-05-30T07:26:44.257Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.276Z"
+      },
+      {
+        "type": "planning_started",
+        "message": "Hermes planning phase",
+        "timestamp": "2026-05-30T07:26:44.276Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.281Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.282Z"
+      },
+      {
+        "type": "planning_started",
+        "message": "Hermes planning started",
+        "timestamp": "2026-05-30T07:26:44.284Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.285Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.285Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.285Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.285Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.286Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.286Z"
+      },
+      {
+        "type": "planning_completed",
+        "message": "Hermes planning completed",
+        "timestamp": "2026-05-30T07:26:44.286Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.286Z"
+      },
+      {
+        "type": "execution_started",
+        "message": "OpenClaw execution phase",
+        "timestamp": "2026-05-30T07:26:44.286Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.287Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:44.287Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:49.194Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:49.194Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:54.087Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:54.088Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:58.820Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:58.820Z"
+      },
+      {
+        "type": "execution_started",
+        "message": "OpenClaw execution started",
+        "timestamp": "2026-05-30T07:26:58.820Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:58.820Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:58.820Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:58.821Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:58.821Z"
+      },
+      {
+        "type": "execution_completed",
+        "message": "OpenClaw execution completed",
+        "timestamp": "2026-05-30T07:26:58.821Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (activity)",
+        "timestamp": "2026-05-30T07:26:59.080Z"
+      },
+      {
+        "type": "execution_completed",
+        "message": "Task completed",
+        "timestamp": "2026-05-30T07:26:59.080Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (execution)",
+        "timestamp": "2026-05-30T07:26:59.080Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (summary)",
+        "timestamp": "2026-05-30T07:26:59.081Z"
+      },
+      {
+        "type": "memory_saved",
+        "message": "Memory record saved (conversation)",
+        "timestamp": "2026-05-30T07:26:59.081Z"
+      },
+      {
+        "type": "conversation_updated",
+        "message": "Conversation turn 2 (assistant)",
+        "timestamp": "2026-05-30T07:26:59.081Z"
+      }
+    ],
+    "context": {
+      "contextId": "ctx-1780126004259-1-ranked-1",
+      "source": "conversation-history",
+      "turnCount": 1,
+      "summary": "1 relevant turn(s). Recent: user: Jarvis open YouTube and search AI news"
+    },
+    "memoryRecall": {
+      "count": 1,
+      "source": "conversation-history",
+      "message": "Remembered context",
+      "snippets": [
+        "Jarvis open YouTube and search AI news"
+      ],
+      "averageScore": 15.999999957213138
+    },
+    "executionRuntime": {
+      "workflow": {
+        "workflowId": "wf-auto-1780126004267",
+        "stepCount": 2,
+        "progress": [
+          {
+            "stepId": "step-browser-open",
+            "stepIndex": 0,
+            "totalSteps": 2,
+            "message": "Completed open-page",
+            "completed": true
+          },
+          {
+            "stepId": "step-browser-extract",
+            "stepIndex": 1,
+            "totalSteps": 2,
+            "message": "Completed extract-content",
+            "completed": true
+          }
+        ]
+      },
+      "browserState": {
+        "sessionId": "browser-exec-1",
+        "url": "https://www.youtube.com",
+        "active": true,
+        "stub": false,
+        "stepIndex": 3,
+        "totalSteps": 3
+      },
+      "permissionRequired": false
+    },
+    "stability": {
+      "mode": "stub",
+      "message": "Running in safe mode",
+      "degraded": true
+    }
+  }
+}

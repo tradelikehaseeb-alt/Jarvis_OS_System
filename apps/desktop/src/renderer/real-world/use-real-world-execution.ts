@@ -54,19 +54,22 @@ export function useRealWorldExecution(
   const loading = options.loading ?? false;
   const failed = Boolean(options.taskError);
 
-  let statusLabel = "Ready";
+  let statusLabel = llmProvider?.stub === true ? "STUB MODE" : "REAL MODE";
   if (loading) {
-    statusLabel = /\b(open|browse|gmail|youtube)\b/i.test(options.lastCommand ?? "")
-      ? "Performing task…"
-      : /\b(summarize|gold|market|news)\b/i.test(options.lastCommand ?? "")
-        ? "Researching…"
-        : "Working…";
+    statusLabel = `${llmProvider?.stub === true ? "STUB MODE" : "REAL MODE"} · ${
+      /\b(open|browse|gmail|youtube)\b/i.test(options.lastCommand ?? "")
+        ? "Performing task…"
+        : /\b(summarize|gold|market|news)\b/i.test(options.lastCommand ?? "")
+          ? "Researching…"
+          : "Working…"
+    }`;
   } else if (failed) {
-    statusLabel = "Something went wrong — retrying…";
+    statusLabel = "STUB MODE · Something went wrong";
   } else if (stability?.degraded) {
     statusLabel = "Recovering connection…";
   } else if (isRealWorldCommand) {
-    statusLabel = "Completed.";
+    statusLabel =
+      llmProvider?.stub === true ? "STUB MODE · Completed (simulated)" : "REAL MODE · Completed";
   }
 
   return {

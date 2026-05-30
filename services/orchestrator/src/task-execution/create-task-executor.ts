@@ -219,6 +219,16 @@ function intentRequiresExecutionHandshake(intent: TaskIntent): boolean {
   return intent.kind === "automate";
 }
 
+function readAgentPayloadRecord(
+  payload: Readonly<Record<string, unknown>> | undefined,
+  key: string,
+): Readonly<Record<string, unknown>> | undefined {
+  const value = payload?.[key];
+  return value !== null && typeof value === "object"
+    ? (value as Readonly<Record<string, unknown>>)
+    : undefined;
+}
+
 async function executeAgent(
   registry: AgentRegistryContract,
   agentId: string,
@@ -1031,7 +1041,9 @@ export async function executeCreateTask(
             model: llmProviderResponse.model,
             validated: llmProviderValidation?.valid ?? false,
             streamed: llmProviderResponse.streamed,
+            latencyMs: llmProviderResponse.latencyMs,
             contentPreview: llmProviderResponse.content.slice(0, 240),
+            error: llmProviderResponse.error,
           },
         }
       : {}),
@@ -1089,9 +1101,9 @@ export async function executeCreateTask(
             },
             browserState:
               agentResult.payload?.browserState ??
-              agentResult.payload?.browserRuntime?.browserState,
+              readAgentPayloadRecord(agentResult.payload, "browserRuntime")?.browserState,
             permissionRequired: Boolean(
-              agentResult.payload?.browserRuntime?.permissionRequired,
+              readAgentPayloadRecord(agentResult.payload, "browserRuntime")?.permissionRequired,
             ),
           },
         }

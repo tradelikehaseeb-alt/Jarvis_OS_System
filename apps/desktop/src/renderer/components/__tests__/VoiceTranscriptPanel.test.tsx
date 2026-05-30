@@ -8,7 +8,7 @@ describe("VoiceTranscriptPanel", () => {
     render(
       <VoiceTranscriptPanel status="listening" transcript="" visible />,
     );
-    expect(screen.getByText(/Listening for speech/)).toBeInTheDocument();
+    expect(screen.getByText(/Listening/)).toBeInTheDocument();
   });
 
   it("shows transcript text when completed", () => {

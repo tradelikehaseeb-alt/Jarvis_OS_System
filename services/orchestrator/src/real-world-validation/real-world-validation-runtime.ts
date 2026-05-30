@@ -12,6 +12,7 @@ import {
 
 import {
   createDefaultProviderFailoverValidator,
+  type ProviderFailoverReport,
   type ProviderFailoverValidator,
 } from "./provider-failover-validator";
 import {
@@ -38,7 +39,7 @@ export interface RealWorldCommandValidation {
 
 export interface RealWorldValidationReport {
   readonly commandValidations: readonly RealWorldCommandValidation[];
-  readonly providerFailover: ReturnType<ProviderFailoverValidator["validate"]>;
+  readonly providerFailover: ProviderFailoverReport;
   readonly longSession: ReturnType<LongSessionStabilityValidator["evaluate"]>;
   readonly voiceQuality: ReturnType<VoiceInterruptionValidator["validate"]>;
   readonly allPassed: boolean;

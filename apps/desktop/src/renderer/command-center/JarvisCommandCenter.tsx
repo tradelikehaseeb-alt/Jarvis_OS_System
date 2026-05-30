@@ -27,7 +27,7 @@ import { DemoExecutionFlow, useDemoInteraction } from "../demo";
 import { WorkforceActivityPanel, useWorkforceActivity } from "../workforce";
 import { ProductivityDashboard, useProductivitySession } from "../productivity";
 import { ContinuousPresencePanel, useContinuousPresence } from "../continuous";
-import { RealWorldExecutionIndicator, useRealWorldExecution } from "../real-world";
+import { RealWorldExecutionIndicator, useRealWorldExecution, ExecutionRealityBar, useExecutionReality } from "../real-world";
 
 /**
  * Futuristic Jarvis command center — voice-native primary surface (Phase 89 / 90).
@@ -98,6 +98,14 @@ export function JarvisCommandCenter() {
     taskError: taskError ?? undefined,
   });
 
+  const executionReality = useExecutionReality({
+    taskOutput: statusResult?.output,
+    voiceSettings,
+    sttLatencyMs: voiceSession.sttLatencyMs,
+    sttStub: !voiceSettings.useRealMicrophone,
+    sttProviderId: voiceSettings.sttProviderId,
+  });
+
   const voiceNative = voiceSettings.voiceNativeUi;
 
   const voiceComposerActions = useMemo(
@@ -140,6 +148,12 @@ export function JarvisCommandCenter() {
         <header
           className={`command-center-header${voiceNative ? " command-center-header--voice-native" : ""}`}
         >
+          <ExecutionRealityBar
+            llm={executionReality.llm}
+            browser={executionReality.browser}
+            voice={executionReality.voice}
+            summaryLabel={executionReality.summaryLabel}
+          />
           {voiceNative ? (
             <LiveSpeechOrb
               state={voiceSession.sessionState}

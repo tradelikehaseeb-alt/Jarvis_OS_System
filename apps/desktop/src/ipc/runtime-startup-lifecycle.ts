@@ -12,6 +12,7 @@ import {
   getEmbeddedApiHealth,
   getRuntimeProcessManager,
   initializeRuntimeProcesses,
+  DEFAULT_EMBEDDED_API_PORT,
 } from "./api-runtime-lifecycle";
 
 export interface RuntimeStartupResponse {
@@ -31,7 +32,7 @@ async function checkApiRuntimeHealth(): Promise<boolean> {
   const baseUrl =
     getEmbeddedApiBaseUrl() ??
     process.env.JARVIS_API_URL ??
-    "http://127.0.0.1:8000";
+    `http://127.0.0.1:${DEFAULT_EMBEDDED_API_PORT}`;
 
   try {
     const response = await fetch(`${baseUrl}/health`);
@@ -87,7 +88,7 @@ function buildResponse(
     apiBaseUrl:
       getEmbeddedApiBaseUrl() ??
       process.env.JARVIS_API_URL ??
-      "http://127.0.0.1:8000",
+      `http://127.0.0.1:${DEFAULT_EMBEDDED_API_PORT}`,
   };
 }
 

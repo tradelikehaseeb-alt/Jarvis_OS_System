@@ -2,12 +2,32 @@ import type {
   LocalMemoryQuery,
   LocalMemoryRecord,
   LocalMemoryRuntime,
+  LocalMemoryType,
 } from "@jarvis/local-memory";
 import { LOCAL_MEMORY_SCHEMA_VERSION } from "@jarvis/local-memory";
 
 import type { MemoryQuery } from "./memory-query";
 import type { MemoryRecord } from "./memory-record";
 import type { MemoryStore } from "./memory-store";
+import type { MemoryType } from "./memory-type";
+
+function toMemoryType(type: LocalMemoryType): MemoryType {
+  switch (type) {
+    case "conversation":
+    case "execution":
+    case "activity":
+    case "summary":
+      return type;
+    case "session-profile":
+      return "summary";
+    case "workforce-session":
+    case "productivity-session":
+    case "continuous-session":
+      return "activity";
+    default:
+      return "activity";
+  }
+}
 
 function memoryToLocal(record: MemoryRecord): LocalMemoryRecord {
   return {
@@ -17,8 +37,11 @@ function memoryToLocal(record: MemoryRecord): LocalMemoryRecord {
 }
 
 function localToMemory(record: LocalMemoryRecord): MemoryRecord {
-  const { schemaVersion: _schemaVersion, ...memory } = record;
-  return memory;
+  const { schemaVersion: _schemaVersion, type, ...memory } = record;
+  return {
+    ...memory,
+    type: toMemoryType(type),
+  };
 }
 
 function toLocalQuery(query: MemoryQuery): LocalMemoryQuery {

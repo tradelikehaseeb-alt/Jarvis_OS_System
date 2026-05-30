@@ -27,6 +27,11 @@ function extractExplicitUrl(description: string): string | undefined {
   return undefined;
 }
 
+function extractSearchQuery(description: string): string | undefined {
+  const match = description.match(/\bsearch(?:\s+for)?\s+(.+)/i);
+  return match?.[1]?.trim();
+}
+
 function resolveHintUrl(description: string): string | undefined {
   const lower = description.toLowerCase();
   for (const [hint, url] of Object.entries(URL_HINTS)) {
@@ -80,7 +85,18 @@ export function parseBrowserIntent(description: string): {
     });
   }
 
-  if (lower.includes("type") || lower.includes("fill") || lower.includes("enter")) {
+  const searchQuery = extractSearchQuery(description);
+  if (searchQuery) {
+    workflowSteps.push({
+      action: "type-text",
+      selector: "input[name=search_query], input#search, input[type=search], input[name=q]",
+      text: searchQuery,
+    });
+    workflowSteps.push({
+      action: "click-element",
+      selector: "button#search-icon-legacy, button[aria-label='Search'], input[type=submit]",
+    });
+  } else if (lower.includes("type") || lower.includes("fill") || lower.includes("enter")) {
     workflowSteps.push({
       action: "type-text",
       selector: "input",

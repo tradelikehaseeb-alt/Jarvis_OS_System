@@ -6,6 +6,7 @@ import path from "node:path";
 
 import { app, BrowserWindow } from "electron";
 
+import { loadJarvisEnv } from "./load-env";
 import { registerApiHandlers, initializeApiRuntime } from "./ipc/api-handlers";
 import {
   isApiRuntimeInitialized,
@@ -41,6 +42,10 @@ function createWindow(): void {
 }
 
 void app.whenReady().then(async () => {
+  const envPath = loadJarvisEnv(path.join(__dirname, "../.."));
+  if (envPath) {
+    console.info("[jarvis] loaded env:", envPath);
+  }
   if (!isApiRuntimeInitialized()) {
     await initializeApiRuntime();
     markApiRuntimeInitialized();

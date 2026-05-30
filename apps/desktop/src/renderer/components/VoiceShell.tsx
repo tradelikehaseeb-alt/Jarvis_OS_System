@@ -41,6 +41,8 @@ export function VoiceShell({
           normalization={voice.normalization}
           metadata={voice.metadata}
           error={voice.error}
+          sttStub={!settings.useRealMicrophone}
+          sttProviderId={settings.sttProviderId ?? "auto"}
         />
       ) : null}
 

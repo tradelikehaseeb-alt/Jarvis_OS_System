@@ -30,7 +30,7 @@ export const BrowserStateIndicator = memo(function BrowserStateIndicator({
     >
       <span className="browser-state-indicator__dot" aria-hidden />
       <span className="browser-state-indicator__label">
-        {browserState.stub ? "Simulated browser" : "Browser active"}
+        {browserState.stub ? "SIMULATED MODE" : "Browser active"}
         {stepLabel}
       </span>
       <span className="browser-state-indicator__url">{browserState.url}</span>

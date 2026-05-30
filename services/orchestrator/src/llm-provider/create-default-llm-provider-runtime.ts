@@ -17,6 +17,10 @@ import { createDefaultProviderValidationRuntime } from "./connectors";
 import { StubLlmProvider } from "./providers/stub-llm-provider";
 import type { LlmStreamSubscriber } from "./llm-stream-subscriber";
 
+function allowLlmStubFallback(): boolean {
+  return process.env.JARVIS_ALLOW_LLM_STUB_FALLBACK !== "false";
+}
+
 export interface CreateDefaultLlmProviderRuntimeOptions {
   readonly providers?: readonly LlmProvider[];
   readonly providerRuntime?: ProviderRuntime;
@@ -42,7 +46,12 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
       providerId: provider.providerId,
     });
 
-    if (!response.success && !response.stub && provider.providerId !== this.fallbackProviderId) {
+    if (
+      allowLlmStubFallback() &&
+      !response.success &&
+      !response.stub &&
+      provider.providerId !== this.fallbackProviderId
+    ) {
       const fallback = this.providers.get(this.fallbackProviderId);
       if (fallback) {
         return fallback.executePrompt({
@@ -87,7 +96,12 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
       subscriber,
     );
 
-    if (!response.success && !response.stub && provider.providerId !== this.fallbackProviderId) {
+    if (
+      allowLlmStubFallback() &&
+      !response.success &&
+      !response.stub &&
+      provider.providerId !== this.fallbackProviderId
+    ) {
       const fallback = this.providers.get(this.fallbackProviderId);
       if (fallback) {
         return fallback.streamResponse(

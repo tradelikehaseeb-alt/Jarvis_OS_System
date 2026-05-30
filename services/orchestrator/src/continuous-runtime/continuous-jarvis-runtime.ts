@@ -159,7 +159,7 @@ export class ContinuousJarvisRuntime {
     this.backgroundSupervisor.cancel();
   }
 
-  listActiveSessions(): readonly ReturnType<PersistentSessionManager["listActive"]> {
+  listActiveSessions(): ReturnType<PersistentSessionManager["listActive"]> {
     return this.sessionManager.listActive();
   }
 

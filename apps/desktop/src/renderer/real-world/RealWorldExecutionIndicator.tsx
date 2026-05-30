@@ -45,7 +45,9 @@ export const RealWorldExecutionIndicator = memo(function RealWorldExecutionIndic
             aria-hidden
           />
           {loading ? <span className="spinner spinner--subtle" aria-hidden /> : null}
-          <span className="real-world-execution-indicator__label">{statusLabel}</span>
+          <span className="real-world-execution-indicator__label">
+            {providerOnline ? "REAL MODE" : "STUB MODE"} · {statusLabel}
+          </span>
         </motion.div>
       ) : null}
     </AnimatePresence>

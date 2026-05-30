@@ -1,3 +1,5 @@
+import { createRequire } from "node:module";
+
 import type { BrowserActionPipeline } from "../browser-runtime/browser-action-pipeline";
 import type { BrowserActionRequest } from "../browser-runtime/browser-action-request";
 import type {
@@ -212,19 +214,17 @@ export function createPlaywrightBrowserActionPipeline(
   return new PlaywrightBrowserActionPipeline(options);
 }
 
-async function loadPlaywrightModule(): Promise<{
+function loadPlaywrightModule(): {
   chromium: { launch: (options: { headless: boolean }) => Promise<{
     newPage: () => Promise<PlaywrightPageLike>;
   }> };
-}> {
-  const loader = new Function("specifier", "return import(specifier)") as (
-    specifier: string,
-  ) => Promise<{
+} {
+  const require = createRequire(import.meta.url);
+  return require("playwright") as {
     chromium: { launch: (options: { headless: boolean }) => Promise<{
       newPage: () => Promise<PlaywrightPageLike>;
     }> };
-  }>;
-  return loader("playwright");
+  };
 }
 
 /**
@@ -232,8 +232,9 @@ async function loadPlaywrightModule(): Promise<{
  */
 export async function tryLaunchPlaywrightPage(): Promise<PlaywrightPageLike | null> {
   try {
-    const playwright = await loadPlaywrightModule();
-    const browser = await playwright.chromium.launch({ headless: true });
+    const playwright = loadPlaywrightModule();
+    const headless = process.env.JARVIS_BROWSER_HEADLESS !== "false";
+    const browser = await playwright.chromium.launch({ headless });
     const page = await browser.newPage();
     const pageLike: PlaywrightPageLike = {
       goto: (url, options) => page.goto(url, options),

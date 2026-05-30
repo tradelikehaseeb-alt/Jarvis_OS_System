@@ -73,6 +73,10 @@ export async function executeOpenAiCompatiblePrompt(
   if (!key && configuration.kind !== "ollama") {
     return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
       model,
+      error: {
+        code: "PROVIDER_KEY_MISSING",
+        message: `${configuration.label} API key not configured — STUB MODE active`,
+      },
     });
   }
 
@@ -142,6 +146,10 @@ export async function streamOpenAiCompatibleResponse(
     const stub = createStubLlmResponse(request, configuration.kind, configuration.providerId, {
       model,
       streamed: true,
+      error: {
+        code: "PROVIDER_KEY_MISSING",
+        message: `${configuration.label} API key not configured — STUB MODE active`,
+      },
     });
     if (stub.content.length > 0) {
       subscriber.onChunk(stub.content);

@@ -24,6 +24,7 @@ import {
   createPlaywrightBrowserActionPipeline,
   tryLaunchPlaywrightPage,
 } from "./create-playwright-browser-action-pipeline";
+import { isRealBrowserExecutionEnabled } from "./browser-real-mode";
 
 export interface BrowserStateSnapshot {
   readonly sessionId: string;
@@ -55,28 +56,50 @@ function nowIso(): string {
 
 function toActionRequests(request: BrowserExecutionRequest): BrowserActionRequest[] {
   if (request.workflowSteps && request.workflowSteps.length > 0) {
-    return request.workflowSteps
-      .map((step) => {
-        const action = resolveBrowserAction(step.action);
-        if (!action) {
-          return undefined;
-        }
-        return {
-          action,
-          taskId: request.taskId,
-          requestId: request.requestId,
-          url: step.url ?? request.url,
-          selector: step.selector,
-          text: step.text,
-          handleId: request.handleId,
-          stub: request.stub,
-        };
-      })
-      .filter((entry): entry is BrowserActionRequest => entry !== undefined);
+    const actions: BrowserActionRequest[] = [];
+    for (const step of request.workflowSteps) {
+      const action = resolveBrowserAction(step.action);
+      if (!action) {
+        continue;
+      }
+      actions.push({
+        action,
+        taskId: request.taskId,
+        requestId: request.requestId,
+        url: step.url ?? request.url,
+        selector: step.selector,
+        text: step.text,
+        handleId: request.handleId,
+        stub: request.stub,
+      });
+    }
+    return actions;
   }
 
   const single = mapBrowserExecutionToActionRequest(request);
   return single ? [single] : [];
+}
+
+function createRuntimePermissionManager(): ExecutionPermissionManager {
+  if (!isRealBrowserExecutionEnabled()) {
+    return createDefaultExecutionPermissionManager();
+  }
+
+  return createDefaultExecutionPermissionManager({
+    allowedDomains: [
+      "mail.google.com",
+      "gmail.com",
+      "google.com",
+      "youtube.com",
+      "www.youtube.com",
+      "tradingview.com",
+      "github.com",
+      "localhost",
+      "127.0.0.1",
+      "stub.local",
+    ],
+    autoApproveSafe: true,
+  });
 }
 
 /**
@@ -91,9 +114,9 @@ export class BrowserExecutionRuntime {
   private sessionCounter = 0;
 
   constructor(options: BrowserExecutionRuntimeOptions = {}) {
-    this.stub = options.stub ?? true;
+    this.stub = options.stub ?? !isRealBrowserExecutionEnabled(process.env);
     this.permissionManager =
-      options.permissionManager ?? createDefaultExecutionPermissionManager();
+      options.permissionManager ?? createRuntimePermissionManager();
     this.sessionPersistence =
       options.sessionPersistence ?? createDefaultBrowserSessionPersistence();
     this.safetyRuntime =
@@ -129,12 +152,12 @@ export class BrowserExecutionRuntime {
 
     const reusable = this.sessionPersistence.findReusable(request.url, stub);
     const sessionId = reusable?.sessionId ?? `browser-exec-${++this.sessionCounter}`;
-    const pipeline =
-      this.injectedPipeline ??
-      (await this.resolvePipeline(stub, sessionId));
+    const { pipeline, pipelineStub } =
+      await this.resolvePipeline(stub, sessionId);
+    const effectiveStub = stub || pipelineStub;
 
     const session = createBrowserRuntimeSession({
-      stub,
+      stub: effectiveStub,
       sessionId,
       actionPipeline: pipeline,
     });
@@ -162,7 +185,7 @@ export class BrowserExecutionRuntime {
           executedAt: nowIso(),
           screenshotRef: null,
           workflowProgress: progress,
-          browserState: this.buildBrowserState(sessionId, request.url, stub, index, actions.length),
+          browserState: this.buildBrowserState(sessionId, request.url, effectiveStub, index, actions.length),
         };
       }
 
@@ -213,7 +236,7 @@ export class BrowserExecutionRuntime {
           : "Browser task completed",
       executedAt,
       screenshotRef: null,
-      browserState: this.buildBrowserState(sessionId, request.url, stub, actions.length, actions.length),
+      browserState: this.buildBrowserState(sessionId, request.url, effectiveStub, actions.length, actions.length),
       workflowProgress: progress,
       permissionRequired: permission.requiresConfirmation,
     };
@@ -253,20 +276,33 @@ export class BrowserExecutionRuntime {
   private async resolvePipeline(
     stub: boolean,
     sessionId: string,
-  ): Promise<BrowserActionPipeline> {
+  ): Promise<{ pipeline: BrowserActionPipeline; pipelineStub: boolean }> {
+    if (this.injectedPipeline) {
+      return { pipeline: this.injectedPipeline, pipelineStub: stub };
+    }
+
     if (stub) {
-      return createDefaultBrowserActionPipeline({ stub: true });
+      return {
+        pipeline: createDefaultBrowserActionPipeline({ stub: true }),
+        pipelineStub: true,
+      };
     }
 
     const page = await tryLaunchPlaywrightPage();
     if (page) {
-      return createPlaywrightBrowserActionPipeline({ page });
+      return {
+        pipeline: createPlaywrightBrowserActionPipeline({ page }),
+        pipelineStub: false,
+      };
     }
 
-    return createDefaultBrowserActionPipeline({
-      stub: true,
-      contextRuntime: undefined,
-    });
+    return {
+      pipeline: createDefaultBrowserActionPipeline({
+        stub: true,
+        contextRuntime: undefined,
+      }),
+      pipelineStub: true,
+    };
   }
 }
 

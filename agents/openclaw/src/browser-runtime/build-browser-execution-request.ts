@@ -1,6 +1,6 @@
-import { readOpenClawRuntimeEnv } from "../../adapter/official/src/openclaw-runtime-env";
 import type { OpenClawGatewayRequest } from "../gateway/openclaw-gateway-request";
 import { parseBrowserIntent } from "../execution-runtime/parse-browser-intent";
+import { isRealBrowserExecutionEnabled } from "../execution-runtime/browser-real-mode";
 
 import type { BrowserExecutionRequest } from "./browser-execution-request";
 
@@ -11,7 +11,7 @@ export function buildBrowserExecutionRequest(
   request: OpenClawGatewayRequest,
   handleId?: string,
 ): BrowserExecutionRequest {
-  const stub = readOpenClawRuntimeEnv(process.env).mode === "stub";
+  const stub = !isRealBrowserExecutionEnabled(process.env);
   const parsed = parseBrowserIntent(request.intent.description);
 
   return {

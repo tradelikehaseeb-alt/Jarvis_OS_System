@@ -63,7 +63,9 @@ describe("ProviderValidationRuntime", () => {
     });
 
     expect(response.stub).toBe(true);
-    expect(response.content).toContain("Plan my workflow");
+    expect(response.success).toBe(false);
+    expect(response.error?.code).toBe("PROVIDER_KEY_MISSING");
+    expect(response.content).toBe("");
   });
 
   it("streamResponse emits chunks through provider runtime", async () => {

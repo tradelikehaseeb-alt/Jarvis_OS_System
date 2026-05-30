@@ -1,10 +1,11 @@
 import type { RuntimeRecoveryHandler } from "../runtime-startup/runtime-recovery-handler";
 import type { RuntimeRecoveryContext, RuntimeRecoveryResult } from "../runtime-startup/runtime-recovery-handler";
 import type { RuntimeStartupManager } from "../runtime-startup/runtime-startup-manager";
+import type { RuntimeStartupState } from "../runtime-startup/runtime-startup-state";
 
 export interface RuntimeRecoveryPlan {
   readonly processRecovery?: RuntimeRecoveryResult;
-  readonly startupPhase?: string;
+  readonly startupPhase?: RuntimeStartupState;
   readonly message: string;
   readonly recovered: boolean;
 }
@@ -52,7 +53,7 @@ export class RuntimeRecoveryManager {
       return {
         startupPhase: phase,
         message: "Runtime recovery completed",
-        recovered: phase === "ready" || phase === "degraded",
+        recovered: phase.phase === "ready" || phase.phase === "degraded",
       };
     } finally {
       this.recovering = false;

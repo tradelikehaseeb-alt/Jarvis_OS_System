@@ -9,6 +9,9 @@ export interface VoiceTranscriptPanelProps {
   readonly metadata?: SpeechMetadataView | null;
   readonly error?: string | null;
   readonly visible?: boolean;
+  /** When true, STT uses stub path — UI must say so (Phase 100A). */
+  readonly sttStub?: boolean;
+  readonly sttProviderId?: string;
 }
 
 /**
@@ -21,6 +24,8 @@ export function VoiceTranscriptPanel({
   metadata,
   error,
   visible = true,
+  sttStub = true,
+  sttProviderId = "speech-stub",
 }: VoiceTranscriptPanelProps) {
   if (!visible) {
     return null;
@@ -41,7 +46,9 @@ export function VoiceTranscriptPanel({
     >
       <header className="voice-transcript-header">
         <span>Transcript</span>
-        <span className="voice-transcript-mode">Mock STT</span>
+        <span className="voice-transcript-mode">
+          {sttStub ? "STUB MODE" : "REAL MODE"} · {sttProviderId}
+        </span>
       </header>
 
       {error ? (
@@ -53,7 +60,7 @@ export function VoiceTranscriptPanel({
       {status === "listening" ? (
         <p className="voice-transcript-placeholder">
           <span className="voice-wave" aria-hidden />
-          Listening for speech (simulated)…
+          {sttStub ? "Listening (stub STT)…" : "Listening…"}
         </p>
       ) : null}
 

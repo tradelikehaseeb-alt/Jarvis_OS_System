@@ -3,6 +3,7 @@ import {
   createDefaultJarvisApiServer,
   type JarvisApiServer,
 } from "@jarvis/api-runtime";
+import { createDefaultOrchestratorService } from "@jarvis/orchestrator";
 import {
   createDefaultRuntimeProcessManager,
   DEFAULT_RUNTIME_PROCESS_IDS,
@@ -52,14 +53,18 @@ async function startEmbeddedApiRuntimeInternal(): Promise<string> {
   }
 
   if (!useEmbeddedRuntime()) {
-    embeddedBaseUrl = process.env.JARVIS_API_URL ?? "http://127.0.0.1:8000";
+    embeddedBaseUrl =
+      process.env.JARVIS_API_URL ??
+      `http://127.0.0.1:${DEFAULT_EMBEDDED_API_PORT}`;
     return embeddedBaseUrl;
   }
 
   const port = Number(process.env.JARVIS_API_RUNTIME_PORT ?? DEFAULT_EMBEDDED_API_PORT);
-  embeddedServer = await createDefaultJarvisApiServer({ port });
+  const orchestrator = await createDefaultOrchestratorService();
+  embeddedServer = await createDefaultJarvisApiServer({ port, orchestrator });
   const started = await embeddedServer.start();
   embeddedBaseUrl = started.url;
+  console.info("[jarvis] embedded API listening at", embeddedBaseUrl);
   return embeddedBaseUrl;
 }
 
@@ -111,7 +116,7 @@ export async function initializeRuntimeProcesses(): Promise<string> {
   await manager.startProcess("orchestrator");
   await manager.startProcess("hermes-runtime");
   await manager.startProcess("openclaw-runtime");
-  return getEmbeddedApiBaseUrl() ?? process.env.JARVIS_API_URL ?? "http://127.0.0.1:8000";
+  return getEmbeddedApiBaseUrl() ?? process.env.JARVIS_API_URL ?? `http://127.0.0.1:${DEFAULT_EMBEDDED_API_PORT}`;
 }
 
 export function getRuntimeProcessManager(): RuntimeProcessManager {

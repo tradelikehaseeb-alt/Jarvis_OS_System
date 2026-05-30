@@ -9,8 +9,10 @@ import type { ApiHealth } from "@jarvis/api-runtime";
 
 import {
   buildRuntimeHealthSnapshot,
+  DEFAULT_EMBEDDED_API_PORT,
   getEmbeddedApiBaseUrl,
   getEmbeddedApiHealth,
+  startEmbeddedApiRuntime,
 } from "./api-runtime-lifecycle";
 import {
   getDesktopStartupStatus,
@@ -63,7 +65,17 @@ function sleep(ms: number): Promise<void> {
 }
 
 export function getApiBaseUrl(): string {
-  return getEmbeddedApiBaseUrl() ?? process.env.JARVIS_API_URL ?? LEGACY_API_GATEWAY_URL;
+  const embedded = getEmbeddedApiBaseUrl();
+  if (embedded) {
+    return embedded;
+  }
+  if (process.env.JARVIS_API_URL) {
+    return process.env.JARVIS_API_URL;
+  }
+  if (process.env.JARVIS_USE_LEGACY_API_GATEWAY === "true") {
+    return LEGACY_API_GATEWAY_URL;
+  }
+  return `http://127.0.0.1:${DEFAULT_EMBEDDED_API_PORT}`;
 }
 
 function parseErrorBody(text: string, status: number): JarvisApiTransportError {
@@ -225,6 +237,8 @@ export function registerApiHandlers(): void {
 }
 
 export async function initializeApiRuntime(): Promise<string> {
-  const result = await initializeDesktopRuntime();
-  return result.apiBaseUrl ?? getApiBaseUrl();
+  const embeddedUrl = await startEmbeddedApiRuntime();
+  console.info("[jarvis] api runtime initialized:", embeddedUrl);
+  await initializeDesktopRuntime();
+  return getEmbeddedApiBaseUrl() ?? embeddedUrl;
 }

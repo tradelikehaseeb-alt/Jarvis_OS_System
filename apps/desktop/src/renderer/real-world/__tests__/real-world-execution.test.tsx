@@ -15,7 +15,7 @@ describe("useRealWorldExecution", () => {
     );
 
     expect(result.current.isRealWorldCommand).toBe(true);
-    expect(result.current.statusLabel).toBe("Performing task…");
+    expect(result.current.statusLabel).toContain("Performing task");
   });
 });
 
@@ -31,7 +31,7 @@ describe("RealWorldExecutionIndicator", () => {
     );
 
     expect(screen.getByTestId("real-world-execution-indicator")).toBeTruthy();
-    expect(screen.getByText("Researching…")).toBeTruthy();
+    expect(screen.getByText(/Researching/)).toBeTruthy();
     expect(screen.queryByText(/Hermes/i)).toBeNull();
     expect(screen.queryByText(/OpenClaw/i)).toBeNull();
   });

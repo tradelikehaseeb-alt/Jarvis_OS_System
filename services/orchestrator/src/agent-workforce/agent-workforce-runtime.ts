@@ -157,7 +157,7 @@ export class AgentWorkforceRuntime {
     this.supervisor.cancel();
   }
 
-  listActiveSessions(): readonly ReturnType<PersistentAgentSession["listActive"]> {
+  listActiveSessions(): ReturnType<PersistentAgentSession["listActive"]> {
     return this.sessionStore.listActive();
   }
 }

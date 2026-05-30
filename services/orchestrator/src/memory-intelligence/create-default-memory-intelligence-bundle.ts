@@ -31,6 +31,7 @@ export interface MemoryIntelligenceBundle {
 export interface MemoryIntelligenceBundleOptions extends DefaultContextRuntimeOptions {
   readonly localMemoryRuntime?: LocalMemoryRuntime;
   readonly conversationHistory?: ConversationHistoryRuntime;
+  readonly filePath?: string;
   readonly minRecallScore?: number;
   readonly maxMemories?: number;
 }

@@ -28,6 +28,13 @@ import {
 } from "./execution-runtime";
 import { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
 
+function readSkillStubFlag(data: unknown): boolean {
+  if (data === null || typeof data !== "object") {
+    return true;
+  }
+  return (data as Readonly<Record<string, unknown>>).stub === true;
+}
+
 /**
  * OpenClaw gateway — {@link OpenClawGateway} + {@link SkillExecutor} (Phase 16, 42).
  * No real automation; gateway and skills return static stub data only.
@@ -158,6 +165,10 @@ export class OpenClawAgent extends AbstractBaseAgent {
     );
 
     const success = browserResponse.success && fileResponse.success;
+    const executionStub =
+      browserRuntimeResult.stub ||
+      gatewayResponse.stub ||
+      readSkillStubFlag(browserResponse.data);
 
     return {
       taskId: task.taskId,
@@ -165,7 +176,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
       agentId: OPENCLAW_AGENT_ID,
       success,
       payload: {
-        stub: true,
+        stub: executionStub,
         adapter: adapterResponse,
         gateway: gatewayResponse,
         execution: {
