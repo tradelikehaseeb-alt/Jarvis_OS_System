@@ -95,7 +95,9 @@ export class OpenClawGatewayRuntimeWiring {
   }
 
   isStubMode(): boolean {
-    return readOpenClawRuntimeEnv(this.env).mode === "stub";
+    const mode = readOpenClawRuntimeEnv(this.env).mode;
+    // `local` uses Jarvis Playwright browser runtime, not an external OpenClaw gateway probe.
+    return mode === "stub" || mode === "local";
   }
 
   async resolveProviderMetadata(): Promise<ProviderMetadata> {

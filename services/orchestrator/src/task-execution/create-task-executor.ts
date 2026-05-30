@@ -229,6 +229,67 @@ function readAgentPayloadRecord(
     : undefined;
 }
 
+function readStubFlag(
+  record: Readonly<Record<string, unknown>> | undefined,
+): boolean | undefined {
+  return typeof record?.stub === "boolean" ? record.stub : undefined;
+}
+
+function pickBrowserRuntimeFromAgentResults(
+  agentPayload: Readonly<Record<string, unknown>> | undefined,
+  adaptiveResult?: AdaptiveExecuteResult,
+): Readonly<Record<string, unknown>> | undefined {
+  const fromPayload = readAgentPayloadRecord(agentPayload, "browserRuntime");
+  if (fromPayload) {
+    return fromPayload;
+  }
+
+  const results = adaptiveResult?.executionResults ?? [];
+  for (let index = results.length - 1; index >= 0; index -= 1) {
+    const runtime = readAgentPayloadRecord(
+      results[index]?.payload,
+      "browserRuntime",
+    );
+    if (runtime) {
+      return runtime;
+    }
+  }
+
+  return undefined;
+}
+
+function deriveTaskOutputStub(input: {
+  readonly llmProviderResponse?: LlmProviderResponse;
+  readonly agentPayload?: Readonly<Record<string, unknown>>;
+  readonly skillOutput?: Readonly<Record<string, unknown>>;
+  readonly taskChainResult?: TaskChainExecuteResult;
+  readonly adaptiveResult?: AdaptiveExecuteResult;
+  readonly workforceResult?: WorkforceCoordinationResult;
+  readonly productivityResult?: ProductivityWorkflowResult;
+  readonly continuousResult?: ContinuousRuntimeResult;
+}): boolean {
+  const browserRuntime = readAgentPayloadRecord(
+    input.agentPayload,
+    "browserRuntime",
+  );
+  const voiceRuntime = readAgentPayloadRecord(input.agentPayload, "voiceRuntime");
+
+  const stubSignals = [
+    input.llmProviderResponse?.stub,
+    readStubFlag(browserRuntime),
+    readStubFlag(voiceRuntime),
+    readStubFlag(input.agentPayload),
+    readStubFlag(input.skillOutput),
+    input.taskChainResult?.stub,
+    input.adaptiveResult?.stub,
+    input.workforceResult?.stub,
+    input.productivityResult?.stub,
+    input.continuousResult?.stub,
+  ].filter((flag): flag is boolean => typeof flag === "boolean");
+
+  return stubSignals.length > 0 && stubSignals.every(Boolean);
+}
+
 async function executeAgent(
   registry: AgentRegistryContract,
   agentId: string,
@@ -961,6 +1022,20 @@ export async function executeCreateTask(
   const activityEvents = activityRuntime.getEvents(streamSessionId);
   const timelineEvents = timelineRuntime.getEvents(timelineId);
   const skillOutput = extractSkillOutput(agentResult.payload);
+  const browserRuntimeSnapshot = pickBrowserRuntimeFromAgentResults(
+    agentResult.payload,
+    adaptiveResult,
+  );
+  const outputStub = deriveTaskOutputStub({
+    llmProviderResponse,
+    agentPayload: agentResult.payload,
+    skillOutput,
+    taskChainResult,
+    adaptiveResult,
+    workforceResult,
+    productivityResult,
+    continuousResult,
+  });
   const executionStability = safeExecutionFallbackRuntime.computeDecision({
     providerId: llmProviderResponse?.providerId ?? llmProviderValidation?.providerId,
     providerHealthy:
@@ -969,7 +1044,7 @@ export async function executeCreateTask(
     lastProgressAt: finalSession.updatedAt,
   });
   const output: Readonly<Record<string, unknown>> = {
-    stub: true,
+    stub: outputStub,
     phase: 47,
     routing: {
       selectedAgentId: handshake ? OPENCLAW_AGENT_ID : routing.selectedAgentId,
@@ -985,6 +1060,9 @@ export async function executeCreateTask(
     },
     skill: skillOutput,
     agentPayload: agentResult.payload,
+    ...(browserRuntimeSnapshot
+      ? { browserRuntime: browserRuntimeSnapshot }
+      : {}),
     ...(planningResult
       ? { planningPayload: planningResult.payload }
       : {}),
@@ -1101,9 +1179,13 @@ export async function executeCreateTask(
             },
             browserState:
               agentResult.payload?.browserState ??
+              browserRuntimeSnapshot?.browserState ??
               readAgentPayloadRecord(agentResult.payload, "browserRuntime")?.browserState,
+            browserRuntime: browserRuntimeSnapshot,
             permissionRequired: Boolean(
-              readAgentPayloadRecord(agentResult.payload, "browserRuntime")?.permissionRequired,
+              browserRuntimeSnapshot?.permissionRequired ??
+                readAgentPayloadRecord(agentResult.payload, "browserRuntime")
+                  ?.permissionRequired,
             ),
           },
         }

@@ -15,7 +15,11 @@ import type { LlmProviderRuntime } from "./llm-provider-runtime";
 import { createStubLlmResponse } from "./llm-provider-utils";
 import { createDefaultProviderValidationRuntime } from "./connectors";
 import { StubLlmProvider } from "./providers/stub-llm-provider";
-import type { LlmStreamSubscriber } from "./llm-stream-subscriber";
+import {
+  normalizeLlmStreamSubscriber,
+  type LlmStreamSubscriber,
+  type LlmStreamSubscriberInput,
+} from "./llm-stream-subscriber";
 
 function allowLlmStubFallback(): boolean {
   return process.env.JARVIS_ALLOW_LLM_STUB_FALLBACK !== "false";
@@ -88,12 +92,16 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
 
   async streamResponse(
     request: LlmProviderRequest,
-    subscriber: LlmStreamSubscriber,
+    subscriber: LlmStreamSubscriberInput,
   ): Promise<LlmProviderResponse> {
+    const normalized = normalizeLlmStreamSubscriber(
+      subscriber,
+      request.userId ?? request.taskId ?? "stream",
+    );
     const provider = this.resolveProvider(request.providerId);
     const response = await provider.streamResponse(
       { ...request, providerId: provider.providerId },
-      subscriber,
+      normalized,
     );
 
     if (
@@ -106,7 +114,7 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
       if (fallback) {
         return fallback.streamResponse(
           { ...request, providerId: fallback.providerId },
-          subscriber,
+          normalized,
         );
       }
     }

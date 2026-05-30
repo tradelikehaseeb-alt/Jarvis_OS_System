@@ -1,12 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DefaultLocalMemoryRuntime = void 0;
-exports.createDefaultLocalMemoryRuntime = createDefaultLocalMemoryRuntime;
-const file_local_memory_repository_1 = require("./file-local-memory-repository");
+import { FileLocalMemoryRepository, InMemoryLocalMemoryRepository, } from "./file-local-memory-repository";
 /**
  * Default local memory runtime implementation (Phase 62).
  */
-class DefaultLocalMemoryRuntime {
+export class DefaultLocalMemoryRuntime {
     repository;
     constructor(repository) {
         this.repository = repository;
@@ -30,18 +26,17 @@ class DefaultLocalMemoryRuntime {
         return this.repository.createSession(userId);
     }
 }
-exports.DefaultLocalMemoryRuntime = DefaultLocalMemoryRuntime;
 /**
  * Factory for default local memory runtime with file persistence (Phase 62).
  * Falls back to in-memory repository when file backend is disabled.
  */
-function createDefaultLocalMemoryRuntime(options) {
+export function createDefaultLocalMemoryRuntime(options) {
     if (options?.repository) {
         return new DefaultLocalMemoryRuntime(options.repository);
     }
     const useFile = options?.useFileBackend ?? true;
     const repository = useFile
-        ? new file_local_memory_repository_1.FileLocalMemoryRepository(options?.filePath)
-        : new file_local_memory_repository_1.InMemoryLocalMemoryRepository();
+        ? new FileLocalMemoryRepository(options?.filePath)
+        : new InMemoryLocalMemoryRepository();
     return new DefaultLocalMemoryRuntime(repository);
 }

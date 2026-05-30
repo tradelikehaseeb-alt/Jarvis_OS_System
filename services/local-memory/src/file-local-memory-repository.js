@@ -1,17 +1,14 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FileLocalMemoryRepository = exports.InMemoryLocalMemoryRepository = exports.LOCAL_MEMORY_SCHEMA_VERSION = exports.DEFAULT_LOCAL_MEMORY_FILE = void 0;
-const node_fs_1 = require("node:fs");
-const node_path_1 = require("node:path");
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, dirname } from "node:path";
 /** Default local memory JSON store (Phase 62). */
-exports.DEFAULT_LOCAL_MEMORY_FILE = (0, node_path_1.join)(__dirname, "..", "..", "..", "api-gateway", ".jarvis-task-store", "local-memory.json");
-exports.LOCAL_MEMORY_SCHEMA_VERSION = 1;
+export const DEFAULT_LOCAL_MEMORY_FILE = join(__dirname, "..", "..", "..", "api-gateway", ".jarvis-task-store", "local-memory.json");
+export const LOCAL_MEMORY_SCHEMA_VERSION = 1;
 function nowIso() {
     return new Date().toISOString();
 }
 function emptyStore() {
     return {
-        schemaVersion: exports.LOCAL_MEMORY_SCHEMA_VERSION,
+        schemaVersion: LOCAL_MEMORY_SCHEMA_VERSION,
         backend: "file",
         sqliteReady: true,
         records: {},
@@ -44,7 +41,7 @@ function nextSessionId() {
 /**
  * In-memory local memory repository — fallback backend (Phase 62).
  */
-class InMemoryLocalMemoryRepository {
+export class InMemoryLocalMemoryRepository {
     records = new Map();
     sessions = new Map();
     save(record) {
@@ -82,14 +79,13 @@ class InMemoryLocalMemoryRepository {
         return session;
     }
 }
-exports.InMemoryLocalMemoryRepository = InMemoryLocalMemoryRepository;
 /**
  * File-backed local memory repository — JSON store with SQLite-ready schema (Phase 62).
  */
-class FileLocalMemoryRepository {
+export class FileLocalMemoryRepository {
     filePath;
     store = emptyStore();
-    constructor(filePath = exports.DEFAULT_LOCAL_MEMORY_FILE) {
+    constructor(filePath = DEFAULT_LOCAL_MEMORY_FILE) {
         this.filePath = filePath;
         this.loadFromDisk();
     }
@@ -117,10 +113,10 @@ class FileLocalMemoryRepository {
     }
     getHealth() {
         return {
-            status: (0, node_fs_1.existsSync)(this.filePath) ? "healthy" : "degraded",
+            status: existsSync(this.filePath) ? "healthy" : "degraded",
             backend: "sqlite-ready",
             recordCount: Object.keys(this.store.records).length,
-            message: (0, node_fs_1.existsSync)(this.filePath)
+            message: existsSync(this.filePath)
                 ? `Local memory file at ${this.filePath}`
                 : "Local memory file not yet created",
             checkedAt: nowIso(),
@@ -141,13 +137,13 @@ class FileLocalMemoryRepository {
         return this.filePath;
     }
     loadFromDisk() {
-        if (!(0, node_fs_1.existsSync)(this.filePath)) {
+        if (!existsSync(this.filePath)) {
             return;
         }
         try {
-            const raw = (0, node_fs_1.readFileSync)(this.filePath, "utf-8");
+            const raw = readFileSync(this.filePath, "utf-8");
             const parsed = JSON.parse(raw);
-            if (parsed.schemaVersion === exports.LOCAL_MEMORY_SCHEMA_VERSION) {
+            if (parsed.schemaVersion === LOCAL_MEMORY_SCHEMA_VERSION) {
                 this.store = parsed;
             }
         }
@@ -156,11 +152,10 @@ class FileLocalMemoryRepository {
         }
     }
     flushToDisk() {
-        const dir = (0, node_path_1.dirname)(this.filePath);
-        if (!(0, node_fs_1.existsSync)(dir)) {
-            (0, node_fs_1.mkdirSync)(dir, { recursive: true });
+        const dir = dirname(this.filePath);
+        if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
         }
-        (0, node_fs_1.writeFileSync)(this.filePath, JSON.stringify(this.store, null, 2), "utf-8");
+        writeFileSync(this.filePath, JSON.stringify(this.store, null, 2), "utf-8");
     }
 }
-exports.FileLocalMemoryRepository = FileLocalMemoryRepository;

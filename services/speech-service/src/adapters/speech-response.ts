@@ -1,6 +1,11 @@
 /**
  * Generic speech adapter response model (Phase 28 / Phase 91).
  */
+export interface SpeechAdapterError {
+  readonly code: string;
+  readonly message: string;
+}
+
 export interface SpeechResponse {
   readonly requestId: string;
   readonly adapterId: string;
@@ -12,4 +17,5 @@ export interface SpeechResponse {
   readonly latencyMs?: number;
   readonly audioBase64?: string;
   readonly mimeType?: string;
+  readonly error?: SpeechAdapterError;
 }

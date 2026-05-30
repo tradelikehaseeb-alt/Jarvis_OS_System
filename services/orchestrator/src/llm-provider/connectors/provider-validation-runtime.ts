@@ -4,7 +4,11 @@ import type { LlmProviderRequest } from "../llm-provider-request";
 import type { LlmProviderResponse } from "../llm-provider-response";
 import type { LlmProvider, LlmProviderValidation } from "../llm-provider";
 import type { LlmProviderRuntime } from "../llm-provider-runtime";
-import type { LlmStreamSubscriber } from "../llm-stream-subscriber";
+import {
+  normalizeLlmStreamSubscriber,
+  type LlmStreamSubscriber,
+  type LlmStreamSubscriberInput,
+} from "../llm-stream-subscriber";
 import {
   createLlmProviderRuntimeFromProviders,
   type CreateDefaultLlmProviderRuntimeOptions,
@@ -38,7 +42,7 @@ export interface ProviderValidationRuntime {
   executePrompt(request: LlmProviderRequest): Promise<LlmProviderResponse>;
   streamResponse(
     request: LlmProviderRequest,
-    subscriber: LlmStreamSubscriber,
+    subscriber: LlmStreamSubscriberInput,
   ): Promise<LlmProviderResponse>;
   listProviders(): ReturnType<LlmProviderRuntime["listProviders"]>;
   getConfiguration(providerId: string): ProviderConfiguration | undefined;
@@ -116,9 +120,12 @@ class DefaultProviderValidationRuntime implements ProviderValidationRuntime {
 
   streamResponse(
     request: LlmProviderRequest,
-    subscriber: LlmStreamSubscriber,
+    subscriber: LlmStreamSubscriberInput,
   ): Promise<LlmProviderResponse> {
-    return this.llmRuntime.streamResponse(request, subscriber);
+    return this.llmRuntime.streamResponse(
+      request,
+      normalizeLlmStreamSubscriber(subscriber, request.userId ?? "stream"),
+    );
   }
 
   listProviders(): ReturnType<LlmProviderRuntime["listProviders"]> {

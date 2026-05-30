@@ -51,10 +51,28 @@ describe("OpenClaw gateway", () => {
     expect(response.approvedActions).toEqual(["browser", "file"]);
   });
 
-  it("rejects execution when runtime validation fails", async () => {
+  it("validates local mode via stub gateway (Playwright runs in Jarvis)", async () => {
     const gateway = createDefaultOpenClawGateway({
       env: {
         OPENCLAW_MODE: "local",
+        OPENCLAW_ENDPOINT: "http://127.0.0.1:59999",
+      },
+      allowNetworkProbe: false,
+    });
+
+    const validation = await gateway.validateRuntime();
+    expect(validation.valid).toBe(true);
+    expect(validation.status).toBe("stub");
+
+    const response = await gateway.execute(request);
+    expect(response.success).toBe(true);
+    expect(response.stub).toBe(true);
+  });
+
+  it("rejects execution when official runtime validation fails", async () => {
+    const gateway = createDefaultOpenClawGateway({
+      env: {
+        OPENCLAW_MODE: "official",
         OPENCLAW_ENDPOINT: "http://127.0.0.1:59999",
       },
       allowNetworkProbe: false,

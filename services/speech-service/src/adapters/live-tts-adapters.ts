@@ -5,7 +5,6 @@ import {
 import type { SpeechRequest } from "./speech-request";
 import type { SpeechResponse } from "./speech-response";
 import type { TextToSpeechAdapter } from "./text-to-speech-adapter";
-import { StubTextToSpeechAdapter } from "./stub-text-to-speech-adapter";
 
 export interface HttpTtsAdapterOptions {
   readonly adapterId: string;
@@ -48,19 +47,17 @@ async function synthesizeHttp(
 }
 
 /**
- * HTTP TTS adapter with stub fallback (Phase 91).
+ * HTTP TTS adapter. Provider errors are returned explicitly; no silent stub fallback.
  */
 export class HttpTextToSpeechAdapter implements TextToSpeechAdapter {
   readonly adapterId: string;
   private readonly providerId: string;
   private readonly endpointPath: string;
-  private readonly fallback: StubTextToSpeechAdapter;
 
   constructor(options: HttpTtsAdapterOptions) {
     this.adapterId = options.adapterId;
     this.providerId = options.providerId;
     this.endpointPath = options.endpointPath;
-    this.fallback = new StubTextToSpeechAdapter();
   }
 
   async synthesize(
@@ -69,10 +66,36 @@ export class HttpTextToSpeechAdapter implements TextToSpeechAdapter {
   ): Promise<SpeechResponse> {
     const started = Date.now();
     if (config.mode !== "live" || !config.baseUrl) {
-      return this.fallback.synthesize(request, config);
+      return {
+        requestId: request.requestId,
+        adapterId: this.adapterId,
+        providerId: config.providerId || this.providerId,
+        stub: true,
+        output: request.text,
+        latencyMs: Date.now() - started,
+        createdAt: new Date().toISOString(),
+        error: {
+          code: "TTS_KEY_MISSING",
+          message:
+            "TTS provider is not configured. Set the required TTS API key and base URL before using live speech synthesis.",
+        },
+      };
     }
     if (config.providerId !== "edge-tts" && !config.apiKey) {
-      return this.fallback.synthesize(request, config);
+      return {
+        requestId: request.requestId,
+        adapterId: this.adapterId,
+        providerId: config.providerId || this.providerId,
+        stub: true,
+        output: request.text,
+        latencyMs: Date.now() - started,
+        createdAt: new Date().toISOString(),
+        error: {
+          code: "TTS_KEY_MISSING",
+          message:
+            "TTS API key is missing. Configure the selected TTS provider before using live speech synthesis.",
+        },
+      };
     }
 
     try {
@@ -96,14 +119,20 @@ export class HttpTextToSpeechAdapter implements TextToSpeechAdapter {
         latencyMs: Date.now() - started,
         createdAt: new Date().toISOString(),
       };
-    } catch {
-      const fallback = await this.fallback.synthesize(request, {
-        ...config,
-        mode: "stub",
-      });
+    } catch (error) {
       return {
-        ...fallback,
+        requestId: request.requestId,
+        adapterId: this.adapterId,
+        providerId: config.providerId || this.providerId,
+        stub: true,
+        output: request.text,
         latencyMs: Date.now() - started,
+        createdAt: new Date().toISOString(),
+        error: {
+          code: "TTS_PROVIDER_ERROR",
+          message:
+            error instanceof Error ? error.message : "TTS provider request failed",
+        },
       };
     }
   }

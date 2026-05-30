@@ -144,6 +144,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
           url: browserRequest.url,
           intent: task.intent,
           handleId: gatewayResponse.executionHandleId,
+          browserRuntimeResult,
         },
       },
       context,

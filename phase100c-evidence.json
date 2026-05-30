@@ -1,0 +1,214 @@
+{
+  "phase": "100C",
+  "at": "2026-05-30T08:33:15.810Z",
+  "port": 8792,
+  "checks": [
+    {
+      "label": ".env loading",
+      "ok": true,
+      "detail": "D:\\Jarvis_Os System\\.env"
+    },
+    {
+      "label": "GROQ_API_KEY loading",
+      "ok": true,
+      "detail": "set (56 chars)"
+    },
+    {
+      "label": "provider health",
+      "ok": true,
+      "detail": "Groq connected"
+    },
+    {
+      "label": "executePrompt stub=false",
+      "ok": true,
+      "detail": "false"
+    },
+    {
+      "label": "executePrompt providerId=groq",
+      "ok": true,
+      "detail": "groq"
+    },
+    {
+      "label": "executePrompt latencyMs",
+      "ok": true,
+      "detail": "280"
+    },
+    {
+      "label": "streamResponse stub=false",
+      "ok": true,
+      "detail": "false"
+    },
+    {
+      "label": "stream chunks received",
+      "ok": true,
+      "detail": "2"
+    },
+    {
+      "label": "AI prompt stub=false",
+      "ok": true,
+      "detail": "false"
+    },
+    {
+      "label": "AI prompt providerId=groq",
+      "ok": true,
+      "detail": "groq"
+    },
+    {
+      "label": "AI prompt latencyMs",
+      "ok": true,
+      "detail": "1273"
+    },
+    {
+      "label": "workflow llm stub=false",
+      "ok": true,
+      "detail": "false"
+    },
+    {
+      "label": "workflow browserRuntime stub=false",
+      "ok": true,
+      "detail": "false"
+    },
+    {
+      "label": "workflow completed",
+      "ok": true,
+      "detail": "completed"
+    },
+    {
+      "label": "UI LLM REAL MODE",
+      "ok": true,
+      "detail": "LLM · groq · 696ms"
+    },
+    {
+      "label": "UI shows Groq",
+      "ok": true,
+      "detail": "LLM · groq · 696ms"
+    },
+    {
+      "label": "UI latency visible",
+      "ok": true,
+      "detail": "LLM · groq · 696ms"
+    },
+    {
+      "label": "UI browser REAL MODE",
+      "ok": true,
+      "detail": "Browser · live · https://www.youtube.com"
+    },
+    {
+      "label": "UI no STUB in summary for LLM/browser",
+      "ok": true,
+      "detail": "REAL MODE · REAL MODE · STUB MODE"
+    }
+  ],
+  "success": true,
+  "envPath": "D:\\Jarvis_Os System\\.env",
+  "envLoaded": true,
+  "groqKeyLoaded": true,
+  "groqKeyLength": 56,
+  "jars": {
+    "JARVIS_LLM_PROVIDER": "groq",
+    "JARVIS_ALLOW_LLM_STUB_FALLBACK": "false",
+    "JARVIS_BROWSER_REAL": "true",
+    "JARVIS_BROWSER_HEADLESS": "false"
+  },
+  "groqHealth": {
+    "providerId": "groq",
+    "label": "Groq",
+    "connected": true,
+    "stub": false,
+    "connectionStatus": "connected",
+    "availableModels": [
+      "meta-llama/llama-prompt-guard-2-86m",
+      "qwen/qwen3-32b",
+      "canopylabs/orpheus-v1-english",
+      "openai/gpt-oss-20b",
+      "groq/compound-mini",
+      "whisper-large-v3-turbo",
+      "llama-3.1-8b-instant",
+      "llama-3.3-70b-versatile",
+      "openai/gpt-oss-120b",
+      "whisper-large-v3",
+      "allam-2-7b",
+      "meta-llama/llama-prompt-guard-2-22m",
+      "openai/gpt-oss-safeguard-20b",
+      "canopylabs/orpheus-arabic-saudi",
+      "meta-llama/llama-4-scout-17b-16e-instruct",
+      "groq/compound"
+    ],
+    "configuredModels": [
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant"
+    ],
+    "latencyMs": 970,
+    "failureHandled": true,
+    "message": "Groq connected",
+    "checkedAt": "2026-05-30T08:33:16.792Z"
+  },
+  "groqDirect": {
+    "providerId": "groq",
+    "model": "llama-3.3-70b-versatile",
+    "stub": false,
+    "success": true,
+    "latencyMs": 280,
+    "preview": "Groq is live"
+  },
+  "groqStream": {
+    "stub": false,
+    "success": true,
+    "latencyMs": 91,
+    "chunkCount": 2,
+    "preview": "Hello."
+  },
+  "aiPrompt": {
+    "providerId": "groq",
+    "model": "llama-3.3-70b-versatile",
+    "stub": false,
+    "success": true,
+    "latencyMs": 1273,
+    "preview": "I'm not able to provide real-time news or updates as my knowledge cutoff is December 2023. However, I can give you a general overview of recent advancements in AI up to my knowledge cutoff.\n\nSome nota"
+  },
+  "apiEndpoint": "http://127.0.0.1:8792",
+  "workflow": {
+    "taskId": "task-1780129998505",
+    "status": "completed",
+    "llmProvider": {
+      "providerId": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "stub": false,
+      "latencyMs": 696,
+      "preview": "To execute the task \"Open YouTube and search AI news\", I will perform the following steps:\n\n1. **Launch YouTube**: Open the YouTube application or website on the designated device.\n2. **Access Search "
+    },
+    "browserRuntime": {
+      "stub": false,
+      "success": true,
+      "url": "https://www.youtube.com"
+    },
+    "browserState": {
+      "sessionId": "browser-exec-1",
+      "url": "https://www.youtube.com",
+      "active": true,
+      "stub": false,
+      "stepIndex": 3,
+      "totalSteps": 3
+    },
+    "workflowProgress": [
+      "Step 1/3: open page · 2026-05-30T08:33:48.905Z",
+      "Step 2/3: type text · 2026-05-30T08:33:52.410Z",
+      "Step 3/3: click element · 2026-05-30T08:33:52.491Z"
+    ]
+  },
+  "uiLabels": {
+    "llm": {
+      "mode": "REAL MODE",
+      "detail": "LLM · groq · 696ms"
+    },
+    "browser": {
+      "mode": "REAL MODE",
+      "detail": "Browser · live · https://www.youtube.com"
+    },
+    "voice": {
+      "mode": "STUB MODE",
+      "detail": "Voice · speech-stub · stub"
+    },
+    "summaryLabel": "REAL MODE · REAL MODE · STUB MODE"
+  }
+}

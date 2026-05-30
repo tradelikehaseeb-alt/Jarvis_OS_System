@@ -7,37 +7,87 @@ import {
 
 import { BROWSER_SKILL_ID, BROWSER_SKILL_METADATA } from "./metadata";
 
+function readRecord(value: unknown): Readonly<Record<string, unknown>> | undefined {
+  return value && typeof value === "object"
+    ? (value as Readonly<Record<string, unknown>>)
+    : undefined;
+}
+
 /**
- * Browser skill — static browser action results (Phase 13).
- * No browser automation, Playwright, or OpenClaw runtime.
+ * Browser skill — exposes the browser execution result produced by OpenClaw.
  */
 export class BrowserSkill extends AbstractBaseSkill {
   readonly metadata = BROWSER_SKILL_METADATA;
 
   async execute(input: SkillInput, _context: SkillContext): Promise<SkillOutput> {
+    const runtimeResult = readRecord(input.parameters.browserRuntimeResult);
     const action =
-      typeof input.parameters.action === "string"
-        ? input.parameters.action
-        : "navigate";
+      typeof runtimeResult?.action === "string"
+        ? runtimeResult.action
+        : typeof input.parameters.action === "string"
+          ? input.parameters.action
+          : "browser-action";
     const url =
-      typeof input.parameters.url === "string"
-        ? input.parameters.url
-        : "https://stub.local/";
+      typeof runtimeResult?.url === "string"
+        ? runtimeResult.url
+        : typeof input.parameters.url === "string"
+          ? input.parameters.url
+          : undefined;
+
+    if (!runtimeResult) {
+      return {
+        invocationId: input.invocationId,
+        skillId: BROWSER_SKILL_ID,
+        success: false,
+        error: {
+          code: "BROWSER_RUNTIME_RESULT_MISSING",
+          message:
+            "BrowserSkill requires BrowserExecutionRuntime output; no simulated browser result was generated.",
+        },
+      };
+    }
+
+    const browserState = readRecord(runtimeResult.browserState);
+    const status =
+      typeof runtimeResult.status === "string"
+        ? runtimeResult.status
+        : runtimeResult.success === true
+          ? "completed"
+          : "failed";
+    const screenshotRef =
+      typeof runtimeResult.screenshotRef === "string"
+        ? runtimeResult.screenshotRef
+        : null;
+    const message =
+      typeof runtimeResult.message === "string"
+        ? runtimeResult.message
+        : undefined;
+    const stub =
+      typeof runtimeResult.stub === "boolean" ? runtimeResult.stub : true;
 
     return {
       invocationId: input.invocationId,
       skillId: BROWSER_SKILL_ID,
-      success: true,
+      success: runtimeResult.success === true,
       data: {
-        stub: true,
+        stub,
         action,
-        url,
+        ...(url ? { url } : {}),
+        ...(browserState ? { browserState } : {}),
         result: {
-          status: "completed",
-          title: "Stub Page Title",
-          screenshotRef: null,
+          status,
+          ...(message ? { message } : {}),
+          screenshotRef,
         },
       },
+      ...(runtimeResult.success === true
+        ? {}
+        : {
+            error: {
+              code: "BROWSER_RUNTIME_FAILED",
+              message: message ?? "Browser runtime failed",
+            },
+          }),
     };
   }
 }

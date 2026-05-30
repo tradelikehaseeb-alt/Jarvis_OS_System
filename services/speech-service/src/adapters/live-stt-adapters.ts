@@ -5,7 +5,6 @@ import {
 import type { SpeechRequest } from "./speech-request";
 import type { SpeechResponse } from "./speech-response";
 import type { SpeechToTextAdapter } from "./speech-to-text-adapter";
-import { StubSpeechToTextAdapter } from "./stub-speech-to-text-adapter";
 
 export interface HttpSttAdapterOptions {
   readonly adapterId: string;
@@ -26,7 +25,6 @@ async function postJson(
   apiKey: string,
   body: unknown,
 ): Promise<{ text: string; confidence: number }> {
-  const started = Date.now();
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -51,19 +49,17 @@ async function postJson(
 }
 
 /**
- * HTTP STT adapter with stub fallback when unconfigured or on failure (Phase 91).
+ * HTTP STT adapter. Provider errors are returned explicitly; no silent stub fallback.
  */
 export class HttpSpeechToTextAdapter implements SpeechToTextAdapter {
   readonly adapterId: string;
   private readonly providerId: string;
   private readonly endpointPath: string;
-  private readonly fallback: StubSpeechToTextAdapter;
 
   constructor(options: HttpSttAdapterOptions) {
     this.adapterId = options.adapterId;
     this.providerId = options.providerId;
     this.endpointPath = options.endpointPath;
-    this.fallback = new StubSpeechToTextAdapter();
   }
 
   async transcribe(
@@ -72,7 +68,21 @@ export class HttpSpeechToTextAdapter implements SpeechToTextAdapter {
   ): Promise<SpeechResponse> {
     const started = Date.now();
     if (config.mode !== "live" || !config.apiKey || !config.baseUrl) {
-      return this.fallback.transcribe(request, config);
+      return {
+        requestId: request.requestId,
+        adapterId: this.adapterId,
+        providerId: config.providerId || this.providerId,
+        stub: true,
+        output: "",
+        confidence: 0,
+        latencyMs: Date.now() - started,
+        createdAt: new Date().toISOString(),
+        error: {
+          code: "STT_KEY_MISSING",
+          message:
+            "STT provider is not configured. Set the required STT API key and base URL before using live voice transcription.",
+        },
+      };
     }
 
     try {
@@ -96,14 +106,21 @@ export class HttpSpeechToTextAdapter implements SpeechToTextAdapter {
         latencyMs: Date.now() - started,
         createdAt: new Date().toISOString(),
       };
-    } catch {
-      const fallback = await this.fallback.transcribe(request, {
-        ...config,
-        mode: "stub",
-      });
+    } catch (error) {
       return {
-        ...fallback,
+        requestId: request.requestId,
+        adapterId: this.adapterId,
+        providerId: config.providerId || this.providerId,
+        stub: true,
+        output: "",
+        confidence: 0,
         latencyMs: Date.now() - started,
+        createdAt: new Date().toISOString(),
+        error: {
+          code: "STT_PROVIDER_ERROR",
+          message:
+            error instanceof Error ? error.message : "STT provider request failed",
+        },
       };
     }
   }
