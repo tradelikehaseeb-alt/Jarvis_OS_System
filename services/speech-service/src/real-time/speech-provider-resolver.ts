@@ -1,4 +1,6 @@
 import type { SpeechProviderConfig } from "../adapters/speech-provider-config";
+import { readJarvisSpeechEnvConfig } from "../adapters/internal/speech-env-config";
+import { readEnvApiKey } from "../adapters/internal/read-env-api-key";
 
 export interface SpeechProviderDefinition {
   readonly providerId: string;
@@ -19,6 +21,12 @@ export const STT_PROVIDER_DEFINITIONS: readonly SpeechProviderDefinition[] = [
     apiKeyEnvVars: ["DEEPGRAM_API_KEY", "JARVIS_DEEPGRAM_API_KEY"],
     baseUrl: "https://api.deepgram.com/v1",
     model: "nova-2",
+  },
+  {
+    providerId: "jarvis-stt",
+    apiKeyEnvVars: ["GROQ_API_KEY", "JARVIS_GROQ_API_KEY"],
+    baseUrl: "https://api.groq.com/openai/v1",
+    model: "whisper-large-v3-turbo",
   },
   {
     providerId: "groq-whisper",
@@ -51,26 +59,30 @@ export const TTS_PROVIDER_DEFINITIONS: readonly SpeechProviderDefinition[] = [
     providerId: "edge-tts",
     apiKeyEnvVars: [],
     baseUrl: "https://speech.platform.bing.com",
-    model: "en-US-JennyNeural",
+    model: "en-US-GuyNeural",
+  },
+  {
+    providerId: "jarvis-tts",
+    apiKeyEnvVars: [],
+    baseUrl: "https://speech.platform.bing.com",
+    model: "en-US-GuyNeural",
   },
 ];
 
-export function readEnvApiKey(envVars: readonly string[]): string | undefined {
-  for (const key of envVars) {
-    const value = process.env[key]?.trim();
-    if (value) {
-      return value;
-    }
-  }
-  return undefined;
-}
+export { readEnvApiKey };
 
 export function resolveSpeechProviderConfig(
   definition: SpeechProviderDefinition,
   explicitApiKey?: string,
 ): SpeechProviderConfig {
   const apiKey = explicitApiKey ?? readEnvApiKey(definition.apiKeyEnvVars);
-  const live = Boolean(apiKey) || definition.providerId === "edge-tts";
+  const jarvis = readJarvisSpeechEnvConfig();
+  const live =
+    Boolean(apiKey) ||
+    definition.providerId === "edge-tts" ||
+    definition.providerId === "jarvis-tts" ||
+    (definition.providerId === "jarvis-stt" &&
+      (Boolean(jarvis.groqApiKey) || jarvis.sttFallback === "local"));
   return {
     providerId: definition.providerId,
     mode: live ? "live" : "stub",
@@ -82,12 +94,26 @@ export function resolveSpeechProviderConfig(
 
 export function resolveFirstConfiguredSttProvider(
   priority: readonly string[] = [
+    "jarvis-stt",
     "groq-whisper",
     "whisper",
     "deepgram",
     "openai-realtime",
   ],
 ): SpeechProviderConfig {
+  const jarvis = readJarvisSpeechEnvConfig();
+  if (jarvis.sttProvider === "groq" && jarvis.groqApiKey) {
+    return {
+      providerId: "jarvis-stt",
+      mode: "live",
+      apiKey: jarvis.groqApiKey,
+      model: "whisper-large-v3-turbo",
+    };
+  }
+  if (jarvis.sttFallback === "local") {
+    return { providerId: "jarvis-stt", mode: "live" };
+  }
+
   for (const providerId of priority) {
     const definition = STT_PROVIDER_DEFINITIONS.find((d) => d.providerId === providerId);
     if (!definition) {
@@ -105,8 +131,17 @@ export function resolveFirstConfiguredSttProvider(
 }
 
 export function resolveFirstConfiguredTtsProvider(
-  priority: readonly string[] = ["edge-tts", "openai-tts", "elevenlabs"],
+  priority: readonly string[] = ["jarvis-tts", "edge-tts", "openai-tts", "elevenlabs"],
 ): SpeechProviderConfig {
+  const jarvis = readJarvisSpeechEnvConfig();
+  if (jarvis.ttsProvider === "edge-tts" || jarvis.ttsProvider === "edge") {
+    return {
+      providerId: "jarvis-tts",
+      mode: "live",
+      model: jarvis.ttsVoice,
+    };
+  }
+
   for (const providerId of priority) {
     const definition = TTS_PROVIDER_DEFINITIONS.find((d) => d.providerId === providerId);
     if (!definition) {

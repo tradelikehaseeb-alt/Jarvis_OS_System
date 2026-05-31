@@ -7,6 +7,7 @@ import {
 import type { SpeechRequest } from "./speech-request";
 import type { SpeechResponse } from "./speech-response";
 import type { TextToSpeechAdapter } from "./text-to-speech-adapter";
+import { readJarvisSpeechEnvConfig } from "./internal/speech-env-config";
 import { readEnvApiKey } from "../real-time/speech-provider-resolver";
 
 export interface HttpTtsAdapterOptions {
@@ -15,7 +16,7 @@ export interface HttpTtsAdapterOptions {
   readonly endpointPath: string;
 }
 
-const EDGE_TTS_VOICE = "en-US-JennyNeural";
+const EDGE_TTS_VOICE = "en-US-GuyNeural";
 
 function providerErrorResponse(
   request: SpeechRequest,
@@ -114,7 +115,11 @@ export class EdgeTtsSpeechAdapter implements TextToSpeechAdapter {
     }
 
     try {
-      const audio = await edgeTtsSpeak(text, config.model ?? EDGE_TTS_VOICE);
+      const voice =
+        config.model ??
+        readJarvisSpeechEnvConfig().ttsVoice ??
+        EDGE_TTS_VOICE;
+      const audio = await edgeTtsSpeak(text, voice);
       if (audio.length === 0) {
         return providerErrorResponse(
           request,

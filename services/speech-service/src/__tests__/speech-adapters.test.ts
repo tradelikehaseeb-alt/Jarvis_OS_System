@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {
   DEFAULT_STUB_SPEECH_PROVIDER_CONFIG,
@@ -8,7 +8,16 @@ import {
 } from "../adapters";
 
 describe("speech adapters", () => {
-  it("returns deterministic output for StubSpeechToTextAdapter", async () => {
+  beforeEach(() => {
+    process.env.SPEECH_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.SPEECH_FORCE_STUB_COMPONENTS;
+  });
+
+  it("returns deterministic output for StubSpeechToTextAdapter in test stub mode", async () => {
     const adapter = new StubSpeechToTextAdapter();
 
     const first = await adapter.transcribe({
@@ -31,7 +40,7 @@ describe("speech adapters", () => {
     });
   });
 
-  it("returns deterministic output for StubTextToSpeechAdapter", async () => {
+  it("returns deterministic output for StubTextToSpeechAdapter in test stub mode", async () => {
     const adapter = new StubTextToSpeechAdapter();
 
     const first = await adapter.synthesize({

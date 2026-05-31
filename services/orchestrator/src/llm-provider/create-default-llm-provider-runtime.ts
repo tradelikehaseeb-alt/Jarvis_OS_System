@@ -4,6 +4,7 @@ import {
   validateProviderConnection,
 } from "@jarvis/provider-runtime";
 
+import { GROQ_PROVIDER_ID } from "./connectors/default-provider-configurations";
 import type { LlmProviderRequest } from "./llm-provider-request";
 import type { LlmProviderResponse } from "./llm-provider-response";
 import {
@@ -12,7 +13,12 @@ import {
   type LlmProviderValidation,
 } from "./llm-provider";
 import type { LlmProviderRuntime } from "./llm-provider-runtime";
-import { createStubLlmResponse } from "./llm-provider-utils";
+import {
+  allowLlmStubFallback,
+  createNoLlmApiKeysResponse,
+  hasAnyPrimaryLlmApiKey,
+  resolveDefaultLiveLlmProviderId,
+} from "./llm-provider-policy";
 import { createDefaultProviderValidationRuntime } from "./connectors";
 import { StubLlmProvider } from "./providers/stub-llm-provider";
 import {
@@ -21,14 +27,19 @@ import {
   type LlmStreamSubscriberInput,
 } from "./llm-stream-subscriber";
 
-function allowLlmStubFallback(): boolean {
-  return process.env.JARVIS_ALLOW_LLM_STUB_FALLBACK !== "false";
-}
-
 export interface CreateDefaultLlmProviderRuntimeOptions {
   readonly providers?: readonly LlmProvider[];
   readonly providerRuntime?: ProviderRuntime;
   readonly fallbackProviderId?: string;
+}
+
+function resolveRuntimeFallbackProviderId(
+  options: CreateDefaultLlmProviderRuntimeOptions,
+): string {
+  if (options.fallbackProviderId) {
+    return options.fallbackProviderId;
+  }
+  return resolveDefaultLiveLlmProviderId();
 }
 
 class DefaultLlmProviderRuntime implements LlmProviderRuntime {
@@ -39,12 +50,20 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
     for (const provider of options.providers ?? []) {
       this.providers.set(provider.providerId, provider);
     }
-    this.fallbackProviderId =
-      options.fallbackProviderId ?? DEFAULT_STUB_LLM_PROVIDER_ID;
+    this.fallbackProviderId = resolveRuntimeFallbackProviderId(options);
   }
 
   async executePrompt(request: LlmProviderRequest): Promise<LlmProviderResponse> {
-    const provider = this.resolveProvider(request.providerId);
+    const providerId = this.resolveRequestProviderId(request);
+    if (
+      !hasAnyPrimaryLlmApiKey() &&
+      providerId !== DEFAULT_STUB_LLM_PROVIDER_ID &&
+      !allowLlmStubFallback()
+    ) {
+      return createNoLlmApiKeysResponse(request, providerId);
+    }
+
+    const provider = this.resolveProvider(providerId);
     const response = await provider.executePrompt({
       ...request,
       providerId: provider.providerId,
@@ -54,13 +73,13 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
       allowLlmStubFallback() &&
       !response.success &&
       !response.stub &&
-      provider.providerId !== this.fallbackProviderId
+      provider.providerId !== DEFAULT_STUB_LLM_PROVIDER_ID
     ) {
-      const fallback = this.providers.get(this.fallbackProviderId);
-      if (fallback) {
-        return fallback.executePrompt({
+      const stub = this.providers.get(DEFAULT_STUB_LLM_PROVIDER_ID);
+      if (stub) {
+        return stub.executePrompt({
           ...request,
-          providerId: fallback.providerId,
+          providerId: stub.providerId,
         });
       }
     }
@@ -81,8 +100,10 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
         return {
           ...validation,
           valid: false,
-          stub: true,
-          message: `${validation.message}; Hermes provider connection unavailable — stub fallback`,
+          stub: allowLlmStubFallback(),
+          message: allowLlmStubFallback()
+            ? `${validation.message}; Hermes provider connection unavailable — stub fallback`
+            : `${validation.message}; Hermes provider connection unavailable`,
         };
       }
     }
@@ -98,7 +119,17 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
       subscriber,
       request.userId ?? request.taskId ?? "stream",
     );
-    const provider = this.resolveProvider(request.providerId);
+    const providerId = this.resolveRequestProviderId(request);
+
+    if (
+      !hasAnyPrimaryLlmApiKey() &&
+      providerId !== DEFAULT_STUB_LLM_PROVIDER_ID &&
+      !allowLlmStubFallback()
+    ) {
+      return createNoLlmApiKeysResponse(request, providerId);
+    }
+
+    const provider = this.resolveProvider(providerId);
     const response = await provider.streamResponse(
       { ...request, providerId: provider.providerId },
       normalized,
@@ -108,12 +139,12 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
       allowLlmStubFallback() &&
       !response.success &&
       !response.stub &&
-      provider.providerId !== this.fallbackProviderId
+      provider.providerId !== DEFAULT_STUB_LLM_PROVIDER_ID
     ) {
-      const fallback = this.providers.get(this.fallbackProviderId);
-      if (fallback) {
-        return fallback.streamResponse(
-          { ...request, providerId: fallback.providerId },
+      const stub = this.providers.get(DEFAULT_STUB_LLM_PROVIDER_ID);
+      if (stub) {
+        return stub.streamResponse(
+          { ...request, providerId: stub.providerId },
           normalized,
         );
       }
@@ -130,16 +161,31 @@ class DefaultLlmProviderRuntime implements LlmProviderRuntime {
     }));
   }
 
-  private resolveProvider(providerId: string): LlmProvider {
-    const provider =
-      this.providers.get(providerId) ??
-      this.providers.get(this.fallbackProviderId);
+  private resolveRequestProviderId(request: LlmProviderRequest): string {
+    const explicit = request.providerId?.trim();
+    if (explicit && explicit.length > 0 && explicit !== DEFAULT_STUB_LLM_PROVIDER_ID) {
+      return explicit;
+    }
+    return this.fallbackProviderId;
+  }
 
-    if (!provider) {
+  private resolveProvider(providerId: string): LlmProvider {
+    const provider = this.providers.get(providerId);
+
+    if (provider) {
+      return provider;
+    }
+
+    if (allowLlmStubFallback()) {
       return new StubLlmProvider();
     }
 
-    return provider;
+    const fallback = this.providers.get(this.fallbackProviderId);
+    if (fallback) {
+      return fallback;
+    }
+
+    return this.providers.get(GROQ_PROVIDER_ID) ?? new StubLlmProvider();
   }
 }
 
@@ -158,16 +204,9 @@ export function createDefaultLlmProviderRuntime(
   if (!options.providers) {
     return createDefaultProviderValidationRuntime({
       providerRuntime: options.providerRuntime,
-      fallbackProviderId: options.fallbackProviderId,
+      fallbackProviderId: options.fallbackProviderId ?? resolveDefaultLiveLlmProviderId(),
     }).asLlmProviderRuntime();
   }
 
   return createLlmProviderRuntimeFromProviders(options.providers, options);
-}
-
-/** @internal test helper */
-export function __createUnknownProviderResponseForTest(
-  request: LlmProviderRequest,
-): LlmProviderResponse {
-  return createStubLlmResponse(request, "stub", DEFAULT_STUB_LLM_PROVIDER_ID);
 }

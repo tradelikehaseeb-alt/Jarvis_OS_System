@@ -6,11 +6,22 @@
 export {
   createMemoryService,
   createMemoryServiceWith,
+  createMemoryComponents,
+  createLegacyStubMemoryComponents,
   createStubMemoryComponents,
+  type CreateMemoryServiceOptions,
 } from "./create-memory-service";
-
+export {
+  JarvisMemoryClient,
+  getSharedJarvisMemoryClient,
+  resetSharedJarvisMemoryClient,
+} from "./jarvis-memory-client";
 export type { MemoryApiService, MemoryServiceComponents } from "./memory-api";
-export { MemoryApiServiceStub } from "./memory-api";
+export {
+  MemoryApiServiceStub,
+  DefaultMemoryApiService,
+  handleMemoryHttpRequest,
+} from "./memory-api";
 export * from "./memory-provider";
 export * from "./retrieval-engine";
 export * from "./embedding-provider";

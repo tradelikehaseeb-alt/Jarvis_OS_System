@@ -5,8 +5,7 @@ import type {
   TaskStatusResponse,
 } from "@jarvis/types";
 
-import { LiveAgentRegistry } from "./agent-registry/live-registry";
-import { createStubComponents } from "./create-orchestrator-service";
+import { createServiceComponents } from "./create-orchestrator-service";
 import type { OrchestratorComponents, OrchestratorService } from "./orchestrator";
 import {
   TaskStoreFactory,
@@ -74,18 +73,14 @@ export class OrchestratorServiceImpl
 }
 
 /**
- * Wires stub orchestrator components + live agents + skill pipeline (Phase 14).
+ * Wires real orchestrator components + live agents + skill pipeline (Phase 14+).
  * Uses shared file-backed {@link TaskStore} for CLI bridge (Phase 15).
  */
 export async function createDefaultOrchestratorService(
   taskStore: TaskStore = TaskStoreFactory.getSharedDefault(),
 ): Promise<OrchestratorServiceImpl> {
   const { registry: executableRegistry } = await registerDefaultAgents();
-  const liveRegistry = new LiveAgentRegistry(executableRegistry);
-  const components: OrchestratorComponents = {
-    ...createStubComponents(),
-    agentRegistry: liveRegistry,
-  };
+  const components = createServiceComponents(executableRegistry);
   return new OrchestratorServiceImpl(
     components,
     executableRegistry,

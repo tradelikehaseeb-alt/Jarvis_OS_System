@@ -1,13 +1,2 @@
-import { STUB_EMBEDDING_VECTOR } from "../internal/mock-ids";
-import type { EmbeddingProvider } from "./contract";
-
-/**
- * Static embedding stub — no OpenAI/local model (Phase 5).
- */
-export class EmbeddingProviderStub implements EmbeddingProvider {
-  readonly componentId = "embedding-provider" as const;
-
-  async embed(_text: string): Promise<readonly number[]> {
-    return STUB_EMBEDDING_VECTOR;
-  }
-}
+export { TfidfEmbeddingProvider } from "./tfidf-embedding-provider";
+export { EmbeddingProviderStub } from "./embedding-provider-legacy";

@@ -1,5 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { DEFAULT_STUB_SPEECH_PROVIDER_CONFIG } from "../../adapters/speech-provider-config";
+import { StubSpeechToTextAdapterLegacy } from "../../adapters/stub-speech-to-text-adapter-legacy";
 import { SyntheticMicrophoneRuntime } from "../microphone-runtime";
 import { RealTimeTranscriptionSession } from "../real-time-transcription-session";
 import { createDefaultStreamingSpeechRuntime } from "../streaming-speech-runtime";
@@ -46,7 +48,10 @@ describe("RealTimeTranscriptionSession", () => {
 describe("StreamingSpeechRuntime", () => {
   it("finalizes transcript after microphone capture", async () => {
     vi.useFakeTimers();
-    const runtime = createDefaultStreamingSpeechRuntime();
+    const runtime = createDefaultStreamingSpeechRuntime({
+      sttConfig: DEFAULT_STUB_SPEECH_PROVIDER_CONFIG,
+      sttAdapter: new StubSpeechToTextAdapterLegacy(),
+    });
     const capture = runtime.getMicrophone().startCapture();
     await vi.advanceTimersByTimeAsync(200);
 
@@ -77,9 +82,20 @@ describe("VoicePlaybackController", () => {
 });
 
 describe("provider fallback", () => {
-  it("uses stub STT when no provider key is configured", () => {
+  beforeEach(() => {
+    delete process.env.GROQ_API_KEY;
+    delete process.env.JARVIS_GROQ_API_KEY;
+    process.env.JARVIS_STT_FALLBACK = "local";
+  });
+
+  afterEach(() => {
+    delete process.env.JARVIS_STT_FALLBACK;
+  });
+
+  it("uses jarvis local STT when no cloud key is configured", () => {
     const config = resolveFirstConfiguredSttProvider();
-    expect(config.mode).toBe("stub");
+    expect(config.providerId).toBe("jarvis-stt");
+    expect(config.mode).toBe("live");
   });
 
   it(

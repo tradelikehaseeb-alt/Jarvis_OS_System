@@ -3,4 +3,8 @@ export type {
   ContextManagerCreateInput,
   OrchestratorContext,
 } from "./contract";
-export { ContextManagerStub } from "./stub";
+export { DefaultContextManager, ContextManagerStub } from "./stub";
+export type {
+  ConversationContextMessage,
+  UserProfileContext,
+} from "./contract";

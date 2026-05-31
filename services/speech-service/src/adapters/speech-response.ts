@@ -17,5 +17,7 @@ export interface SpeechResponse {
   readonly latencyMs?: number;
   readonly audioBase64?: string;
   readonly mimeType?: string;
+  /** Set when transcript contains a Jarvis wake phrase. */
+  readonly isWakeWord?: boolean;
   readonly error?: SpeechAdapterError;
 }

@@ -7,7 +7,11 @@ export type { OrchestratorComponents, OrchestratorService } from "./orchestrator
 export {
   createOrchestratorService,
   createOrchestratorServiceWith,
+  createOrchestratorComponents,
+  createLegacyStubComponents,
+  createServiceComponents,
   createStubComponents,
+  type CreateOrchestratorComponentsOptions,
 } from "./create-orchestrator-service";
 export {
   OrchestratorServiceImpl,

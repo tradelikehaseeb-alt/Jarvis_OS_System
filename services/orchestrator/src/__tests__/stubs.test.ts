@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { AgentRequest } from "@jarvis/types";
 
 import { AgentRegistryStub } from "../agent-registry/stub";
@@ -14,6 +14,14 @@ import { WorkflowManagerStub } from "../workflow-manager/stub";
 import { sampleUserTask } from "./fixtures";
 
 describe("TaskRouterStub", () => {
+  beforeEach(() => {
+    process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
+  });
   it("returns static workflow id and steps", async () => {
     const task = sampleUserTask();
     const router = new TaskRouterStub();
@@ -25,6 +33,14 @@ describe("TaskRouterStub", () => {
 });
 
 describe("WorkflowManagerStub", () => {
+  beforeEach(() => {
+    process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
+  });
   it("builds workflow for task", async () => {
     const task = sampleUserTask();
     const manager = new WorkflowManagerStub();
@@ -39,6 +55,14 @@ describe("WorkflowManagerStub", () => {
 });
 
 describe("ContextManagerStub", () => {
+  beforeEach(() => {
+    process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
+  });
   it("creates and retrieves context by ref", async () => {
     const manager = new ContextManagerStub();
     const task = sampleUserTask();
@@ -54,6 +78,14 @@ describe("ContextManagerStub", () => {
 });
 
 describe("AgentRegistryStub", () => {
+  beforeEach(() => {
+    process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
+  });
   it("lists stub agents without implementations", async () => {
     const registry = new AgentRegistryStub();
     const agents = await registry.list();
@@ -69,6 +101,14 @@ describe("AgentRegistryStub", () => {
 });
 
 describe("ExecutionManagerStub", () => {
+  beforeEach(() => {
+    process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
+  });
   it("returns static running result", async () => {
     const task = sampleUserTask();
     const manager = new ExecutionManagerStub();
@@ -96,6 +136,15 @@ describe("ExecutionManagerStub", () => {
 });
 
 describe("OrchestratorService wiring", () => {
+  beforeEach(() => {
+    process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
+  });
+
   it("createOrchestratorService exposes all components", () => {
     const service = createOrchestratorService();
     expect(service.serviceId).toBe("orchestrator");

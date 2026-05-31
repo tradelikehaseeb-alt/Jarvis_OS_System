@@ -9,9 +9,10 @@ import type { OpenClawResponse } from "./openclaw-response";
 const DEFAULT_ACTIONS = ["browser", "file"] as const;
 
 /**
- * Static OpenClaw adapter — mock gateway acceptance only (Phase 16).
+ * Static OpenClaw adapter — mock gateway acceptance for `OPENCLAW_MODE=stub` / CI only.
  *
- * No browser automation, no desktop control, no external OpenClaw runtime.
+ * For real gateway execution set `OPENCLAW_MODE=official` — {@link createOpenClawAdapterFromProvider}
+ * resolves {@link OpenClawAdapterOfficial} automatically (`POST /tools/invoke`).
  */
 export class OpenClawAdapterStub implements OpenClawAdapter {
   readonly adapterId: string;
@@ -39,8 +40,11 @@ export class OpenClawAdapterStub implements OpenClawAdapter {
         },
         approvedActions: [],
         error: {
-          code: "ADAPTER_NOT_CONFIGURED",
-          message: "Official OpenClaw mode is not implemented; use stub mode",
+          code: "OPENCLAW_STUB_MODE_ONLY",
+          message:
+            "OpenClawAdapterStub only supports mode=stub. Set OPENCLAW_MODE=official " +
+            "so createOpenClawAdapterFromProvider wires OpenClawAdapterOfficial " +
+            "(http://127.0.0.1:18789/tools/invoke).",
         },
       };
     }

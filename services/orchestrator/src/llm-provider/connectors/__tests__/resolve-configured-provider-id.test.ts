@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  LIVE_PROVIDER_RESOLUTION_ORDER,
+  EXTENDED_PROVIDER_RESOLUTION_ORDER,
   resolveFirstConfiguredProviderId,
 } from "../resolve-configured-provider-id";
 
@@ -21,8 +21,8 @@ describe("resolveFirstConfiguredProviderId", () => {
     delete process.env.GROQ_API_KEY;
   });
 
-  it("includes DeepSeek and Minimax in resolution order", () => {
-    const ids = LIVE_PROVIDER_RESOLUTION_ORDER.map((entry) => entry.providerId);
+  it("includes DeepSeek and Minimax in extended resolution order", () => {
+    const ids = EXTENDED_PROVIDER_RESOLUTION_ORDER.map((entry) => entry.providerId);
     expect(ids).toContain("deepseek");
     expect(ids).toContain("minimax");
   });

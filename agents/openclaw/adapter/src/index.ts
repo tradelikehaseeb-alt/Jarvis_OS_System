@@ -11,6 +11,9 @@ export { buildOpenClawRequest } from "./build-openclaw-request";
 export {
   ProviderSelectedOpenClawAdapter,
   createOpenClawAdapterFromProvider,
+  resolveOpenClawInnerAdapter,
+  shouldUseOfficialOpenClawAdapter,
+  isOpenClawAdapterOfficial,
 } from "./create-openclaw-adapter-from-provider";
 export {
   DEFAULT_OPENCLAW_LOCAL_ENDPOINT,

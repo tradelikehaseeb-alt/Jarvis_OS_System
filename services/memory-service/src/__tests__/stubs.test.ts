@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createMemoryService } from "../create-memory-service";
 import { EmbeddingProviderStub } from "../embedding-provider/stub";
@@ -8,6 +8,15 @@ import { RetrievalEngineStub } from "../retrieval-engine/stub";
 import { StorageAdapterStub } from "../storage-adapter/stub";
 
 describe("StorageAdapterStub", () => {
+  beforeEach(() => {
+    process.env.MEMORY_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.MEMORY_FORCE_STUB_COMPONENTS;
+  });
+
   it("saves and loads records", async () => {
     const storage = new StorageAdapterStub();
     const record = {
@@ -22,6 +31,15 @@ describe("StorageAdapterStub", () => {
 });
 
 describe("EmbeddingProviderStub", () => {
+  beforeEach(() => {
+    process.env.MEMORY_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+  });
+
+  afterEach(() => {
+    delete process.env.MEMORY_FORCE_STUB_COMPONENTS;
+  });
+
   it("returns static vector", async () => {
     const provider = new EmbeddingProviderStub();
     const vector = await provider.embed("hello");
@@ -30,7 +48,15 @@ describe("EmbeddingProviderStub", () => {
 });
 
 describe("MemoryProviderStub", () => {
-  beforeEach(() => resetMockMemoryIdSequence());
+  beforeEach(() => {
+    process.env.MEMORY_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+    resetMockMemoryIdSequence();
+  });
+
+  afterEach(() => {
+    delete process.env.MEMORY_FORCE_STUB_COMPONENTS;
+  });
 
   it("stores and retrieves memory", async () => {
     const storage = new StorageAdapterStub();
@@ -55,7 +81,15 @@ describe("MemoryProviderStub", () => {
 });
 
 describe("RetrievalEngineStub", () => {
-  beforeEach(() => resetMockMemoryIdSequence());
+  beforeEach(() => {
+    process.env.MEMORY_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+    resetMockMemoryIdSequence();
+  });
+
+  afterEach(() => {
+    delete process.env.MEMORY_FORCE_STUB_COMPONENTS;
+  });
 
   it("retrieve returns stored records for user", async () => {
     const storage = new StorageAdapterStub();
@@ -73,7 +107,15 @@ describe("RetrievalEngineStub", () => {
 });
 
 describe("MemoryApiService wiring", () => {
-  beforeEach(() => resetMockMemoryIdSequence());
+  beforeEach(() => {
+    process.env.MEMORY_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+    resetMockMemoryIdSequence();
+  });
+
+  afterEach(() => {
+    delete process.env.MEMORY_FORCE_STUB_COMPONENTS;
+  });
 
   it("createMemoryService exposes provider and components", () => {
     const service = createMemoryService();

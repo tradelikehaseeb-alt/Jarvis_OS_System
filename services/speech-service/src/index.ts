@@ -58,6 +58,10 @@ export {
   SpeechAdapterRegistry,
   StubSpeechToTextAdapter,
   StubTextToSpeechAdapter,
+  transcribe,
+  speak,
+  stripMarkdownForSpeech,
+  detectWakeWordInTranscript,
 } from "./adapters";
 
 export type {

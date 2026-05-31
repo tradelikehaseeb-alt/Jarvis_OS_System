@@ -2,6 +2,8 @@ import { afterAll, describe, expect, it } from "vitest";
 
 import { REAL_AI_RESPONSE_PROMPTS } from "@jarvis/types";
 
+import { shouldRunLiveIntegrationTests } from "../../../vitest.setup";
+
 import { createDefaultLiveProviderRuntime } from "../../live-provider";
 import { createDefaultProviderHealthValidationRuntime } from "../provider-health";
 import { DEFAULT_API_USER_ID } from "../../task-execution";
@@ -203,6 +205,7 @@ describe("Phase 88 real AI response validation", () => {
     );
   });
 
+  describe.skipIf(!shouldRunLiveIntegrationTests())("Phase 88 live prompts", () => {
   it.each(REAL_AI_RESPONSE_PROMPTS)(
     "executes Phase 88 prompt: %s",
     async (prompt) => {
@@ -254,4 +257,5 @@ describe("Phase 88 real AI response validation", () => {
       }
     },
   );
+  });
 });

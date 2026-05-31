@@ -3,4 +3,4 @@ export type {
   WorkflowManager,
   WorkflowManagerBuildInput,
 } from "./contract";
-export { WorkflowManagerStub } from "./stub";
+export { DefaultWorkflowManager, WorkflowManagerStub } from "./stub";

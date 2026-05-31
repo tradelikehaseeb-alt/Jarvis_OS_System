@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ORCHESTRATOR_MODULE_IDS,
   CapabilityRouterStub,
+  DefaultTaskRouter,
   OrchestratorServiceStub,
   TaskRouterStub,
   createOrchestratorService,
@@ -54,13 +55,30 @@ describe("orchestrator structure", () => {
     ]);
   });
 
-  it("OrchestratorService stub implements all component interfaces", () => {
+  it("OrchestratorService uses real task router by default", () => {
+    const previous = process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
+    delete process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
     const service = createOrchestratorService();
     const { components } = service;
 
-    expect(components.taskRouter).toBeInstanceOf(TaskRouterStub);
-    expect(components.capabilityRouter).toBeInstanceOf(CapabilityRouterStub);
+    expect(components.taskRouter).toBeInstanceOf(DefaultTaskRouter);
+    expect(components.capabilityRouter.componentId).toBe("capability-router");
     expect(components.agentRegistry.componentId).toBe("agent-registry");
+
+    if (previous !== undefined) {
+      process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS = previous;
+    }
+  });
+
+  it("OrchestratorService can force legacy stub components in test", () => {
+    process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS = "true";
+    process.env.NODE_ENV = "test";
+    const service = createOrchestratorService();
+    expect(service.components.taskRouter).toBeInstanceOf(TaskRouterStub);
+    expect(service.components.capabilityRouter).toBeInstanceOf(
+      CapabilityRouterStub,
+    );
+    delete process.env.ORCHESTRATOR_FORCE_STUB_COMPONENTS;
   });
 
   it("OrchestratorServiceStub class matches factory output shape", () => {

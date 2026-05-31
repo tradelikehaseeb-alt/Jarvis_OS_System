@@ -14,6 +14,9 @@ export {
   OpenClawAdapterOfficial,
   createOpenClawAdapterOfficial,
   isOpenClawAdapterOfficial,
+  shouldUseOfficialOpenClawAdapter,
+  classifyOpenClawGatewayError,
   OPENCLAW_OFFICIAL_ADAPTER_ID,
   type OpenClawAdapterOfficialOptions,
+  type ClassifiedGatewayError,
 } from "./openclaw-adapter-official";

@@ -3,4 +3,4 @@ export type {
   TaskRouterInput,
   TaskRouterOutput,
 } from "./contract";
-export { TaskRouterStub } from "./stub";
+export { DefaultTaskRouter, TaskRouterStub } from "./stub";

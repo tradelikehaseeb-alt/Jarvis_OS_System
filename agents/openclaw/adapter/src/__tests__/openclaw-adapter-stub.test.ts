@@ -16,7 +16,7 @@ const sampleRequest: OpenClawRequest = {
 };
 
 describe("OpenClawAdapterStub", () => {
-  it("returns static accepted execution handle", async () => {
+  it("returns static accepted execution handle in stub mode", async () => {
     const adapter = new OpenClawAdapterStub();
     const response = await adapter.invoke(sampleRequest);
 
@@ -28,16 +28,18 @@ describe("OpenClawAdapterStub", () => {
     expect(response.approvedActions).toEqual(["browser", "file"]);
   });
 
-  it("rejects official mode until implemented", async () => {
+  it("rejects official mode on stub adapter with guidance (not ADAPTER_NOT_CONFIGURED)", async () => {
     const adapter = new OpenClawAdapterStub();
     const response = await adapter.invoke(sampleRequest, {
       adapterId: "openclaw-official",
       mode: "official",
       sandboxRequired: true,
-      gatewayEndpoint: "https://example.invalid",
+      gatewayEndpoint: "http://127.0.0.1:18789",
     });
 
     expect(response.success).toBe(false);
-    expect(response.error?.code).toBe("ADAPTER_NOT_CONFIGURED");
+    expect(response.stub).toBe(true);
+    expect(response.error?.code).toBe("OPENCLAW_STUB_MODE_ONLY");
+    expect(response.error?.message).toContain("OPENCLAW_MODE=official");
   });
 });

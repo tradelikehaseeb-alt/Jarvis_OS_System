@@ -23,5 +23,15 @@ export {
   resolveDefaultLlmProviderId,
   readOpenAiApiKey,
 } from "./llm-provider-utils";
+export {
+  allowLlmStubFallback,
+  resolveDefaultLiveLlmProviderId,
+  resolvePrimaryLlmProviderId,
+  hasAnyPrimaryLlmApiKey,
+  createFailClosedLlmResponse,
+  createNoLlmApiKeysResponse,
+  NO_LLM_API_KEYS_MESSAGE,
+  PRIMARY_LLM_PROVIDER_CHAIN,
+} from "./llm-provider-policy";
 export * from "./connectors";
 export * from "./provider-health";

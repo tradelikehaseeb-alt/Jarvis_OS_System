@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { REAL_PROVIDER_VALIDATION_COMMANDS } from "@jarvis/types";
 
+import { shouldRunLiveIntegrationTests } from "../../../../vitest.setup";
+
 import {
   createTestProviderHealthValidationRuntime,
   createTestRealProviderValidationRuntime,
@@ -34,7 +36,9 @@ describe("provider health integration", () => {
   });
 });
 
-describe("real provider validation integration", () => {
+describe.skipIf(!shouldRunLiveIntegrationTests())(
+  "real provider validation integration",
+  () => {
   it("executes Phase 85 commands through live execution flow", async () => {
     const runtime = await createTestRealProviderValidationRuntime();
     const report = await runtime.executeRealProviderValidation({
@@ -74,4 +78,5 @@ describe("real provider validation integration", () => {
       expect(validation?.openClawTriggered).toBe(true);
     },
   );
-});
+  },
+);

@@ -22,6 +22,7 @@ export interface StreamingSpeechRuntimeOptions {
 }
 
 const STT_BY_PROVIDER: Record<string, SpeechToTextAdapter> = {
+  "jarvis-stt": new StubSpeechToTextAdapter(),
   whisper: WhisperSttAdapter,
   deepgram: DeepgramSttAdapter,
   "groq-whisper": GroqWhisperSttAdapter,

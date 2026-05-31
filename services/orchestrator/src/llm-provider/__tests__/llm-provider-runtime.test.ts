@@ -80,7 +80,7 @@ describe("LlmProviderRuntime", () => {
     expect(chunks.length).toBeGreaterThan(0);
   });
 
-  it("executePrompt falls back to stub for unknown provider id", async () => {
+  it("executePrompt uses stub for unknown provider id in test mode", async () => {
     const response = await runtime.executePrompt({
       providerId: "unknown-provider",
       prompt: "Unknown provider path",
@@ -88,6 +88,33 @@ describe("LlmProviderRuntime", () => {
 
     expect(response.providerId).toBe(DEFAULT_STUB_LLM_PROVIDER_ID);
     expect(response.stub).toBe(true);
+  });
+
+  it("executePrompt is fail-closed without API keys when stub disabled", async () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    const originalStubFlag = process.env.JARVIS_ALLOW_LLM_STUB_FALLBACK;
+    delete process.env.GROQ_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    process.env.NODE_ENV = "production";
+    process.env.JARVIS_ALLOW_LLM_STUB_FALLBACK = "false";
+
+    const failClosedRuntime = createDefaultLlmProviderRuntime();
+    const response = await failClosedRuntime.executePrompt({
+      providerId: "groq",
+      prompt: "Summarize architecture",
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.stub).toBe(false);
+    expect(response.error?.code).toBe("LLM_API_KEY_MISSING");
+
+    process.env.NODE_ENV = originalNodeEnv;
+    if (originalStubFlag === undefined) {
+      delete process.env.JARVIS_ALLOW_LLM_STUB_FALLBACK;
+    } else {
+      process.env.JARVIS_ALLOW_LLM_STUB_FALLBACK = originalStubFlag;
+    }
   });
 
   it("Ollama validateProvider returns stub fallback when unreachable", async () => {

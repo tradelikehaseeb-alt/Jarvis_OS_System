@@ -2,9 +2,18 @@ import type { LlmProviderRequest } from "../llm-provider-request";
 import type { LlmProviderResponse } from "../llm-provider-response";
 import type { LlmStreamSubscriber } from "../llm-stream-subscriber";
 import type { LlmProviderKind } from "../llm-provider";
+import {
+  allowLlmStubFallback,
+  createFailClosedLlmResponse,
+} from "../llm-provider-policy";
 import { createStubLlmResponse } from "../llm-provider-utils";
 
 import type { ProviderConfiguration } from "./provider-configuration";
+import {
+  fetchWithLlmRetries,
+  LlmHttpError,
+  mapLlmHttpResponseError,
+} from "./llm-http-retry";
 import { consumeOpenAiSseStream } from "./parse-openai-sse-chunks";
 import { readEnvApiKey } from "./read-env-api-key";
 
@@ -60,6 +69,64 @@ function buildSuccessResponse(
   };
 }
 
+function missingKeyResponse(
+  configuration: ProviderConfiguration,
+  request: LlmProviderRequest,
+  model: string,
+  streamed: boolean,
+): LlmProviderResponse {
+  if (allowLlmStubFallback()) {
+    return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
+      model,
+      streamed,
+      error: {
+        code: "PROVIDER_KEY_MISSING",
+        message: `${configuration.label} API key not configured — stub fallback (test mode)`,
+      },
+    });
+  }
+
+  return createFailClosedLlmResponse(
+    request,
+    configuration.providerId,
+    configuration.kind,
+    "PROVIDER_KEY_MISSING",
+    `${configuration.label} API key not configured. Set ${configuration.apiKeyEnvVars[0] ?? "API_KEY"} in .env`,
+    { streamed, model },
+  );
+}
+
+function mapExecutorError(
+  configuration: ProviderConfiguration,
+  request: LlmProviderRequest,
+  model: string,
+  streamed: boolean,
+  error: unknown,
+): LlmProviderResponse {
+  if (error instanceof LlmHttpError) {
+    return createFailClosedLlmResponse(
+      request,
+      configuration.providerId,
+      configuration.kind,
+      error.code,
+      error.message,
+      { streamed, model },
+    );
+  }
+
+  const message =
+    error instanceof Error ? error.message : `${configuration.label} unavailable`;
+
+  return createFailClosedLlmResponse(
+    request,
+    configuration.providerId,
+    configuration.kind,
+    `${configuration.kind.toUpperCase()}_UNAVAILABLE`,
+    message,
+    { streamed, model },
+  );
+}
+
 export async function executeOpenAiCompatiblePrompt(
   options: OpenAiCompatibleExecutorOptions,
   request: LlmProviderRequest,
@@ -71,45 +138,45 @@ export async function executeOpenAiCompatiblePrompt(
   const startedAt = Date.now();
 
   if (!key && configuration.kind !== "ollama") {
-    return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
-      model,
-      error: {
-        code: "PROVIDER_KEY_MISSING",
-        message: `${configuration.label} API key not configured — STUB MODE active`,
-      },
-    });
+    return missingKeyResponse(configuration, request, model, false);
   }
 
   if (!configuration.baseUrl) {
-    return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
-      model,
-      error: { code: "PROVIDER_MISCONFIGURED", message: "Provider base URL missing" },
-    });
+    return createFailClosedLlmResponse(
+      request,
+      configuration.providerId,
+      configuration.kind,
+      "PROVIDER_MISCONFIGURED",
+      "Provider base URL missing",
+      { model },
+    );
   }
 
   try {
-    const response = await fetch(`${configuration.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key ?? ""}`,
-        "Content-Type": "application/json",
-        ...options.extraHeaders,
+    const response = await fetchWithLlmRetries(
+      `${configuration.baseUrl}/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${key ?? ""}`,
+          "Content-Type": "application/json",
+          ...options.extraHeaders,
+        },
+        body: JSON.stringify({
+          model,
+          messages: buildMessages(request),
+          stream: false,
+        }),
       },
-      body: JSON.stringify({
-        model,
-        messages: buildMessages(request),
-        stream: false,
-      }),
-    });
+    );
 
     if (!response.ok) {
-      return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
-        model,
-        error: {
-          code: `${configuration.kind.toUpperCase()}_HTTP_ERROR`,
-          message: `${configuration.label} request failed (${response.status})`,
-        },
-      });
+      const httpError = mapLlmHttpResponseError(
+        response.status,
+        response.statusText,
+        configuration.label,
+      );
+      return mapExecutorError(configuration, request, model, false, httpError);
     }
 
     const payload = (await response.json()) as OpenAiChatResponse;
@@ -120,14 +187,7 @@ export async function executeOpenAiCompatiblePrompt(
       latencyMs: Date.now() - startedAt,
     });
   } catch (error) {
-    return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
-      model,
-      error: {
-        code: `${configuration.kind.toUpperCase()}_UNAVAILABLE`,
-        message:
-          error instanceof Error ? error.message : `${configuration.label} unavailable`,
-      },
-    });
+    return mapExecutorError(configuration, request, model, false, error);
   }
 }
 
@@ -143,64 +203,51 @@ export async function streamOpenAiCompatibleResponse(
   const startedAt = Date.now();
 
   if (!key && configuration.kind !== "ollama") {
-    const stub = createStubLlmResponse(request, configuration.kind, configuration.providerId, {
-      model,
-      streamed: true,
-      error: {
-        code: "PROVIDER_KEY_MISSING",
-        message: `${configuration.label} API key not configured — STUB MODE active`,
-      },
-    });
-    if (stub.content.length > 0) {
-      subscriber.onChunk(stub.content);
-      subscriber.onComplete?.({ content: stub.content });
+    const response = missingKeyResponse(configuration, request, model, true);
+    if (response.content.length > 0) {
+      subscriber.onChunk(response.content);
+      subscriber.onComplete?.({ content: response.content });
     }
-    return stub;
+    return response;
   }
 
   if (!configuration.baseUrl) {
-    return createStubLlmResponse(request, configuration.kind, configuration.providerId, {
-      model,
-      streamed: true,
-      error: { code: "PROVIDER_MISCONFIGURED", message: "Provider base URL missing" },
-    });
+    return createFailClosedLlmResponse(
+      request,
+      configuration.providerId,
+      configuration.kind,
+      "PROVIDER_MISCONFIGURED",
+      "Provider base URL missing",
+      { streamed: true, model },
+    );
   }
 
   try {
-    const response = await fetch(`${configuration.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key ?? ""}`,
-        "Content-Type": "application/json",
-        Accept: "text/event-stream",
-        ...options.extraHeaders,
+    const response = await fetchWithLlmRetries(
+      `${configuration.baseUrl}/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${key ?? ""}`,
+          "Content-Type": "application/json",
+          Accept: "text/event-stream",
+          ...options.extraHeaders,
+        },
+        body: JSON.stringify({
+          model,
+          messages: buildMessages(request),
+          stream: true,
+        }),
       },
-      body: JSON.stringify({
-        model,
-        messages: buildMessages(request),
-        stream: true,
-      }),
-    });
+    );
 
     if (!response.ok || !response.body) {
-      const fallback = createStubLlmResponse(
-        request,
-        configuration.kind,
-        configuration.providerId,
-        {
-          model,
-          streamed: true,
-          error: {
-            code: `${configuration.kind.toUpperCase()}_HTTP_ERROR`,
-            message: `${configuration.label} stream failed (${response.status})`,
-          },
-        },
+      const httpError = mapLlmHttpResponseError(
+        response.status,
+        response.statusText,
+        configuration.label,
       );
-      if (fallback.content.length > 0) {
-        subscriber.onChunk(fallback.content);
-        subscriber.onComplete?.({ content: fallback.content });
-      }
-      return fallback;
+      return mapExecutorError(configuration, request, model, true, httpError);
     }
 
     const content = await consumeOpenAiSseStream(response.body, (chunk) => {
@@ -213,25 +260,7 @@ export async function streamOpenAiCompatibleResponse(
       latencyMs: Date.now() - startedAt,
     });
   } catch (error) {
-    const fallback = createStubLlmResponse(
-      request,
-      configuration.kind,
-      configuration.providerId,
-      {
-        model,
-        streamed: true,
-        error: {
-          code: `${configuration.kind.toUpperCase()}_UNAVAILABLE`,
-          message:
-            error instanceof Error ? error.message : `${configuration.label} unavailable`,
-        },
-      },
-    );
-    if (fallback.content.length > 0) {
-      subscriber.onChunk(fallback.content);
-      subscriber.onComplete?.({ content: fallback.content });
-    }
-    return fallback;
+    return mapExecutorError(configuration, request, model, true, error);
   }
 }
 
@@ -273,10 +302,18 @@ export function buildApiKeyValidation(
   }
 
   if (!resolved) {
+    if (allowLlmStubFallback()) {
+      return {
+        valid: false,
+        stub: true,
+        message: `${configuration.label} API key not configured — stub fallback (test mode)`,
+      };
+    }
+
     return {
       valid: false,
-      stub: true,
-      message: `${configuration.label} API key not configured — stub fallback active`,
+      stub: false,
+      message: `${configuration.label} API key not configured. Set ${configuration.apiKeyEnvVars[0] ?? "API_KEY"} in .env`,
     };
   }
 

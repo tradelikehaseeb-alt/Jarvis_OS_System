@@ -1,13 +1,30 @@
 import type { UserTask } from "@jarvis/types";
 
+/** Conversation turn packed into orchestrator context. */
+export interface ConversationContextMessage {
+  readonly role: string;
+  readonly message: string;
+  readonly timestamp: string;
+}
+
+/** User profile slice for planner prompts. */
+export interface UserProfileContext {
+  readonly name: string;
+}
+
 /**
- * Opaque orchestrator session context (memory service refs in Phase 3+).
+ * Orchestrator session context — conversation history + profile for agents.
  */
 export interface OrchestratorContext {
   readonly contextRef: string;
   readonly taskId: string;
   readonly userId: string;
   readonly createdAt: string;
+  readonly conversationId: string;
+  readonly messages: readonly ConversationContextMessage[];
+  readonly userProfile: UserProfileContext;
+  readonly estimatedTokens: number;
+  readonly withinTokenLimit: boolean;
 }
 
 /**

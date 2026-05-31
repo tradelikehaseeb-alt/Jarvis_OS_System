@@ -1,8 +1,8 @@
 import type { LlmProviderRequest } from "../llm-provider-request";
 import type { LlmProviderResponse } from "../llm-provider-response";
 import type { LlmStreamSubscriber } from "../llm-stream-subscriber";
-import { DEFAULT_STUB_LLM_PROVIDER_ID } from "../llm-provider";
 import { resolveDefaultLlmProviderId } from "../llm-provider-utils";
+import { resolveDefaultLiveLlmProviderId } from "../llm-provider-policy";
 import type { StorageRuntime } from "../../storage-runtime/storage-runtime";
 import { createDefaultStorageRuntime } from "../../storage-runtime/create-default-storage-runtime";
 
@@ -89,7 +89,7 @@ class DefaultProviderSettingsRuntime implements ProviderSettingsRuntime {
       options.credentialStore ??
       new StorageBackedProviderCredentialStore(this.storageRuntime);
     this.fallbackProviderId =
-      options.fallbackProviderId ?? DEFAULT_STUB_LLM_PROVIDER_ID;
+      options.fallbackProviderId ?? resolveDefaultLiveLlmProviderId();
   }
 
   async saveApiKey(

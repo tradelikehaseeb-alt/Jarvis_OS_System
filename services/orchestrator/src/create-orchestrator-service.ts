@@ -1,16 +1,69 @@
-import { AgentRegistryStub } from "./agent-registry/stub";
-import { CapabilityRouterStub } from "./capability-routing";
+import type { AgentRegistryContract } from "@jarvis/agents-shared";
+import {
+  createDefaultLocalMemoryRuntime,
+  type LocalMemoryRuntime,
+} from "@jarvis/local-memory";
+
+import { AgentRegistryStub, ConfiguredAgentRegistry } from "./agent-registry/stub";
+import { LiveAgentRegistry } from "./agent-registry/live-registry";
+import type { AgentRegistry } from "./agent-registry/contract";
+import {
+  CapabilityRouterStub,
+  DefaultCapabilityRouter,
+} from "./capability-routing";
+import type { CapabilityRouter } from "./capability-routing";
+import { ContextManagerStub, DefaultContextManager } from "./context-manager/stub";
+import {
+  DefaultExecutionManager,
+  ExecutionManagerStub,
+} from "./execution-manager/stub";
+import { useOrchestratorStubComponents } from "./internal/orchestrator-component-policy";
 import type { OrchestratorComponents, OrchestratorService } from "./orchestrator";
-import { ContextManagerStub } from "./context-manager/stub";
-import { ExecutionManagerStub } from "./execution-manager/stub";
-import { TaskRouterStub } from "./task-router/stub";
-import { WorkflowManagerStub } from "./workflow-manager/stub";
+import { DefaultTaskRouter, TaskRouterStub } from "./task-router/stub";
+import {
+  DefaultWorkflowManager,
+  WorkflowManagerStub,
+} from "./workflow-manager/stub";
+
+export interface CreateOrchestratorComponentsOptions {
+  readonly agentRegistry?: AgentRegistry;
+  readonly agentExecutors?: AgentRegistryContract;
+  readonly localMemory?: LocalMemoryRuntime;
+  readonly capabilityRouter?: CapabilityRouter;
+}
 
 /**
- * Builds default stub implementations for all orchestrator components.
- * Phase 4 — internal wiring only; swap implementations in later phases.
+ * Production orchestrator components — real routing, context, workflow, execution.
  */
-export function createStubComponents(): OrchestratorComponents {
+export function createOrchestratorComponents(
+  options: CreateOrchestratorComponentsOptions = {},
+): OrchestratorComponents {
+  const localMemory =
+    options.localMemory ??
+    createDefaultLocalMemoryRuntime({
+      useFileBackend: process.env.NODE_ENV !== "test",
+    });
+
+  const agentRegistry =
+    options.agentRegistry ?? new ConfiguredAgentRegistry();
+
+  return {
+    taskRouter: new DefaultTaskRouter(),
+    workflowManager: new DefaultWorkflowManager(),
+    contextManager: new DefaultContextManager({ localMemory }),
+    executionManager: new DefaultExecutionManager({
+      agents: options.agentExecutors,
+      localMemory,
+    }),
+    agentRegistry,
+    capabilityRouter: options.capabilityRouter ?? new DefaultCapabilityRouter(),
+  };
+}
+
+/**
+ * Legacy stub components — only when `NODE_ENV=test` and `ORCHESTRATOR_FORCE_STUB_COMPONENTS=true`.
+ */
+export function createLegacyStubComponents(): OrchestratorComponents {
   return {
     taskRouter: new TaskRouterStub(),
     executionManager: new ExecutionManagerStub(),
@@ -22,17 +75,31 @@ export function createStubComponents(): OrchestratorComponents {
 }
 
 /**
- * Fully wired {@link OrchestratorService} using stub components.
+ * @deprecated Use {@link createOrchestratorComponents}. Returns stubs only in forced test mode.
  */
-export function createOrchestratorService(): OrchestratorService {
+export function createStubComponents(
+  options: CreateOrchestratorComponentsOptions = {},
+): OrchestratorComponents {
+  if (useOrchestratorStubComponents()) {
+    return createLegacyStubComponents();
+  }
+  return createOrchestratorComponents(options);
+}
+
+/**
+ * Wires real orchestrator components (or legacy stubs in forced test mode).
+ */
+export function createOrchestratorService(
+  options: CreateOrchestratorComponentsOptions = {},
+): OrchestratorService {
   return {
     serviceId: "orchestrator",
-    components: createStubComponents(),
+    components: createStubComponents(options),
   };
 }
 
 /**
- * {@link OrchestratorService} with injected components (for tests and future DI).
+ * {@link OrchestratorService} with injected components (for tests and DI).
  */
 export function createOrchestratorServiceWith(
   components: OrchestratorComponents,
@@ -41,4 +108,19 @@ export function createOrchestratorServiceWith(
     serviceId: "orchestrator",
     components,
   };
+}
+
+/**
+ * Components for {@link OrchestratorServiceImpl} with live agent metadata when bootstrap is available.
+ */
+export function createServiceComponents(
+  executableRegistry: AgentRegistryContract,
+  options: CreateOrchestratorComponentsOptions = {},
+): OrchestratorComponents {
+  const base = createOrchestratorComponents({
+    ...options,
+    agentRegistry: new LiveAgentRegistry(executableRegistry),
+    agentExecutors: executableRegistry,
+  });
+  return base;
 }

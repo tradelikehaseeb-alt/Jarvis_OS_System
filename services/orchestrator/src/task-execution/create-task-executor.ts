@@ -108,7 +108,7 @@ import {
   type ContinuousRuntimeResult,
 } from "../continuous-runtime";
 import type { OrchestratorComponents } from "../orchestrator";
-import { mockContextRef, mockRequestId } from "../internal/mock-ids";
+import { mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
 import type { TaskExecutionRecord, TaskStore } from "../storage";
 import { createWorkforceAgentExecutor } from "../agent-workforce/create-workforce-agent-executor";
@@ -511,7 +511,6 @@ export async function executeCreateTask(
   const taskId = `task-${Date.now()}`;
   const task = buildUserTask(taskId, input);
   const requestId = mockRequestId(taskId);
-  const contextRef = mockContextRef(taskId);
   const conversationId = resolveConversationId(task.userId, task.metadata);
   const streamSessionId = `stream-${taskId}`;
 
@@ -554,11 +553,12 @@ export async function executeCreateTask(
     intentKind: task.intent.kind,
   });
 
-  await components.taskRouter.route({ task });
-  await components.contextManager.create({ task });
-  await components.workflowManager.build({
+  const route = await components.taskRouter.route({ task });
+  const orchestratorContext = await components.contextManager.create({ task });
+  const contextRef = orchestratorContext.contextRef;
+  const composedWorkflow = await components.workflowManager.build({
     task,
-    workflowId: `wf-${taskId}`,
+    workflowId: route.workflowId,
   });
 
   const routing = await components.capabilityRouter.route(
@@ -589,6 +589,31 @@ export async function executeCreateTask(
     contextRankingRuntime,
     memoryRecallRuntime,
   });
+
+  const workflowExecution =
+    process.env.ORCHESTRATOR_EXECUTE_COMPOSED_WORKFLOW === "false"
+      ? {
+          workflowId: composedWorkflow.workflowId,
+          success: true,
+          stepsCompleted: 0,
+          stepResults: [],
+          message: "Composed workflow execution skipped (test mode)",
+        }
+      : await components.executionManager.executeWorkflow({
+          workflow: composedWorkflow,
+          task,
+          requestId,
+          agentContext: {
+            ...agentContext,
+            contextRef,
+            metadata: {
+              ...agentContext.metadata,
+              orchestratorUserProfile: orchestratorContext.userProfile,
+              conversationMessages: orchestratorContext.messages,
+              routedWorkflowId: composedWorkflow.workflowId,
+            },
+          },
+        });
 
   let agentResult: AgentResult;
   let planningResult: AgentResult | undefined;
@@ -1036,6 +1061,29 @@ export async function executeCreateTask(
       policyId: routing.policyId,
       matches: routing.matches.length,
       handshake,
+    },
+    orchestratorContext: {
+      contextRef: orchestratorContext.contextRef,
+      conversationId: orchestratorContext.conversationId,
+      messageCount: orchestratorContext.messages.length,
+      userProfile: orchestratorContext.userProfile,
+      estimatedTokens: orchestratorContext.estimatedTokens,
+      withinTokenLimit: orchestratorContext.withinTokenLimit,
+    },
+    composedWorkflow: {
+      workflowId: composedWorkflow.workflowId,
+      stepCount: composedWorkflow.steps.length,
+      steps: composedWorkflow.steps.map((step) => ({
+        stepId: step.stepId,
+        agentId: step.agentId,
+        order: step.order,
+      })),
+    },
+    workflowExecution: {
+      success: workflowExecution.success,
+      stepsCompleted: workflowExecution.stepsCompleted,
+      failedStepId: workflowExecution.failedStepId,
+      message: workflowExecution.message,
     },
     agent: {
       agentId: agentResult.agentId,

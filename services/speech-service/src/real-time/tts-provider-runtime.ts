@@ -22,6 +22,7 @@ export interface TtsProviderRuntimeOptions {
 }
 
 const TTS_BY_PROVIDER: Record<string, TextToSpeechAdapter> = {
+  "jarvis-tts": new StubTextToSpeechAdapter(),
   elevenlabs: ElevenLabsTtsAdapter,
   "openai-tts": OpenAiTtsAdapter,
   "edge-tts": EdgeTtsAdapter,
@@ -35,7 +36,7 @@ function buildLiveTtsChain(
     return explicit.filter((config) => config.mode === "live");
   }
 
-  const priority = ["edge-tts", "openai-tts", "elevenlabs"] as const;
+  const priority = ["jarvis-tts", "edge-tts", "openai-tts", "elevenlabs"] as const;
   const chain: SpeechProviderConfig[] = [];
   for (const providerId of priority) {
     const definition = TTS_PROVIDER_DEFINITIONS.find(

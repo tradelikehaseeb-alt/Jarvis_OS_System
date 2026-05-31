@@ -3,5 +3,7 @@ export type {
   ExecutionManager,
   ExecutionManagerResult,
   ExecutionManagerStartInput,
+  ExecutionManagerWorkflowInput,
+  ExecutionStatus,
 } from "./contract";
-export { ExecutionManagerStub } from "./stub";
+export { DefaultExecutionManager, ExecutionManagerStub } from "./stub";

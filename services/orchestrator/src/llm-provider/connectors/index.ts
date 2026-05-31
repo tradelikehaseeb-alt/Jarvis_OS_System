@@ -57,9 +57,16 @@ export {
   createTestProviderSettingsRuntime,
 } from "./create-default-provider-settings-runtime";
 export {
+  EXTENDED_PROVIDER_RESOLUTION_ORDER,
   LIVE_PROVIDER_RESOLUTION_ORDER,
   resolveFirstConfiguredProviderId,
+  resolvePreferredLiveProviderId,
 } from "./resolve-configured-provider-id";
+export {
+  fetchWithLlmRetries,
+  LlmHttpError,
+  mapLlmHttpResponseError,
+} from "./llm-http-retry";
 export {
   parseOpenAiSseLine,
   consumeOpenAiSseStream,

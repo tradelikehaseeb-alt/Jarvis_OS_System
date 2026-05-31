@@ -11,6 +11,11 @@ export { SpeechAdapterRegistry } from "./speech-adapter-registry";
 
 export { StubSpeechToTextAdapter } from "./stub-speech-to-text-adapter";
 export { StubTextToSpeechAdapter } from "./stub-text-to-speech-adapter";
+export { StubSpeechToTextAdapterLegacy } from "./stub-speech-to-text-adapter-legacy";
+export { StubTextToSpeechAdapterLegacy } from "./stub-text-to-speech-adapter-legacy";
+export { transcribe, speak } from "./speech-facade";
+export { stripMarkdownForSpeech } from "./internal/markdown-strip";
+export { detectWakeWordInTranscript } from "./internal/wake-word-transcript";
 
 export {
   HttpSpeechToTextAdapter,

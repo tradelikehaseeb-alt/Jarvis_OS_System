@@ -1,7 +1,11 @@
 import type { ProviderResolver } from "@jarvis/provider-registry";
 
 import { readOpenClawRuntimeEnv } from "../official/src/openclaw-runtime-env";
-import { createOpenClawAdapterOfficial } from "../official/src/openclaw-adapter-official";
+import {
+  createOpenClawAdapterOfficial,
+  isOpenClawAdapterOfficial,
+  shouldUseOfficialOpenClawAdapter,
+} from "../official/src/openclaw-adapter-official";
 import type { OpenClawAdapter } from "./openclaw-adapter";
 import { createOpenClawAdapterStub } from "./openclaw-adapter-stub";
 import type { OpenClawConfig } from "./openclaw-config";
@@ -67,19 +71,18 @@ export class ProviderSelectedOpenClawAdapter implements OpenClawAdapter {
   }
 }
 
-function useOfficialOpenClawAdapter(
+/**
+ * Resolve inner OpenClaw adapter from environment.
+ *
+ * - `OPENCLAW_MODE=official` | `remote` → {@link OpenClawAdapterOfficial} (`/tools/invoke`)
+ * - `OPENCLAW_MODE=stub` (default in tests) → {@link OpenClawAdapterStub}
+ * - `OPENCLAW_MODE=local` → stub gateway handshake; Playwright runs in Jarvis execution runtime
+ */
+export function resolveOpenClawInnerAdapter(
   env: Readonly<Record<string, string | undefined>> = process.env,
-): boolean {
-  if (env.NODE_ENV === "test" && env.OPENCLAW_INTEGRATION_LIVE !== "true") {
-    return false;
-  }
-  const runtimeEnv = readOpenClawRuntimeEnv(env);
-  return runtimeEnv.mode === "official" || runtimeEnv.mode === "remote";
-}
-
-function resolveOpenClawInnerAdapter(): OpenClawAdapter {
-  if (useOfficialOpenClawAdapter()) {
-    return createOpenClawAdapterOfficial();
+): OpenClawAdapter {
+  if (shouldUseOfficialOpenClawAdapter(env)) {
+    return createOpenClawAdapterOfficial({ env });
   }
   return createOpenClawAdapterStub();
 }
@@ -91,3 +94,5 @@ export function createOpenClawAdapterFromProvider(
 ): OpenClawAdapter {
   return new ProviderSelectedOpenClawAdapter(resolver, inner);
 }
+
+export { isOpenClawAdapterOfficial, shouldUseOfficialOpenClawAdapter };

@@ -16,3 +16,4 @@ export {
 } from "./intent-capability-profile";
 export type { CapabilityRouter, CapabilityRouterInput } from "./capability-router";
 export { CapabilityRouterStub } from "./capability-router";
+export { DefaultCapabilityRouter } from "./default-capability-router";
