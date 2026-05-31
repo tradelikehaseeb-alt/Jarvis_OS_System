@@ -17,6 +17,7 @@ const STT_BY_PROVIDER: Record<string, SpeechToTextAdapter> = {
   "speech-stub": new StubSpeechToTextAdapter(),
 };
 
+/** Node-only STT provider resolution (not imported from browser bundles). */
 export function resolveNodeStreamingSttAdapter(
   config: SpeechProviderConfig,
 ): SpeechToTextAdapter {

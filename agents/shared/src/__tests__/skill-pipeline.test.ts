@@ -26,7 +26,7 @@ describe("SkillExecutor pipeline", () => {
         agentId: "hermes",
         skillId: SEARCH_SKILL_ID,
         userId: "user-1",
-        parameters: { step: "plan" },
+        parameters: { query: "jarvis os architecture" },
         contextRef: "ctx-1",
       },
       agentContext,

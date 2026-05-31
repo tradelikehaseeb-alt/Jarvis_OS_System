@@ -6,6 +6,7 @@ import {
   HermesPlanningAdapter,
   createHermesPlanningAdapter,
 } from "../hermes-planning-adapter";
+import { GROQ_PLANNING_ADAPTER_TEST_OPTIONS } from "./groq-planning-mock";
 
 const request: HermesRequest = {
   requestId: "req-plan-1",
@@ -17,7 +18,7 @@ const request: HermesRequest = {
 
 describe("HermesPlanningAdapter", () => {
   it("returns structured plan with goal and steps", async () => {
-    const adapter = createHermesPlanningAdapter();
+    const adapter = createHermesPlanningAdapter(GROQ_PLANNING_ADAPTER_TEST_OPTIONS);
     const response = await adapter.invoke(request);
 
     expect(response.success).toBe(true);
@@ -40,7 +41,9 @@ describe("HermesPlanningAdapter", () => {
   });
 
   it("does not expose memory or execution side effects in response", async () => {
-    const response = await createHermesPlanningAdapter().invoke(request);
+    const response = await createHermesPlanningAdapter(
+      GROQ_PLANNING_ADAPTER_TEST_OPTIONS,
+    ).invoke(request);
     expect(response.plan).toBeDefined();
     expect(JSON.stringify(response)).not.toMatch(/browser|openclaw|desktop/i);
   });

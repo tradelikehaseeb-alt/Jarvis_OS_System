@@ -188,6 +188,7 @@ export class OpenClawAgent extends AbstractBaseAgent {
 
     const fileResponse = deferFileSkill
       ? {
+          skillId: FILE_SKILL_ID,
           success: true,
           data:
             openClawRuntimeEnv.mode === "stub"

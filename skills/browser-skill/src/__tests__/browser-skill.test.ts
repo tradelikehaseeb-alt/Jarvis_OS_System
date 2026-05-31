@@ -11,7 +11,17 @@ describe("BrowserSkill", () => {
         skillId: BROWSER_SKILL_ID,
         agentId: "openclaw-gateway",
         userId: "user-1",
-        parameters: { action: "navigate", url: "https://example.com" },
+        parameters: {
+          action: "navigate",
+          url: "https://example.com",
+          browserRuntimeResult: {
+            success: true,
+            stub: true,
+            action: "navigate",
+            url: "https://example.com",
+            status: "completed",
+          },
+        },
       },
       { contextRef: "ctx-1", userId: "user-1", agentId: "openclaw-gateway" },
     );

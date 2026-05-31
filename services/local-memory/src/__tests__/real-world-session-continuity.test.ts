@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { createDefaultLocalMemoryRuntime } from "./create-default-local-memory-runtime";
-import { saveContinuousSession, listContinuousSessions } from "./continuous-session-store";
+import { createDefaultLocalMemoryRuntime } from "../create-default-local-memory-runtime";
+import { saveContinuousSession, listContinuousSessions } from "../continuous-session-store";
 
 describe("real-world long session memory continuity", () => {
   it("persists continuous sessions across long-running validation", () => {

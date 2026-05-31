@@ -9,7 +9,13 @@ const stubAgent = (id: string): BaseAgent => ({
     agentId: id,
     displayName: id,
     version: "0.0.0",
-    capabilities: [],
+    capabilities: [
+      {
+        id: `${id}-planning`,
+        kind: "planning",
+        description: "Test stub capability",
+      },
+    ],
     executionCapable: false,
   } satisfies AgentMetadata,
   execute: async () => ({

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { createDefaultLocalMemoryRuntime } from "./create-default-local-memory-runtime";
+import { createDefaultLocalMemoryRuntime } from "../create-default-local-memory-runtime";
 import {
   loadContinuousSession,
   saveContinuousSession,
   listContinuousSessions,
-} from "./continuous-session-store";
+} from "../continuous-session-store";
 
 describe("continuous session store", () => {
   it("persists and loads continuous sessions", () => {

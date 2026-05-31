@@ -10,6 +10,7 @@ import {
   createDefaultHermesGateway,
   createHermesGatewayRuntimeWiring,
 } from "../index";
+import { GROQ_PLANNING_ADAPTER_TEST_OPTIONS } from "../../../adapter/official/src/__tests__/groq-planning-mock";
 import { createHermesPlanningAdapter } from "../../index";
 
 const request = {
@@ -54,7 +55,7 @@ describe("Hermes gateway", () => {
   it("executes through planning adapter when wired", async () => {
     const gateway = createDefaultHermesGateway({
       env: { HERMES_MODE: "stub" },
-      adapter: createHermesPlanningAdapter(),
+      adapter: createHermesPlanningAdapter(GROQ_PLANNING_ADAPTER_TEST_OPTIONS),
     });
     const response = await gateway.execute(request);
 

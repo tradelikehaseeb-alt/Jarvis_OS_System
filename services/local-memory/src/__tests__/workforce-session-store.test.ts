@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { createDefaultLocalMemoryRuntime } from "./create-default-local-memory-runtime";
+import { createDefaultLocalMemoryRuntime } from "../create-default-local-memory-runtime";
 import {
   loadWorkforceSession,
   saveWorkforceSession,
   listWorkforceSessions,
-} from "./workforce-session-store";
+} from "../workforce-session-store";
 
 describe("workforce session store", () => {
   it("persists and loads workforce sessions", () => {

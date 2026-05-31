@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { createDefaultLocalMemoryRuntime } from "./create-default-local-memory-runtime";
+import { createDefaultLocalMemoryRuntime } from "../create-default-local-memory-runtime";
 import {
   loadProductivitySession,
   saveProductivitySession,
   listProductivitySessions,
-} from "./productivity-session-store";
+} from "../productivity-session-store";
 
 describe("productivity session store", () => {
   it("persists and loads productivity sessions", () => {

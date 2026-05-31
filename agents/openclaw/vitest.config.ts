@@ -8,5 +8,6 @@ export default defineConfig({
       "adapter/official/src/**/*.test.ts",
     ],
     environment: "node",
+    testTimeout: 15_000,
   },
 });

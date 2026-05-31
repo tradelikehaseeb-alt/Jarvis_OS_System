@@ -1,14 +1,21 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SEARCH_SKILL_ID, SearchSkill } from "../index";
 
 describe("SearchSkill", () => {
+  beforeEach(() => {
+    vi.stubEnv("NODE_ENV", "test");
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     delete process.env.SERPER_API_KEY;
   });
 
   it("returns SEARCH_KEY_MISSING when SERPER_API_KEY is unset", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    delete process.env.SERPER_API_KEY;
     const skill = new SearchSkill();
     const output = await skill.execute(
       {

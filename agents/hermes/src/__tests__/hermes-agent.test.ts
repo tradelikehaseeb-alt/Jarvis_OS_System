@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   InMemoryAgentRegistry,
   createDefaultSkillPipeline,
@@ -7,6 +7,7 @@ import {
   type AgentTask,
 } from "@jarvis/agents-shared";
 
+import { GROQ_PLANNING_ADAPTER_TEST_OPTIONS } from "../../adapter/official/src/__tests__/groq-planning-mock";
 import {
   HermesAgent,
   HERMES_AGENT_ID,
@@ -53,10 +54,13 @@ describe("HermesAgent", () => {
   });
 
   it("execute with HermesPlanningAdapter returns structured plan (Phase 22)", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(
+      GROQ_PLANNING_ADAPTER_TEST_OPTIONS.fetchFn!,
+    );
     const { skillExecutor } = await createDefaultSkillPipeline();
     const agent = createHermesAgent(
       skillExecutor,
-      createHermesPlanningAdapter(),
+      createHermesPlanningAdapter(GROQ_PLANNING_ADAPTER_TEST_OPTIONS),
     );
     const result = await agent.execute(task, context);
 

@@ -15,6 +15,7 @@ const TTS_BY_PROVIDER: Record<string, TextToSpeechAdapter> = {
   "speech-stub": new StubTextToSpeechAdapter(),
 };
 
+/** Node-only TTS provider resolution (not imported from browser bundles). */
 export function resolveNodeTtsAdapter(
   config: SpeechProviderConfig,
 ): TextToSpeechAdapter {

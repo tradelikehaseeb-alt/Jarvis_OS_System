@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { GROQ_PLANNING_ADAPTER_TEST_OPTIONS } from "../../../adapter/official/src/__tests__/groq-planning-mock";
 import {
   buildHermesStructuredPlan,
   createDefaultHermesExecutionBridge,
@@ -59,7 +60,7 @@ describe("HermesExecutionBridge runtime", () => {
   });
 
   it("detects stub from planning adapter payload shape", async () => {
-    const adapter = createHermesPlanningAdapter();
+    const adapter = createHermesPlanningAdapter(GROQ_PLANNING_ADAPTER_TEST_OPTIONS);
     const response = await adapter.invoke(request);
     const plan = bridge.createExecutionPlan({
       parentTaskId: "task-adapter",
