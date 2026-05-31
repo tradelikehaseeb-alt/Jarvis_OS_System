@@ -1,16 +1,16 @@
 import { useState } from "react";
 
 import { VoiceShell } from "../components/VoiceShell";
-import { loadVoiceSettings, useMockVoiceInput, type VoiceSettings } from "../voice";
+import { loadVoiceSettings, useAdaptiveVoiceInput, type VoiceSettings } from "../voice";
 
 /**
- * Voice page — mock capture shell for future STT/TTS (Phase 25).
+ * Voice page — adaptive mock (test) or real microphone + STT (production).
  */
 export function VoicePage() {
   const [voiceSettings] = useState<VoiceSettings>(() => loadVoiceSettings());
   const [previewText, setPreviewText] = useState("");
 
-  const voice = useMockVoiceInput({
+  const voice = useAdaptiveVoiceInput({
     settings: voiceSettings,
     onTranscriptReady: setPreviewText,
   });
@@ -19,8 +19,8 @@ export function VoicePage() {
     <div className="page-card voice-page">
       <h2>Voice</h2>
       <p className="voice-page-lead">
-        Mock voice shell only — no microphone, STT, or TTS. Use Chat to send
-        transcripts through intent classification and task submission.
+        Voice uses speech-service STT/TTS in production; tests keep the mock
+        pipeline. Use Chat to run intent classification and task submission.
       </p>
 
       <VoiceShell voice={voice} settings={voiceSettings} />

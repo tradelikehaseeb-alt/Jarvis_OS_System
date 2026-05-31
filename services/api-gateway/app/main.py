@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.error_handling.handlers import register_exception_handlers
 from app.middleware.request_context import register_request_context_middleware
-from app.routes import conversations_router, tasks_router
+from app.routes import api_data_router, conversations_router, tasks_router
 
 
 def create_app() -> FastAPI:
@@ -33,6 +33,7 @@ def create_app() -> FastAPI:
 
     application.include_router(tasks_router)
     application.include_router(conversations_router)
+    application.include_router(api_data_router)
 
     return application
 

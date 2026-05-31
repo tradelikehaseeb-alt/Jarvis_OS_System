@@ -1,15 +1,41 @@
+import { useEffect, useState } from "react";
+
+import { loadMemoryFacts, type MockMemoryRow } from "../data/data-loaders";
 import { MOCK_MEMORY } from "../data/mock-data";
 
-/** Memory page — static mock entries (Phase 18). */
+/** Memory page — live facts API with mock fallback in tests. */
 export function MemoryPage() {
+  const [rows, setRows] = useState<readonly MockMemoryRow[]>(MOCK_MEMORY);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void loadMemoryFacts()
+      .then((facts) => {
+        if (active) {
+          setRows(facts);
+        }
+      })
+      .catch((err: unknown) => {
+        if (active) {
+          setError(err instanceof Error ? err.message : "Failed to load memory");
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="page-card">
-      <h2>Memory (mock)</h2>
-      <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>
-        Hermes will use Memory Service APIs when persistence is implemented.
-      </p>
+      <h2>Memory</h2>
+      {error ? (
+        <p style={{ color: "var(--danger)" }} role="alert">
+          {error}
+        </p>
+      ) : null}
       <ul style={{ listStyle: "none", padding: 0, margin: "1rem 0 0" }}>
-        {MOCK_MEMORY.map((row) => (
+        {rows.map((row) => (
           <li
             key={row.id}
             style={{

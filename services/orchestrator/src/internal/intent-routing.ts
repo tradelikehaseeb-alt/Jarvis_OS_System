@@ -8,6 +8,7 @@ export type RoutedIntentKind =
   | "research"
   | "automate"
   | "browse"
+  | "file"
   | "cron"
   | "plan"
   | "draft";
@@ -18,6 +19,8 @@ const BROWSE_PATTERN =
   /\b(open|click|browse|navigate|go\s+to|visit|scrape|screenshot)\b/i;
 const CRON_PATTERN =
   /\b(remind|schedule|cron|every\s+day|every\s+week|recurring)\b/i;
+const FILE_PATTERN =
+  /\b(create|read|write|save|list|find|search|delete)\b.*\b(file|files|folder|directory|dir)\b/i;
 
 /**
  * Detect orchestrator routing kind from explicit intent + natural-language description.
@@ -26,6 +29,9 @@ export function detectRoutedIntentKind(intent: TaskIntent): RoutedIntentKind {
   const description = intent.description.trim();
   const explicit = intent.kind.trim().toLowerCase();
 
+  if (FILE_PATTERN.test(description)) {
+    return "file";
+  }
   if (CRON_PATTERN.test(description)) {
     return "cron";
   }
@@ -91,6 +97,24 @@ export function buildWorkflowStepsForTask(task: UserTask): readonly WorkflowStep
           agentId: HERMES_AGENT_ID,
           skillId: "search-skill",
           dependsOn: ["research-plan"],
+        },
+      ];
+    case "file":
+      return [
+        {
+          stepId: "file-plan",
+          order: 0,
+          name: "Plan file operation",
+          agentId: HERMES_AGENT_ID,
+          dependsOn: [],
+        },
+        {
+          stepId: "file-execute",
+          order: 1,
+          name: "Execute file skill",
+          agentId: OPENCLAW_AGENT_ID,
+          skillId: "file-skill",
+          dependsOn: ["file-plan"],
         },
       ];
     case "automate":

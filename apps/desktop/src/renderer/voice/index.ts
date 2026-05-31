@@ -17,6 +17,14 @@ export {
   type UseMockVoiceInputOptions,
   type UseMockVoiceInputResult,
 } from "./use-mock-voice-input";
+export { RealVoiceSession, type RealVoiceSessionState } from "./real-voice-session";
+export {
+  useVoiceInput,
+  useAdaptiveVoiceInput,
+  type UseVoiceInputOptions,
+  type UseVoiceInputResult,
+} from "./use-voice-input";
+export { VOICE_SILENCE_STOP_MS } from "./voice-activity-detector";
 export {
   useVoiceExecution,
   type UseVoiceExecutionOptions,

@@ -18,7 +18,7 @@ import { classifyChatIntent, loadingMessageForIntent } from "../intent";
 import type { HermesPlanMessageData } from "../types/hermes-plan";
 import {
   loadVoiceSettings,
-  useMockVoiceInput,
+  useAdaptiveVoiceInput,
   useVoiceExecution,
   type VoiceSettings,
 } from "../voice";
@@ -133,7 +133,7 @@ export function ConversationWorkspace() {
     },
   });
 
-  const voice = useMockVoiceInput({
+  const voice = useAdaptiveVoiceInput({
     settings: voiceSettings,
     onTranscriptReady: (normalized) => {
       setVoiceNormalizerError(null);

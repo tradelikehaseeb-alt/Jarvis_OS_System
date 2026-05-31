@@ -1,10 +1,40 @@
+import { useEffect, useState } from "react";
+
+import { loadRecentTasks } from "../data/data-loaders";
+import type { MockTaskRow } from "../data/mock-data";
 import { MOCK_TASKS } from "../data/mock-data";
 
-/** Tasks page — static mock list (Phase 18). */
+/** Tasks page — live API with mock fallback in tests. */
 export function TasksPage() {
+  const [tasks, setTasks] = useState<readonly MockTaskRow[]>(MOCK_TASKS);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void loadRecentTasks()
+      .then((rows) => {
+        if (active) {
+          setTasks(rows);
+        }
+      })
+      .catch((err: unknown) => {
+        if (active) {
+          setError(err instanceof Error ? err.message : "Failed to load tasks");
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="page-card">
-      <h2>Recent tasks (mock)</h2>
+      <h2>Recent tasks</h2>
+      {error ? (
+        <p style={{ color: "var(--danger)" }} role="alert">
+          {error}
+        </p>
+      ) : null}
       <table className="mock-table">
         <thead>
           <tr>
@@ -14,7 +44,7 @@ export function TasksPage() {
           </tr>
         </thead>
         <tbody>
-          {MOCK_TASKS.map((row) => (
+          {tasks.map((row) => (
             <tr key={row.taskId}>
               <td>{row.taskId}</td>
               <td>

@@ -47,4 +47,4 @@ def test_stub_client_unchanged_behavior() -> None:
     import inspect
 
     assert hasattr(StubOrchestratorClient, "create_task")
-    assert Path(inspect.getfile(StubOrchestratorClient)).name == "stub_orchestrator_client.py"
+    assert Path(inspect.getfile(StubOrchestratorClient)).name == "stub_orchestrator_client_legacy.py"

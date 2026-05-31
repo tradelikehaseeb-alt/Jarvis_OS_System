@@ -18,6 +18,15 @@ describe("intent-routing", () => {
     expect(detectRoutedIntentKind(task.intent)).toBe("browse");
   });
 
+  it("detects file operations from transcript", () => {
+    const task = sampleUserTask({
+      intent: { kind: "chat", description: "Read file notes.txt in workspace" },
+    });
+    expect(detectRoutedIntentKind(task.intent)).toBe("file");
+    const steps = buildWorkflowStepsForTask(task);
+    expect(steps.some((step) => step.skillId === "file-skill")).toBe(true);
+  });
+
   it("detects cron from schedule verbs", () => {
     const task = sampleUserTask({
       intent: { kind: "chat", description: "Remind me every Monday" },

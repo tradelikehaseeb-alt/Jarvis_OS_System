@@ -11,4 +11,5 @@ export interface JarvisApiResponse<T = unknown> {
   readonly status: number;
   readonly body?: T;
   readonly error?: JarvisApiErrorBody;
+  readonly headers?: Readonly<Record<string, string>>;
 }

@@ -31,17 +31,34 @@ function readRequestBody(req: http.IncomingMessage): Promise<unknown> {
   });
 }
 
-function writeJsonResponse(
+function writeResponse(
   res: http.ServerResponse,
   response: JarvisApiResponse,
 ): void {
-  const payload = response.error
-    ? { error: response.error }
-    : (response.body ?? {});
-
   res.statusCode = response.status;
+
+  if (response.headers) {
+    for (const [key, value] of Object.entries(response.headers)) {
+      res.setHeader(key, value);
+    }
+  }
+
+  if (response.error) {
+    if (!response.headers?.["Content-Type"]) {
+      res.setHeader("Content-Type", "application/json");
+    }
+    res.end(JSON.stringify({ error: response.error }));
+    return;
+  }
+
+  const contentType = response.headers?.["Content-Type"] ?? "";
+  if (contentType.includes("text/event-stream")) {
+    res.end(typeof response.body === "string" ? response.body : "");
+    return;
+  }
+
   res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(payload));
+  res.end(JSON.stringify(response.body ?? {}));
 }
 
 /**
@@ -172,10 +189,10 @@ export class JarvisApiServer {
         headers,
       });
 
-      writeJsonResponse(res, response);
+      writeResponse(res, response);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Internal error";
-      writeJsonResponse(res, {
+      writeResponse(res, {
         status: 500,
         error: {
           code: "INTERNAL_ERROR",

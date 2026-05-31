@@ -31,6 +31,27 @@ function registerDefaultRoutes(
     body: buildHealth(true),
   }));
 
+  router.get("/api/dashboard", async () => ({
+    status: 200,
+    body: {
+      status: "ok",
+      memoryStatus: "embedded",
+      factsCount: 0,
+      activeTasks: 0,
+      checkedAt: new Date().toISOString(),
+    },
+  }));
+
+  router.get("/tasks/recent", async () => ({
+    status: 200,
+    body: { tasks: [], limit: 10, source: "api-runtime" },
+  }));
+
+  router.get("/memory/facts", async () => ({
+    status: 200,
+    body: { facts: [] },
+  }));
+
   router.post("/tasks", async (request) => {
     const validated = validateCreateTaskRequest(request.body);
     if ("status" in validated) {
@@ -41,6 +62,59 @@ function registerDefaultRoutes(
     return {
       status: 200,
       body: record.createTaskResponse,
+    };
+  });
+
+  router.get("/tasks/:id/stream", async (request) => {
+    const taskId = request.params.id?.trim() ?? "";
+    if (!taskId) {
+      return {
+        status: 422,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "taskId must not be empty",
+        },
+      };
+    }
+
+    const terminal = new Set(["completed", "failed", "cancelled"]);
+    const events: string[] = [];
+
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      const status = await orchestrator.getTaskStatus(taskId);
+      if (!status) {
+        return {
+          status: 404,
+          error: {
+            code: "TASK_NOT_FOUND",
+            message: `Task ${taskId} not found`,
+          },
+        };
+      }
+
+      const payload = JSON.stringify({
+        ...status,
+        progressPercent:
+          status.status === "completed" || status.status === "failed"
+            ? 100
+            : status.progressPercent,
+      });
+      events.push(`event: status\ndata: ${payload}\n\n`);
+
+      if (terminal.has(status.status)) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    return {
+      status: 200,
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+      body: events.join(""),
     };
   });
 

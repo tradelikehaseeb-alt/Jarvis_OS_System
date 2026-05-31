@@ -20,6 +20,9 @@ def test_routes_registered() -> None:
     assert "/tasks" in paths
     assert "post" in paths["/tasks"]
     assert "/tasks/{task_id}" in paths
+    assert "/tasks/{task_id}/stream" in paths
+    assert "/api/dashboard" in paths
+    assert "/memory/facts" in paths
     assert "/conversations" in paths
 
 
@@ -33,6 +36,7 @@ def test_orchestrator_client_factory() -> None:
     clients = importlib.import_module("app.clients")
     assert hasattr(clients, "LocalBridgeOrchestratorClient")
     assert hasattr(clients, "StubOrchestratorClient")
+    assert hasattr(clients, "HttpOrchestratorClient")
     assert hasattr(clients, "OrchestratorTransport")
     assert hasattr(clients, "LocalCliTransport")
     # Phase 6 alias
