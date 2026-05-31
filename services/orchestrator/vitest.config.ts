@@ -21,5 +21,7 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     environment: "node",
     setupFiles: ["./vitest.setup.ts"],
+    /** Avoid shared global/env pollution across integration suites. */
+    fileParallelism: false,
   },
 });

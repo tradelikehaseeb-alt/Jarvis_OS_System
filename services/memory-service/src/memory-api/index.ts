@@ -1,2 +1,6 @@
 export type { MemoryApiService, MemoryServiceComponents } from "./contract";
-export { MemoryApiServiceStub } from "./stub";
+export {
+  MemoryApiServiceStub,
+  DefaultMemoryApiService,
+  handleMemoryHttpRequest,
+} from "./stub";

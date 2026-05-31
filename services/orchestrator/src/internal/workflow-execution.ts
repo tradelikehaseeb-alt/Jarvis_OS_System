@@ -47,6 +47,9 @@ function buildAgentTask(
     taskId: task.id,
     requestId,
     userId: task.userId,
+    intent: task.intent,
+    correlationId: task.correlationId,
+    workflowStepId: step.stepId,
     metadata: {
       ...task.metadata,
       workflowStepId: step.stepId,

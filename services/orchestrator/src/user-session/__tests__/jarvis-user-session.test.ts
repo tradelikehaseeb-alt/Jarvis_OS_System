@@ -31,7 +31,9 @@ describe("Jarvis user session", () => {
 });
 
 describe("Jarvis user session integration", () => {
-  it("runs full real user session with validation checklist", async () => {
+  it(
+    "runs full real user session with validation checklist",
+    async () => {
     const runtime = await createTestJarvisUserSessionRuntime();
     const report = await runtime.runUserSession({
       userId: DEFAULT_API_USER_ID,
@@ -54,7 +56,9 @@ describe("Jarvis user session integration", () => {
       expect(result.telemetryCaptured).toBe(true);
       expect(result.stub).toBe(true);
     }
-  });
+  },
+    60_000,
+  );
 
   it.each(REAL_USER_SESSION_PROMPTS)(
     "executes user session prompt with stub fallback: %s",

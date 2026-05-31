@@ -46,8 +46,8 @@ function nowIso(): string {
 }
 
 function buildGatewayResponse(
-  request: OpenClawGatewayRequest,
-  adapter: OpenClawAdapter,
+  _request: OpenClawGatewayRequest,
+  _adapter: OpenClawAdapter,
   runtimeStatus: OpenClawRuntimeHealth["status"],
   adapterResponse: Awaited<ReturnType<OpenClawAdapter["invoke"]>>,
 ): OpenClawGatewayResponse {

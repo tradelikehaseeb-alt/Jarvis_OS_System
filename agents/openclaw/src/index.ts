@@ -6,7 +6,6 @@ import type { AgentRegistryContract, SkillExecutor } from "@jarvis/agents-shared
 
 import type { OpenClawAdapter } from "../adapter/src/openclaw-adapter";
 import { createOpenClawAdapterStub } from "../adapter/src/openclaw-adapter-stub";
-import { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
 import { OpenClawAgent } from "./openclaw-agent";
 
 export { OpenClawAgent } from "./openclaw-agent";

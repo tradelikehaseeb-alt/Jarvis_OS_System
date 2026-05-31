@@ -7,7 +7,6 @@ import type { AgentRegistryContract, SkillExecutor } from "@jarvis/agents-shared
 import type { HermesAdapter } from "../adapter/src/hermes-adapter";
 import { createHermesAdapterStub } from "../adapter/src/hermes-adapter-stub";
 import { HermesAgent } from "./hermes-agent";
-import { HERMES_AGENT_ID, HERMES_METADATA } from "./metadata";
 
 export { HermesAgent } from "./hermes-agent";
 export { HERMES_AGENT_ID, HERMES_METADATA } from "./metadata";

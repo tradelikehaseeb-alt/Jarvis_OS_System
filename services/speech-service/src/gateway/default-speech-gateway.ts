@@ -1,15 +1,15 @@
+import { createDefaultSpeechActionRouter } from "../actions/speech-action-router";
+import type { SpeechActionResponse } from "../actions/speech-action-response";
+import { createDefaultSpeechCapabilityRouter } from "../routing/speech-capability-router";
+import type { SpeechCapability } from "../routing/speech-capability";
+import type { SpeechRoutingDecision } from "../routing/speech-routing-decision";
+import { SpeechNormalizer } from "../speech-normalizer";
 import {
   InMemorySpeechRuntimeManager,
   MockSpeechRuntimeProvider,
-  SpeechNormalizer,
-  createDefaultSpeechActionRouter,
-  createDefaultSpeechCapabilityRouter,
-  type SpeechActionResponse,
-  type SpeechCapability,
-  type SpeechRoutingDecision,
   type SpeechRuntimeHealth,
   type SpeechRuntimeProviderId,
-} from "../index";
+} from "../runtime";
 import type { SpeechGateway } from "./speech-gateway";
 import type { SpeechGatewayRequest } from "./speech-gateway-request";
 import type { SpeechGatewayResponse } from "./speech-gateway-response";

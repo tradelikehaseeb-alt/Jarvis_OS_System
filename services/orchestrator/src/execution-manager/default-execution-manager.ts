@@ -138,6 +138,7 @@ export class DefaultExecutionManager implements ExecutionManager {
       taskId: agentRequest.task.id,
       requestId: agentRequest.requestId,
       userId: agentRequest.task.userId,
+      intent: agentRequest.task.intent,
       metadata: {
         ...agentRequest.task.metadata,
         workflowStepId: handle.step.stepId,

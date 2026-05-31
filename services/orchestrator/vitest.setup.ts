@@ -62,17 +62,10 @@ function isLlmChatCompletionsUrl(url: string): boolean {
   );
 }
 
-beforeAll(() => {
-  process.env.SERPER_API_KEY ??= "vitest-serper-mock-key";
-  process.env.JARVIS_ALLOW_LLM_STUB_FALLBACK = "true";
-  delete process.env.JARVIS_BROWSER_REAL;
+import { applyOrchestratorTestHarnessEnv } from "./src/test-harness-env";
 
-  // Hermes: deterministic stub planning (avoid planning/python adapters from host .env)
-  process.env.HERMES_MODE = "stub";
-  delete process.env.HERMES_PLANNING_ADAPTER;
-  delete process.env.HERMES_USE_PYTHON_AGENT;
-  process.env.HERMES_INTEGRATION_LIVE = "false";
-  process.env.ORCHESTRATOR_EXECUTE_COMPOSED_WORKFLOW = "false";
+beforeAll(() => {
+  applyOrchestratorTestHarnessEnv();
 
   if (process.env.RUN_INTEGRATION_LIVE_TESTS !== "true") {
     for (const key of LLM_API_KEY_ENV_VARS) {

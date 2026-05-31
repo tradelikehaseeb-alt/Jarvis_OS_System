@@ -5,6 +5,7 @@
 export const JARVIS_SCAFFOLD_VERSION = "0.5.0-phase5" as const;
 
 export type { HealthStatus } from "./health";
+export * from "./intent";
 export * from "./contracts";
 export * from "./api";
 export * from "./memory";

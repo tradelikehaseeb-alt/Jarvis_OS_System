@@ -4,8 +4,9 @@ import {
   createDefaultProviderSettingsRuntime,
   type ProviderSettingsRuntime,
 } from "../llm-provider/connectors/create-default-provider-settings-runtime";
+import { createDefaultProviderValidationRuntime } from "../llm-provider/connectors/provider-validation-runtime";
 import type { LlmProviderResponse } from "../llm-provider/llm-provider-response";
-import type { LlmProviderValidation } from "../llm-provider/llm-provider";
+import type { LlmProviderKind, LlmProviderValidation } from "../llm-provider/llm-provider";
 import { shouldUseOrchestratorLlmPlanning } from "./should-use-orchestrator-llm-planning";
 
 export type TaskLlmPlanningSource = "orchestrator-llm" | "hermes-adapter" | "skipped";
@@ -65,15 +66,26 @@ export async function invokeTaskLlm(
     input.task.metadata,
   );
 
-  const validation = await runtime.validateApiKey(input.task.userId, providerId);
+  const apiValidation = await runtime.validateApiKey(input.task.userId, providerId);
+  const configuration =
+    createDefaultProviderValidationRuntime().getConfiguration(providerId);
+  const validation: LlmProviderValidation = {
+    valid: apiValidation.valid,
+    providerId: apiValidation.providerId,
+    stub: apiValidation.stub,
+    message: apiValidation.message,
+    kind: configuration?.kind ?? ("stub" satisfies LlmProviderKind),
+  };
 
   const response = await runtime.executePrompt({
     prompt: buildLlmPrompt(input.task, useOrchestratorPlanning),
     taskId: input.task.id,
-    requestId: input.requestId,
     userId: input.task.userId,
     providerId,
-    metadata: input.task.metadata,
+    metadata: {
+      ...input.task.metadata,
+      requestId: input.requestId,
+    },
   });
 
   return {

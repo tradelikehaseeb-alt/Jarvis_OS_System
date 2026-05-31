@@ -275,7 +275,7 @@ export class BrowserExecutionRuntime {
 
   private async resolvePipeline(
     stub: boolean,
-    sessionId: string,
+    _sessionId: string,
   ): Promise<{ pipeline: BrowserActionPipeline; pipelineStub: boolean }> {
     if (this.injectedPipeline) {
       return { pipeline: this.injectedPipeline, pipelineStub: stub };

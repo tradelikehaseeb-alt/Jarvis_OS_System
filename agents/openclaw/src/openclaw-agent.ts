@@ -5,7 +5,6 @@ import {
   type AgentContext,
   type AgentResult,
   type AgentTask,
-  type SkillExecutionRequest,
   type SkillExecutor,
 } from "@jarvis/agents-shared";
 
@@ -46,11 +45,11 @@ export class OpenClawAgent extends AbstractBaseAgent {
 
   constructor(
     private readonly skillExecutor: SkillExecutor,
-    private readonly adapter: OpenClawAdapter = createOpenClawAdapterStub(),
+    adapter: OpenClawAdapter = createOpenClawAdapterStub(),
     private readonly gateway: OpenClawGateway = createDefaultOpenClawGateway({
       adapter,
     }),
-    private readonly browserRuntimeSession?: BrowserRuntimeSession,
+    _browserRuntimeSession?: BrowserRuntimeSession,
     private readonly browserExecutionRuntime: BrowserExecutionRuntime = createDefaultBrowserExecutionRuntime(),
     private readonly desktopActionRuntime = createDefaultDesktopActionRuntime(),
   ) {
@@ -182,18 +181,35 @@ export class OpenClawAgent extends AbstractBaseAgent {
       context,
     );
 
-    const skipStubFile =
-      openClawRuntimeEnv.mode === "official" || openClawRuntimeEnv.mode === "remote";
+    const deferFileSkill =
+      openClawRuntimeEnv.mode === "official" ||
+      openClawRuntimeEnv.mode === "remote" ||
+      openClawRuntimeEnv.mode === "stub";
 
-    const fileResponse = skipStubFile
+    const fileResponse = deferFileSkill
       ? {
           success: true,
-          data: {
-            stub: false,
-            operation: "skipped",
-            path: "",
-            result: { status: "skipped", message: "File skill deferred to OpenClaw gateway" },
-          },
+          data:
+            openClawRuntimeEnv.mode === "stub"
+              ? {
+                  stub: true,
+                  operation: "read",
+                  path: "/stub/workspace/output.txt",
+                  result: {
+                    status: "ok",
+                    message:
+                      "Mock read completed on /stub/workspace/output.txt",
+                  },
+                }
+              : {
+                  stub: false,
+                  operation: "skipped",
+                  path: "",
+                  result: {
+                    status: "skipped",
+                    message: "File skill deferred to OpenClaw gateway",
+                  },
+                },
         }
       : await this.skillExecutor.execute(
           {
@@ -202,7 +218,10 @@ export class OpenClawAgent extends AbstractBaseAgent {
             skillId: FILE_SKILL_ID,
             parameters: {
               operation: "read",
-              path: "/stub/workspace/output.txt",
+              path:
+                typeof task.intent.description === "string"
+                  ? task.intent.description
+                  : "output.txt",
               intent: task.intent,
               handleId: gatewayResponse.executionHandleId,
             },
@@ -214,7 +233,8 @@ export class OpenClawAgent extends AbstractBaseAgent {
     const executionStub =
       browserRuntimeResult.stub ||
       gatewayResponse.stub ||
-      readSkillStubFlag(browserResponse.data);
+      readSkillStubFlag(browserResponse.data) ||
+      readSkillStubFlag(fileResponse.data);
 
     return {
       taskId: task.taskId,

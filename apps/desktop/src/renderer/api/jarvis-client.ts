@@ -8,7 +8,7 @@ import type { ApiHealth } from "@jarvis/api-runtime";
 import {
   buildTaskIntentFromClassification,
   type IntentClassification,
-} from "../intent";
+} from "@jarvis/types";
 import {
   createInitialApiLifecycle,
   type ApiRequestLifecycle,

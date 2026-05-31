@@ -25,7 +25,7 @@ export class HermesAgent extends AbstractBaseAgent {
 
   constructor(
     private readonly skillExecutor: SkillExecutor,
-    private readonly adapter: HermesAdapter = createHermesAdapterStub(),
+    adapter: HermesAdapter = createHermesAdapterStub(),
     private readonly gateway: HermesGateway = createDefaultHermesGateway({
       adapter,
     }),

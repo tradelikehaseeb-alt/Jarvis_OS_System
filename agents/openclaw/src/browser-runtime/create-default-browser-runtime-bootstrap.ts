@@ -90,17 +90,6 @@ class DefaultBrowserRuntimeBootstrap implements BrowserRuntimeBootstrap {
     const health = this.runtimeHealth ?? (await this.validateRuntime());
 
     if (!health.valid) {
-      const failedInfo: BrowserRuntimeSessionInfo = {
-        sessionId:
-          this.bootstrapInfo?.sessionId ??
-          nextBootstrapSessionId(
-            this.config.sessionIdPrefix ?? "browser-bootstrap",
-          ),
-        state: "failed",
-        stub: this.config.stub ?? true,
-        initializedAt: this.bootstrapInfo?.initializedAt,
-        validatedAt: health.checkedAt,
-      };
       throw new Error(health.message);
     }
 

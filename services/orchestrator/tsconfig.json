@@ -3,16 +3,18 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "noEmit": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "declaration": true,
     "declarationMap": true,
     "paths": {
-      "@jarvis/desktop-intent": ["../../apps/desktop/src/renderer/intent/index.ts"],
-      "@jarvis/desktop-intent/*": ["../../apps/desktop/src/renderer/intent/*"],
-      "@jarvis/local-memory": ["../local-memory/src/index.ts"],
-      "@jarvis/local-memory/*": ["../local-memory/src/*"]
+      "@jarvis/local-memory": ["../local-memory/dist/index.d.ts"],
+      "@jarvis/local-memory/*": ["../local-memory/dist/*"]
     }
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "src/**/__tests__/**"]
 }

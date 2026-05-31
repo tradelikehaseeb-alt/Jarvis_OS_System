@@ -131,7 +131,7 @@ export class DefaultContextManager implements ContextManager {
       });
     return (
       this.options.conversationHistory ??
-      createDefaultConversationHistoryRuntime({ localMemory })
+      createDefaultConversationHistoryRuntime({ localMemoryRuntime: localMemory })
     );
   }
 

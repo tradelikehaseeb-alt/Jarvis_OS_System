@@ -7,10 +7,8 @@ import type {
 
 import type { EmbeddingProvider } from "../embedding-provider/contract";
 import { TfidfEmbeddingProvider } from "../embedding-provider/tfidf-embedding-provider";
-import {
-  SqliteStorageAdapter,
-  type MemoryCategory,
-} from "../storage-adapter/sqlite-storage-adapter";
+import { SqliteStorageAdapter } from "../storage-adapter/sqlite-storage-adapter";
+import type { MemoryCategory } from "../storage-adapter/sqlite-schema";
 import type { MemoryProviderComponent } from "./contract";
 
 function parseCategory(metadata?: Readonly<Record<string, unknown>>): MemoryCategory {

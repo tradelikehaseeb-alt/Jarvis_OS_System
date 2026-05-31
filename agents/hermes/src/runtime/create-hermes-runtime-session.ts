@@ -48,7 +48,7 @@ function emptyPlan(intentKind: string): HermesGatewayResponse["plan"] {
 }
 
 function buildGatewayResponse(
-  request: HermesGatewayRequest,
+  _request: HermesGatewayRequest,
   adapterResponse: Awaited<ReturnType<HermesAdapter["invoke"]>>,
   runtimeStatus: HermesRuntimeHealth["status"],
 ): HermesGatewayResponse {

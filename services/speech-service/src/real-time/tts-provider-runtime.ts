@@ -2,13 +2,9 @@ import type { TextToSpeechAdapter } from "../adapters/text-to-speech-adapter";
 import type { SpeechProviderConfig } from "../adapters/speech-provider-config";
 import type { SpeechRequest } from "../adapters/speech-request";
 import type { SpeechResponse } from "../adapters/speech-response";
-import {
-  EdgeTtsAdapter,
-  ElevenLabsTtsAdapter,
-  OpenAiTtsAdapter,
-} from "../adapters/live-tts-adapters";
-import { StubTextToSpeechAdapter } from "../adapters/stub-text-to-speech-adapter";
 
+import { isBrowserLikeEnvironment } from "./resolve-streaming-stt-adapter";
+import { resolveTtsAdapter } from "./resolve-tts-provider-runtime";
 import {
   resolveFirstConfiguredTtsProvider,
   resolveSpeechProviderConfig,
@@ -20,14 +16,6 @@ export interface TtsProviderRuntimeOptions {
   readonly config?: SpeechProviderConfig;
   readonly fallbackChain?: readonly SpeechProviderConfig[];
 }
-
-const TTS_BY_PROVIDER: Record<string, TextToSpeechAdapter> = {
-  "jarvis-tts": new StubTextToSpeechAdapter(),
-  elevenlabs: ElevenLabsTtsAdapter,
-  "openai-tts": OpenAiTtsAdapter,
-  "edge-tts": EdgeTtsAdapter,
-  "speech-stub": new StubTextToSpeechAdapter(),
-};
 
 function buildLiveTtsChain(
   explicit?: readonly SpeechProviderConfig[],
@@ -61,21 +49,24 @@ export class TtsProviderRuntime {
   private readonly fallbackChain: readonly SpeechProviderConfig[];
 
   constructor(options: TtsProviderRuntimeOptions = {}) {
-    this.adapters = new Map(Object.entries(TTS_BY_PROVIDER));
-    if (options.adapter) {
-      this.adapters.set(
-        options.config?.providerId ?? options.adapter.adapterId,
-        options.adapter,
-      );
-    }
-    this.fallbackChain = buildLiveTtsChain(
-      options.fallbackChain ??
-        (options.config ? [options.config] : undefined),
-    );
+    const config = options.config ?? resolveFirstConfiguredTtsProvider();
+    const adapter = resolveTtsAdapter(config, options.adapter);
+    this.adapters = new Map([[config.providerId, adapter]]);
+    this.fallbackChain = isBrowserLikeEnvironment()
+      ? []
+      : buildLiveTtsChain(
+          options.fallbackChain ??
+            (options.config ? [options.config] : undefined),
+        );
   }
 
   async synthesize(request: SpeechRequest): Promise<SpeechResponse> {
     if (this.fallbackChain.length === 0) {
+      const primary = this.adapters.values().next().value;
+      if (primary) {
+        const config = resolveFirstConfiguredTtsProvider();
+        return primary.synthesize(request, config);
+      }
       return {
         requestId: request.requestId,
         adapterId: "tts-runtime",
@@ -93,7 +84,8 @@ export class TtsProviderRuntime {
     let lastResponse: SpeechResponse | undefined;
     for (const config of this.fallbackChain) {
       const adapter =
-        this.adapters.get(config.providerId) ?? new StubTextToSpeechAdapter();
+        this.adapters.get(config.providerId) ??
+        resolveTtsAdapter(config);
       const response = await adapter.synthesize(request, config);
       if (!response.error && response.audioBase64 && response.audioBase64.length > 0) {
         return response;

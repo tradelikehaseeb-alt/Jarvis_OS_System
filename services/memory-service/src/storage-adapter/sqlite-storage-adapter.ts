@@ -86,7 +86,7 @@ export class SqliteStorageAdapter implements StorageAdapter {
   private writeCount = 0;
 
   constructor(
-    private readonly options: {
+    options: {
       readonly dbPath?: string;
       readonly env?: Readonly<Record<string, string | undefined>>;
       readonly seedUserId?: string;

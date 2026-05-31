@@ -8,13 +8,15 @@ export default defineConfig({
     environment: "jsdom",
     include: ["src/renderer/**/*.test.ts", "src/renderer/**/*.test.tsx"],
     setupFiles: ["src/renderer/test/setup.ts"],
+    /** Avoid orchestrator global/env pollution across integration suites. */
+    fileParallelism: false,
   },
   resolve: {
     alias: {
       "@renderer": path.join(__dirname, "src/renderer"),
       "@jarvis/speech-service": path.join(
         __dirname,
-        "../../services/speech-service/src/index.ts",
+        "../../services/speech-service/src/browser.ts",
       ),
       "@jarvis/api-runtime": path.join(
         __dirname,
@@ -27,10 +29,6 @@ export default defineConfig({
       "@jarvis/runtime-process": path.join(
         __dirname,
         "../../services/runtime-process/src/index.ts",
-      ),
-      "@jarvis/desktop-intent": path.join(
-        __dirname,
-        "../../apps/desktop/src/renderer/intent/index.ts",
       ),
     },
   },

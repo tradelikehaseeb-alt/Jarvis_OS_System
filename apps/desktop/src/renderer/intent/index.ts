@@ -1,11 +1,11 @@
-export type { ChatIntentType, IntentClassification } from "./intent-types";
-export { CHAT_INTENT_TYPES } from "./intent-types";
+export type { ChatIntentType, IntentClassification } from "@jarvis/types";
+export { CHAT_INTENT_TYPES } from "@jarvis/types";
 export {
   classifyChatIntent,
   loadingMessageForIntent,
-} from "./intent-classifier";
+} from "@jarvis/types";
 export {
   buildTaskIntentFromClassification,
   mapChatIntentToTaskKind,
   type TaskIntentKind,
-} from "./map-intent-to-task";
+} from "@jarvis/types";

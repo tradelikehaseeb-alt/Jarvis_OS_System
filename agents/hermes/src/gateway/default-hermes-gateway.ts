@@ -53,6 +53,7 @@ export class DefaultHermesGateway implements HermesGateway {
   }
 
   async execute(request: HermesGatewayRequest): Promise<HermesGatewayResponse> {
+    const intentKind = request.intent?.kind ?? "chat";
     const session = createHermesRuntimeSession({
       adapter: this.adapter,
       runtimeWiring: this.runtimeWiring,
@@ -71,7 +72,7 @@ export class DefaultHermesGateway implements HermesGateway {
         stub: health.stub,
         runtimeStatus: health.status,
         adapterId: this.adapter.adapterId,
-        plan: emptyPlan(request.intent.kind),
+        plan: emptyPlan(intentKind),
         reasoning: { summary: "", confidence: 0 },
         error: {
           code: "RUNTIME_UNAVAILABLE",
@@ -88,7 +89,7 @@ export class DefaultHermesGateway implements HermesGateway {
         stub: health.stub,
         runtimeStatus: health.status,
         adapterId: this.adapter.adapterId,
-        plan: emptyPlan(request.intent.kind),
+        plan: emptyPlan(intentKind),
         reasoning: { summary: "", confidence: 0 },
         error: handshake.error ?? {
           code: "PLANNING_FAILED",

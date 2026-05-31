@@ -90,5 +90,7 @@ export async function createDefaultOrchestratorService(
 
 /** In-memory service for unit tests (no file store). */
 export async function createTestOrchestratorService(): Promise<OrchestratorServiceImpl> {
+  const { applyOrchestratorTestHarnessEnv } = await import("./test-harness-env");
+  applyOrchestratorTestHarnessEnv();
   return createDefaultOrchestratorService(TaskStoreFactory.createInMemory());
 }

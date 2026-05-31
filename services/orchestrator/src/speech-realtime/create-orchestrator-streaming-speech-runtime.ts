@@ -2,6 +2,7 @@ import {
   createDefaultStreamingSpeechRuntime,
   createRealTimeVoiceCaptureDelegate,
   createRealTimeVoiceSpeechDelegate,
+  StubSpeechToTextAdapter,
   SyntheticMicrophoneRuntime,
 } from "@jarvis/speech-service";
 
@@ -19,7 +20,11 @@ export function createOrchestratorStreamingSpeechRuntime(
     ? undefined
     : new SyntheticMicrophoneRuntime();
 
-  const streamingRuntime = createDefaultStreamingSpeechRuntime({ microphone });
+  const streamingRuntime = createDefaultStreamingSpeechRuntime({
+    microphone,
+    sttConfig: { providerId: "speech-stub", mode: "stub" },
+    sttAdapter: new StubSpeechToTextAdapter(),
+  });
   const captureDelegate = createRealTimeVoiceCaptureDelegate({ streamingRuntime });
   const speechDelegate = createRealTimeVoiceSpeechDelegate();
 

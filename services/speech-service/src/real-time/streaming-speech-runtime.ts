@@ -2,17 +2,11 @@ import type { SpeechToTextAdapter } from "../adapters/speech-to-text-adapter";
 import type { SpeechProviderConfig } from "../adapters/speech-provider-config";
 import type { SpeechRequest } from "../adapters/speech-request";
 import type { SpeechResponse } from "../adapters/speech-response";
-import {
-  DeepgramSttAdapter,
-  GroqWhisperSttAdapter,
-  OpenAiRealtimeSttAdapter,
-  WhisperSttAdapter,
-} from "../adapters/live-stt-adapters";
-import { StubSpeechToTextAdapter } from "../adapters/stub-speech-to-text-adapter";
 
 import type { MicrophoneRuntime } from "./microphone-runtime";
 import { SyntheticMicrophoneRuntime } from "./microphone-runtime";
 import { RealTimeTranscriptionSession } from "./real-time-transcription-session";
+import { resolveStreamingSttAdapter } from "./resolve-streaming-stt-adapter";
 import { resolveFirstConfiguredSttProvider } from "./speech-provider-resolver";
 
 export interface StreamingSpeechRuntimeOptions {
@@ -20,15 +14,6 @@ export interface StreamingSpeechRuntimeOptions {
   readonly sttAdapter?: SpeechToTextAdapter;
   readonly sttConfig?: SpeechProviderConfig;
 }
-
-const STT_BY_PROVIDER: Record<string, SpeechToTextAdapter> = {
-  "jarvis-stt": new StubSpeechToTextAdapter(),
-  whisper: WhisperSttAdapter,
-  deepgram: DeepgramSttAdapter,
-  "groq-whisper": GroqWhisperSttAdapter,
-  "openai-realtime": OpenAiRealtimeSttAdapter,
-  "speech-stub": new StubSpeechToTextAdapter(),
-};
 
 function splitPartialWords(text: string, count: number): string {
   const words = text.split(/\s+/).filter(Boolean);
@@ -49,10 +34,7 @@ export class StreamingSpeechRuntime {
   constructor(options: StreamingSpeechRuntimeOptions = {}) {
     this.microphone = options.microphone ?? new SyntheticMicrophoneRuntime();
     this.sttConfig = options.sttConfig ?? resolveFirstConfiguredSttProvider();
-    this.sttAdapter =
-      options.sttAdapter ??
-      STT_BY_PROVIDER[this.sttConfig.providerId] ??
-      new StubSpeechToTextAdapter();
+    this.sttAdapter = resolveStreamingSttAdapter(this.sttConfig, options.sttAdapter);
   }
 
   getTranscriptionSession(): RealTimeTranscriptionSession {
