@@ -52,7 +52,9 @@ describe("LlmProviderRuntime", () => {
     });
 
     expect(response.stub).toBe(true);
-    expect(response.content).toContain("Summarize task");
+    expect(response.success).toBe(false);
+    expect(response.error?.code).toBe("PROVIDER_KEY_MISSING");
+    expect(response.content).toBe("");
 
     if (original) {
       process.env.OPENAI_API_KEY = original;

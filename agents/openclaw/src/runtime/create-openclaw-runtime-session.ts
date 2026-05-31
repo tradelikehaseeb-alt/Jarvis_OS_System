@@ -22,6 +22,7 @@ import {
   runBrowserRuntimePath,
   type BrowserRuntimeSession,
 } from "../browser-runtime";
+import { readOpenClawRuntimeEnv } from "../../adapter/official/src/openclaw-runtime-env";
 
 export interface CreateOpenClawRuntimeSessionOptions {
   readonly adapter: OpenClawAdapter;
@@ -59,6 +60,7 @@ function buildGatewayResponse(
     approvedActions: adapterResponse.approvedActions,
     sandbox: adapterResponse.execution.sandbox,
     permissionsChecked: adapterResponse.execution.permissionsChecked,
+    gatewayPayload: adapterResponse.gatewayPayload,
     error: adapterResponse.error,
   };
 }
@@ -171,17 +173,30 @@ class DefaultOpenClawRuntimeSession implements OpenClawRuntimeSession {
     const checkedAt = nowIso();
 
     if (stubMode) {
+      const processState = this.options.processBinding
+        ? await this.options.processBinding.getOpenClawProcessState()
+        : "stub";
+      const localPlaywright = wiring.isLocalPlaywrightMode();
+      const processRunning =
+        !localPlaywright ||
+        !this.options.processBinding ||
+        processState === "running" ||
+        processState === "restarting";
+      const valid = processRunning;
+
       this.runtimeHealth = await applyProviderConnectionValidation(
         {
           status: "stub",
-          valid: true,
+          valid,
           stub: true,
-          available: true,
-          message: "OpenClaw stub runtime",
+          available: valid,
+          message: valid
+            ? localPlaywright
+              ? "OpenClaw local Playwright runtime"
+              : "OpenClaw stub runtime"
+            : "OpenClaw runtime process is not running",
           checkedAt,
-          processState: this.options.processBinding
-            ? await this.options.processBinding.getOpenClawProcessState()
-            : "stub",
+          processState,
         },
         this.options,
       );
@@ -264,7 +279,11 @@ class DefaultOpenClawRuntimeSession implements OpenClawRuntimeSession {
       requestedActions: request.requestedActions,
     });
 
-    if (includesBrowserAction(request)) {
+    const runtimeEnv = readOpenClawRuntimeEnv();
+    const useGatewayBrowserOnly =
+      runtimeEnv.mode === "official" || runtimeEnv.mode === "remote";
+
+    if (includesBrowserAction(request) && !useGatewayBrowserOnly) {
       const browserResult = await runBrowserExecutionPath(
         request,
         adapterResponse.execution.handleId,

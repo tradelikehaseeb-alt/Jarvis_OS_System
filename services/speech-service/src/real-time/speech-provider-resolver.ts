@@ -24,7 +24,7 @@ export const STT_PROVIDER_DEFINITIONS: readonly SpeechProviderDefinition[] = [
     providerId: "groq-whisper",
     apiKeyEnvVars: ["GROQ_API_KEY", "JARVIS_GROQ_API_KEY"],
     baseUrl: "https://api.groq.com/openai/v1",
-    model: "whisper-large-v3",
+    model: "whisper-large-v3-turbo",
   },
   {
     providerId: "openai-realtime",
@@ -81,7 +81,12 @@ export function resolveSpeechProviderConfig(
 }
 
 export function resolveFirstConfiguredSttProvider(
-  priority: readonly string[] = ["whisper", "deepgram", "groq-whisper", "openai-realtime"],
+  priority: readonly string[] = [
+    "groq-whisper",
+    "whisper",
+    "deepgram",
+    "openai-realtime",
+  ],
 ): SpeechProviderConfig {
   for (const providerId of priority) {
     const definition = STT_PROVIDER_DEFINITIONS.find((d) => d.providerId === providerId);
@@ -100,7 +105,7 @@ export function resolveFirstConfiguredSttProvider(
 }
 
 export function resolveFirstConfiguredTtsProvider(
-  priority: readonly string[] = ["openai-tts", "elevenlabs", "edge-tts"],
+  priority: readonly string[] = ["edge-tts", "openai-tts", "elevenlabs"],
 ): SpeechProviderConfig {
   for (const providerId of priority) {
     const definition = TTS_PROVIDER_DEFINITIONS.find((d) => d.providerId === providerId);

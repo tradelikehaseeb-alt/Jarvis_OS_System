@@ -24,6 +24,19 @@ import type { VoiceStatus } from "../voice/voice-types";
 import { BrowserMicrophoneRuntime } from "./browser-microphone-runtime";
 import { useStablePartialTranscript, useThrottledMicLevels } from "../polish";
 
+function isVoiceTestEnvironment(): boolean {
+  if (typeof process !== "undefined" && process.env.NODE_ENV === "test") {
+    return true;
+  }
+  if (typeof import.meta !== "undefined") {
+    const env = import.meta as ImportMeta & {
+      env?: { MODE?: string; NODE_ENV?: string };
+    };
+    return env.env?.MODE === "test" || env.env?.NODE_ENV === "test";
+  }
+  return false;
+}
+
 function mapSessionStateToVoiceStatus(state: VoiceSessionState): VoiceStatus {
   switch (state) {
     case "listening":
@@ -79,6 +92,8 @@ export function useVoiceSession(
   options: UseVoiceSessionOptions = {},
 ): UseVoiceSessionResult {
   const settings = options.settings ?? DEFAULT_VOICE_SETTINGS;
+  const useRealMicrophone =
+    settings.useRealMicrophone && !isVoiceTestEnvironment();
   const [sessionState, setSessionState] = useState<VoiceSessionState>("idle");
   const [wakeWordState, setWakeWordState] = useState<WakeWordState>("idle");
   const [partialTranscript, setPartialTranscript] = useState("");
@@ -99,7 +114,7 @@ export function useVoiceSession(
         phrase: settings.wakePhrase,
         enabled: settings.wakeWordEnabled,
       },
-      captureDelegate: settings.useRealMicrophone
+      captureDelegate: useRealMicrophone
         ? (() => {
             const streamingRuntime = createDefaultStreamingSpeechRuntime({
               microphone: new BrowserMicrophoneRuntime(),
@@ -128,7 +143,7 @@ export function useVoiceSession(
               };
             },
           },
-      speechDelegate: settings.useRealMicrophone
+      speechDelegate: useRealMicrophone
         ? createRealTimeVoiceSpeechDelegate()
         : undefined,
       taskExecutor: async (input) => {

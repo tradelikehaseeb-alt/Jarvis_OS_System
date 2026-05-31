@@ -77,7 +77,11 @@ export class OpenClawGatewayRuntimeWiring {
   constructor(options: OpenClawGatewayRuntimeWiringOptions = {}) {
     const providerConfig = options.providerConfig ?? DEFAULT_PROVIDER_CONFIG;
     this.env = options.env ?? process.env;
-    const allowNetworkProbe = options.allowNetworkProbe ?? false;
+    const mode = readOpenClawRuntimeEnv(this.env).mode;
+    const allowNetworkProbe =
+      options.allowNetworkProbe ??
+      (process.env.NODE_ENV !== "test" &&
+        (mode === "official" || mode === "remote" || mode === "local"));
 
     this.providerResolver =
       options.providerResolver ?? createDefaultProviderResolver(providerConfig);
@@ -96,8 +100,11 @@ export class OpenClawGatewayRuntimeWiring {
 
   isStubMode(): boolean {
     const mode = readOpenClawRuntimeEnv(this.env).mode;
-    // `local` uses Jarvis Playwright browser runtime, not an external OpenClaw gateway probe.
     return mode === "stub" || mode === "local";
+  }
+
+  isLocalPlaywrightMode(): boolean {
+    return readOpenClawRuntimeEnv(this.env).mode === "local";
   }
 
   async resolveProviderMetadata(): Promise<ProviderMetadata> {

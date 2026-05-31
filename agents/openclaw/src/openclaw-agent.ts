@@ -25,7 +25,9 @@ import {
   createDefaultDesktopActionRuntime,
   parseDesktopActionFromIntent,
   type BrowserExecutionRuntime,
+  type BrowserExecutionRuntimeResult,
 } from "./execution-runtime";
+import { readOpenClawRuntimeEnv } from "../adapter/official/src/openclaw-runtime-env";
 import { OPENCLAW_AGENT_ID, OPENCLAW_METADATA } from "./metadata";
 
 function readSkillStubFlag(data: unknown): boolean {
@@ -98,14 +100,44 @@ export class OpenClawAgent extends AbstractBaseAgent {
       correlationId: task.correlationId,
     };
 
+    const openClawRuntimeEnv = readOpenClawRuntimeEnv();
+    const useJarvisPlaywright =
+      openClawRuntimeEnv.mode === "local" || openClawRuntimeEnv.mode === "stub";
+
     const browserRequest = buildBrowserExecutionRequest(
       buildOpenClawGatewayRequest(task, context.contextRef),
       gatewayResponse.executionHandleId,
     );
 
-    const browserRuntimeResult = await this.browserExecutionRuntime.execute(
-      browserRequest,
-    );
+    const gatewayBrowserPayload = gatewayResponse.gatewayPayload?.browserRuntime as
+      | Readonly<Record<string, unknown>>
+      | undefined;
+
+    const browserRuntimeResult = useJarvisPlaywright
+      ? await this.browserExecutionRuntime.execute(browserRequest)
+      : {
+          success: gatewayResponse.success,
+          stub: gatewayResponse.stub,
+          action:
+            typeof gatewayBrowserPayload?.action === "string"
+              ? gatewayBrowserPayload.action
+              : browserRequest.action,
+          url:
+            typeof gatewayBrowserPayload?.url === "string"
+              ? gatewayBrowserPayload.url
+              : browserRequest.url ?? "",
+          status: gatewayResponse.success
+            ? ("completed" as const)
+            : ("failed" as const),
+          message:
+            typeof gatewayResponse.gatewayPayload?.message === "string"
+              ? gatewayResponse.gatewayPayload.message
+              : "OpenClaw gateway browser execution",
+          executedAt: new Date().toISOString(),
+          browserState: gatewayBrowserPayload?.browserState as
+            | BrowserExecutionRuntimeResult["browserState"]
+            | undefined,
+        };
 
     const desktopAction = parseDesktopActionFromIntent(task.intent.description);
     const desktopResult = desktopAction
@@ -150,20 +182,33 @@ export class OpenClawAgent extends AbstractBaseAgent {
       context,
     );
 
-    const fileResponse = await this.skillExecutor.execute(
-      {
-        ...base,
-        executionId: `${base.executionId}-file`,
-        skillId: FILE_SKILL_ID,
-        parameters: {
-          operation: "read",
-          path: "/stub/workspace/output.txt",
-          intent: task.intent,
-          handleId: gatewayResponse.executionHandleId,
-        },
-      },
-      context,
-    );
+    const skipStubFile =
+      openClawRuntimeEnv.mode === "official" || openClawRuntimeEnv.mode === "remote";
+
+    const fileResponse = skipStubFile
+      ? {
+          success: true,
+          data: {
+            stub: false,
+            operation: "skipped",
+            path: "",
+            result: { status: "skipped", message: "File skill deferred to OpenClaw gateway" },
+          },
+        }
+      : await this.skillExecutor.execute(
+          {
+            ...base,
+            executionId: `${base.executionId}-file`,
+            skillId: FILE_SKILL_ID,
+            parameters: {
+              operation: "read",
+              path: "/stub/workspace/output.txt",
+              intent: task.intent,
+              handleId: gatewayResponse.executionHandleId,
+            },
+          },
+          context,
+        );
 
     const success = browserResponse.success && fileResponse.success;
     const executionStub =
@@ -194,7 +239,9 @@ export class OpenClawAgent extends AbstractBaseAgent {
         file: fileResponse.data,
         skillExecutions: [browserResponse, fileResponse],
       },
-      error: browserResponse.error ?? fileResponse.error,
+      error:
+        browserResponse.error ??
+        ("error" in fileResponse ? fileResponse.error : undefined),
     };
   }
 }

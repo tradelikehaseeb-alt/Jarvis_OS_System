@@ -45,7 +45,9 @@ export const ExecutionRealityBar = memo(function ExecutionRealityBar({
           data-testid={`execution-reality-${chip.mode.toLowerCase().replace(/\s+/gu, "-")}`}
         >
           <span className="execution-reality-bar__mode">{chip.mode}</span>
-          <span className="execution-reality-bar__detail">{chip.detail}</span>
+          <span className="execution-reality-bar__detail" title={chip.detail}>
+            {chip.detail}
+          </span>
         </div>
       ))}
     </div>

@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import path from "node:path";
 
 import type { BrowserActionPipeline } from "../browser-runtime/browser-action-pipeline";
 import type { BrowserActionRequest } from "../browser-runtime/browser-action-request";
@@ -219,7 +220,7 @@ function loadPlaywrightModule(): {
     newPage: () => Promise<PlaywrightPageLike>;
   }> };
 } {
-  const require = createRequire(import.meta.url);
+  const require = createRequire(path.join(process.cwd(), "package.json"));
   return require("playwright") as {
     chromium: { launch: (options: { headless: boolean }) => Promise<{
       newPage: () => Promise<PlaywrightPageLike>;

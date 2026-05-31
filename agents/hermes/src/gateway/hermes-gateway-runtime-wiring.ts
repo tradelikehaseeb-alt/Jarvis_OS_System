@@ -77,7 +77,11 @@ export class HermesGatewayRuntimeWiring {
   constructor(options: HermesGatewayRuntimeWiringOptions = {}) {
     const providerConfig = options.providerConfig ?? DEFAULT_PROVIDER_CONFIG;
     this.env = options.env ?? process.env;
-    const allowNetworkProbe = options.allowNetworkProbe ?? false;
+    const allowNetworkProbe =
+      options.allowNetworkProbe ??
+      (process.env.NODE_ENV !== "test" &&
+        (readHermesRuntimeEnv(this.env).mode === "official" ||
+          readHermesRuntimeEnv(this.env).mode === "local"));
 
     this.providerResolver =
       options.providerResolver ?? createDefaultProviderResolver(providerConfig);

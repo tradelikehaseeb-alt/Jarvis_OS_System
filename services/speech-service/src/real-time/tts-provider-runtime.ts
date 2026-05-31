@@ -9,7 +9,11 @@ import {
 } from "../adapters/live-tts-adapters";
 import { StubTextToSpeechAdapter } from "../adapters/stub-text-to-speech-adapter";
 
-import { resolveFirstConfiguredTtsProvider } from "./speech-provider-resolver";
+import {
+  resolveFirstConfiguredTtsProvider,
+  resolveSpeechProviderConfig,
+  TTS_PROVIDER_DEFINITIONS,
+} from "./speech-provider-resolver";
 
 export interface TtsProviderRuntimeOptions {
   readonly adapter?: TextToSpeechAdapter;
@@ -24,8 +28,32 @@ const TTS_BY_PROVIDER: Record<string, TextToSpeechAdapter> = {
   "speech-stub": new StubTextToSpeechAdapter(),
 };
 
+function buildLiveTtsChain(
+  explicit?: readonly SpeechProviderConfig[],
+): readonly SpeechProviderConfig[] {
+  if (explicit && explicit.length > 0) {
+    return explicit.filter((config) => config.mode === "live");
+  }
+
+  const priority = ["edge-tts", "openai-tts", "elevenlabs"] as const;
+  const chain: SpeechProviderConfig[] = [];
+  for (const providerId of priority) {
+    const definition = TTS_PROVIDER_DEFINITIONS.find(
+      (entry) => entry.providerId === providerId,
+    );
+    if (!definition) {
+      continue;
+    }
+    const config = resolveSpeechProviderConfig(definition);
+    if (config.mode === "live") {
+      chain.push(config);
+    }
+  }
+  return chain;
+}
+
 /**
- * TTS provider runtime with ordered fallback (Phase 91).
+ * TTS provider runtime with ordered live fallback (no silent stub fallback).
  */
 export class TtsProviderRuntime {
   private readonly adapters: Map<string, TextToSpeechAdapter>;
@@ -34,34 +62,67 @@ export class TtsProviderRuntime {
   constructor(options: TtsProviderRuntimeOptions = {}) {
     this.adapters = new Map(Object.entries(TTS_BY_PROVIDER));
     if (options.adapter) {
-      this.adapters.set(options.config?.providerId ?? options.adapter.adapterId, options.adapter);
+      this.adapters.set(
+        options.config?.providerId ?? options.adapter.adapterId,
+        options.adapter,
+      );
     }
-    this.fallbackChain = options.fallbackChain ?? [
-      options.config ?? resolveFirstConfiguredTtsProvider(),
-      { providerId: "speech-stub", mode: "stub" },
-    ];
+    this.fallbackChain = buildLiveTtsChain(
+      options.fallbackChain ??
+        (options.config ? [options.config] : undefined),
+    );
   }
 
   async synthesize(request: SpeechRequest): Promise<SpeechResponse> {
-    let lastError: Error | undefined;
+    if (this.fallbackChain.length === 0) {
+      return {
+        requestId: request.requestId,
+        adapterId: "tts-runtime",
+        providerId: "speech-stub",
+        stub: false,
+        output: request.text,
+        createdAt: new Date().toISOString(),
+        error: {
+          code: "TTS_KEY_MISSING",
+          message: "No live TTS provider is configured",
+        },
+      };
+    }
+
+    let lastResponse: SpeechResponse | undefined;
     for (const config of this.fallbackChain) {
       const adapter =
         this.adapters.get(config.providerId) ?? new StubTextToSpeechAdapter();
-      try {
-        const response = await adapter.synthesize(request, config);
-        if (response.output.trim().length > 0) {
-          return response;
-        }
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error("TTS failed");
+      const response = await adapter.synthesize(request, config);
+      if (!response.error && response.audioBase64 && response.audioBase64.length > 0) {
+        return response;
       }
+      lastResponse = response;
     }
-    throw lastError ?? new Error("No TTS provider available");
+
+    return (
+      lastResponse ?? {
+        requestId: request.requestId,
+        adapterId: "tts-runtime",
+        providerId: "speech-stub",
+        stub: false,
+        output: request.text,
+        createdAt: new Date().toISOString(),
+        error: {
+          code: "TTS_PROVIDER_ERROR",
+          message: "All configured TTS providers failed",
+        },
+      }
+    );
   }
 }
 
 export function createDefaultTtsProviderRuntime(
   options?: TtsProviderRuntimeOptions,
 ): TtsProviderRuntime {
-  return new TtsProviderRuntime(options);
+  return new TtsProviderRuntime({
+    ...options,
+    config: options?.config ?? resolveFirstConfiguredTtsProvider(),
+    fallbackChain: options?.fallbackChain ?? buildLiveTtsChain(),
+  });
 }

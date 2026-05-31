@@ -189,7 +189,9 @@ describe("Phase 88 real AI response validation", () => {
     });
 
     expect(response.stub).toBe(true);
-    expect(response.content.length).toBeGreaterThan(0);
+    expect(response.success).toBe(false);
+    expect(response.error?.code).toBe("PROVIDER_KEY_MISSING");
+    expect(response.content).toBe("");
 
     console.log(
       "FAILURE_HANDLING:",

@@ -5,12 +5,12 @@ import {
 import type { SpeechRequest } from "./speech-request";
 import type { SpeechResponse } from "./speech-response";
 import type { SpeechToTextAdapter } from "./speech-to-text-adapter";
+import { readEnvApiKey } from "../real-time/speech-provider-resolver";
 
 export interface HttpSttAdapterOptions {
   readonly adapterId: string;
   readonly providerId: string;
   readonly endpointPath: string;
-  readonly fallbackText?: string;
 }
 
 function encodePcmPlaceholder(request: SpeechRequest): string {
@@ -18,6 +18,27 @@ function encodePcmPlaceholder(request: SpeechRequest): string {
     return request.audioBase64;
   }
   return Buffer.from(request.text || "jarvis").toString("base64");
+}
+
+function providerErrorResponse(
+  request: SpeechRequest,
+  adapterId: string,
+  providerId: string,
+  code: string,
+  message: string,
+  started: number,
+): SpeechResponse {
+  return {
+    requestId: request.requestId,
+    adapterId,
+    providerId,
+    stub: false,
+    output: "",
+    confidence: 0,
+    latencyMs: Date.now() - started,
+    createdAt: new Date().toISOString(),
+    error: { code, message },
+  };
 }
 
 async function postJson(
@@ -49,7 +70,7 @@ async function postJson(
 }
 
 /**
- * HTTP STT adapter. Provider errors are returned explicitly; no silent stub fallback.
+ * HTTP STT adapter (JSON body). Provider errors are fail-closed (stub=false).
  */
 export class HttpSpeechToTextAdapter implements SpeechToTextAdapter {
   readonly adapterId: string;
@@ -68,21 +89,14 @@ export class HttpSpeechToTextAdapter implements SpeechToTextAdapter {
   ): Promise<SpeechResponse> {
     const started = Date.now();
     if (config.mode !== "live" || !config.apiKey || !config.baseUrl) {
-      return {
-        requestId: request.requestId,
-        adapterId: this.adapterId,
-        providerId: config.providerId || this.providerId,
-        stub: true,
-        output: "",
-        confidence: 0,
-        latencyMs: Date.now() - started,
-        createdAt: new Date().toISOString(),
-        error: {
-          code: "STT_KEY_MISSING",
-          message:
-            "STT provider is not configured. Set the required STT API key and base URL before using live voice transcription.",
-        },
-      };
+      return providerErrorResponse(
+        request,
+        this.adapterId,
+        config.providerId || this.providerId,
+        "STT_KEY_MISSING",
+        "STT provider is not configured. Set the required STT API key and base URL before using live voice transcription.",
+        started,
+      );
     }
 
     try {
@@ -95,7 +109,17 @@ export class HttpSpeechToTextAdapter implements SpeechToTextAdapter {
           mimeType: request.mimeType ?? "audio/webm",
         },
       );
-      const output = result.text.trim() || request.text.trim() || "voice input";
+      const output = result.text.trim();
+      if (output.length === 0) {
+        return providerErrorResponse(
+          request,
+          this.adapterId,
+          config.providerId || this.providerId,
+          "STT_PROVIDER_ERROR",
+          "STT provider returned empty transcript",
+          started,
+        );
+      }
       return {
         requestId: request.requestId,
         adapterId: this.adapterId,
@@ -107,21 +131,127 @@ export class HttpSpeechToTextAdapter implements SpeechToTextAdapter {
         createdAt: new Date().toISOString(),
       };
     } catch (error) {
+      return providerErrorResponse(
+        request,
+        this.adapterId,
+        config.providerId || this.providerId,
+        "STT_PROVIDER_ERROR",
+        error instanceof Error ? error.message : "STT provider request failed",
+        started,
+      );
+    }
+  }
+}
+
+const GROQ_WHISPER_URL = "https://api.groq.com/openai/v1/audio/transcriptions";
+const GROQ_WHISPER_MODEL = "whisper-large-v3-turbo";
+
+/**
+ * Groq Whisper STT — multipart upload (fail-closed, no stub fallback).
+ */
+export class GroqWhisperSpeechToTextAdapter implements SpeechToTextAdapter {
+  readonly adapterId = "groq-whisper-stt-adapter";
+
+  async transcribe(
+    request: SpeechRequest,
+    config: SpeechProviderConfig = DEFAULT_STUB_SPEECH_PROVIDER_CONFIG,
+  ): Promise<SpeechResponse> {
+    const started = Date.now();
+    const apiKey =
+      config.apiKey ??
+      readEnvApiKey(["GROQ_API_KEY", "JARVIS_GROQ_API_KEY"]);
+
+    if (!apiKey) {
+      return providerErrorResponse(
+        request,
+        this.adapterId,
+        "groq-whisper",
+        "STT_KEY_MISSING",
+        "STT_KEY_MISSING: Set GROQ_API_KEY in .env",
+        started,
+      );
+    }
+
+    if (!request.audioBase64?.trim()) {
+      return providerErrorResponse(
+        request,
+        this.adapterId,
+        "groq-whisper",
+        "STT_PROVIDER_ERROR",
+        "STT_PROVIDER_ERROR: audio payload is required for Groq Whisper",
+        started,
+      );
+    }
+
+    try {
+      const mimeType = request.mimeType ?? "audio/webm";
+      const extension = mimeType.includes("wav")
+        ? "wav"
+        : mimeType.includes("mp3")
+          ? "mp3"
+          : "webm";
+      const audioBytes = Buffer.from(request.audioBase64, "base64");
+      const formData = new FormData();
+      formData.append(
+        "file",
+        new Blob([audioBytes], { type: mimeType }),
+        `audio.${extension}`,
+      );
+      formData.append("model", config.model ?? GROQ_WHISPER_MODEL);
+      formData.append("language", request.locale?.split("-")[0] ?? "en");
+      formData.append("response_format", "json");
+
+      const response = await fetch(GROQ_WHISPER_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        return providerErrorResponse(
+          request,
+          this.adapterId,
+          "groq-whisper",
+          "STT_PROVIDER_ERROR",
+          `STT_PROVIDER_ERROR: ${response.status} ${response.statusText}`,
+          started,
+        );
+      }
+
+      const payload = (await response.json()) as { text?: string };
+      const output = payload.text?.trim() ?? "";
+      if (output.length === 0) {
+        return providerErrorResponse(
+          request,
+          this.adapterId,
+          "groq-whisper",
+          "STT_PROVIDER_ERROR",
+          "STT_PROVIDER_ERROR: Groq Whisper returned empty transcript",
+          started,
+        );
+      }
+
       return {
         requestId: request.requestId,
         adapterId: this.adapterId,
-        providerId: config.providerId || this.providerId,
-        stub: true,
-        output: "",
-        confidence: 0,
+        providerId: "groq-whisper",
+        stub: false,
+        output,
+        confidence: 0.9,
         latencyMs: Date.now() - started,
         createdAt: new Date().toISOString(),
-        error: {
-          code: "STT_PROVIDER_ERROR",
-          message:
-            error instanceof Error ? error.message : "STT provider request failed",
-        },
       };
+    } catch (error) {
+      return providerErrorResponse(
+        request,
+        this.adapterId,
+        "groq-whisper",
+        "STT_PROVIDER_ERROR",
+        error instanceof Error ? error.message : "STT_PROVIDER_ERROR: Groq Whisper failed",
+        started,
+      );
     }
   }
 }
@@ -138,11 +268,7 @@ export const DeepgramSttAdapter = new HttpSpeechToTextAdapter({
   endpointPath: "/listen",
 });
 
-export const GroqWhisperSttAdapter = new HttpSpeechToTextAdapter({
-  adapterId: "groq-whisper-stt-adapter",
-  providerId: "groq-whisper",
-  endpointPath: "/audio/transcriptions",
-});
+export const GroqWhisperSttAdapter = new GroqWhisperSpeechToTextAdapter();
 
 export const OpenAiRealtimeSttAdapter = new HttpSpeechToTextAdapter({
   adapterId: "openai-realtime-stt-adapter",

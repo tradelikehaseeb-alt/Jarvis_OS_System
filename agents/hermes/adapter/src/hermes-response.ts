@@ -6,6 +6,19 @@
 export interface HermesStructuredPlan {
   readonly goal: string;
   readonly steps: readonly string[];
+  readonly executionSteps?: readonly HermesExecutionPlanStep[];
+}
+
+/**
+ * Machine-readable execution step owned by Hermes planning.
+ */
+export interface HermesExecutionPlanStep {
+  readonly stepId: string;
+  readonly agent: "hermes" | "openclaw";
+  readonly skill: "search" | "browser" | "file" | "memory" | "reminder";
+  readonly action: string;
+  readonly params: Readonly<Record<string, unknown>>;
+  readonly dependsOn: readonly string[];
 }
 
 /**

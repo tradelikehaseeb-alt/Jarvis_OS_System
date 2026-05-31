@@ -83,27 +83,26 @@ describe("provider fallback", () => {
   });
 
   it(
-    "falls back to stub TTS on adapter failure",
+    "returns TTS_PROVIDER_ERROR when all live providers fail (no stub fallback)",
     async () => {
-    const runtime = createDefaultTtsProviderRuntime({
-      fallbackChain: [
-        {
-          providerId: "openai-tts",
-          mode: "live",
-          apiKey: "invalid",
-          baseUrl: "https://example.invalid",
-        },
-        { providerId: "speech-stub", mode: "stub" },
-      ],
-    });
+      const runtime = createDefaultTtsProviderRuntime({
+        fallbackChain: [
+          {
+            providerId: "openai-tts",
+            mode: "live",
+            apiKey: "invalid",
+            baseUrl: "https://example.invalid",
+          },
+        ],
+      });
 
-    const response = await runtime.synthesize({
-      requestId: "req-fallback",
-      text: "hello jarvis",
-    });
+      const response = await runtime.synthesize({
+        requestId: "req-fallback",
+        text: "hello jarvis",
+      });
 
-    expect(response.stub).toBe(true);
-    expect(response.output).toContain("hello jarvis");
+      expect(response.stub).toBe(false);
+      expect(response.error?.code).toBe("TTS_PROVIDER_ERROR");
     },
     15_000,
   );

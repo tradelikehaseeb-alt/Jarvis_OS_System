@@ -372,14 +372,39 @@ body {
 }
 
 .chat-bubble.error {
-  border-color: #ef4444;
-  color: #fca5a5;
+  align-self: stretch;
+  max-width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.35), rgba(15, 23, 42, 0.9));
+  color: #fecaca;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.12);
 }
 
 .chat-bubble.error .chat-error-label {
   display: block;
-  font-size: 0.8rem;
-  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+  color: #f87171;
+}
+
+.chat-bubble.error .chat-error-text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.chat-bubble.error .chat-error-hint {
+  margin: 0.65rem 0 0;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(248, 113, 113, 0.25);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #cbd5e1;
 }
 
 .chat-bubble.assistant.has-plan {

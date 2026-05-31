@@ -44,6 +44,9 @@ import {
 } from "../services/orchestrator/src/llm-provider/connectors/index.ts";
 import { createDefaultProviderHealthValidationRuntime } from "../services/orchestrator/src/llm-provider/provider-health/index.ts";
 import { DEFAULT_API_USER_ID } from "../services/orchestrator/src/task-execution/create-task-executor.ts";
+import { SearchSkill, SEARCH_SKILL_ID } from "../skills/search-skill/src/index.ts";
+import { GroqWhisperSttAdapter } from "../services/speech-service/src/adapters/live-stt-adapters.ts";
+import { createDefaultTtsProviderRuntime } from "../services/speech-service/src/real-time/tts-provider-runtime.ts";
 
 const PORT = Number(process.env.JARVIS_API_RUNTIME_PORT ?? 8792);
 const AI_PROMPT = "Summarize today's AI news";
@@ -70,7 +73,7 @@ function extractBrowserState(output) {
   );
 }
 
-function deriveUiLabels(taskOutput) {
+function deriveUiLabels(taskOutput, voiceProbe = {}) {
   const llmProvider = taskOutput?.llmProvider ?? {};
   const browserState =
     taskOutput?.executionRuntime?.browserState ??
@@ -107,9 +110,15 @@ function deriveUiLabels(taskOutput) {
         : "Browser · live",
   };
 
+  const sttLive = voiceProbe.stt?.stub === false && !voiceProbe.stt?.error;
+  const ttsLive = voiceProbe.tts?.stub === false && Boolean(voiceProbe.tts?.audioBase64);
+  const voiceStub = !(sttLive && ttsLive);
+  const sttProvider = voiceProbe.stt?.providerId ?? "speech-stub";
   const voice = {
-    mode: "STUB MODE",
-    detail: "Voice · speech-stub · stub",
+    mode: voiceStub ? "STUB MODE" : "REAL MODE",
+    detail: voiceStub
+      ? `Voice · ${sttProvider} · stub`
+      : `Voice · ${sttProvider} · ${Math.round(voiceProbe.stt?.latencyMs ?? 0)}ms`,
   };
 
   const summaryLabel = `${llm.mode} · ${browser.mode} · ${voice.mode}`;
@@ -235,6 +244,70 @@ async function main() {
   report.checks.push(pass("AI prompt providerId=groq", summarize.providerId === GROQ_PROVIDER_ID, summarize.providerId));
   report.checks.push(pass("AI prompt latencyMs", typeof summarize.latencyMs === "number", String(summarize.latencyMs)));
 
+  // --- 2b. Search (Serper) ---
+  const searchSkill = new SearchSkill();
+  const searchOutput = await searchSkill.execute(
+    {
+      invocationId: "phase100c-search",
+      skillId: SEARCH_SKILL_ID,
+      agentId: "hermes",
+      userId: "phase100c",
+      parameters: { query: "latest AI news" },
+    },
+    { contextRef: "phase100c", userId: "phase100c", agentId: "hermes" },
+  );
+  const searchResults = searchOutput.data?.results ?? [];
+  const firstSearchUrl = searchResults[0]?.url ?? "";
+  report.search = {
+    stub: searchOutput.data?.stub,
+    success: searchOutput.success,
+    total: searchOutput.data?.total ?? 0,
+    firstUrl: firstSearchUrl,
+    error: searchOutput.error?.code,
+  };
+  report.checks.push(pass("SearchSkill stub=false", searchOutput.data?.stub === false, String(searchOutput.data?.stub)));
+  report.checks.push(
+    pass("SearchSkill real URLs", searchResults.length > 0 && !firstSearchUrl.includes("stub.local"), firstSearchUrl || "none"),
+  );
+
+  // --- 2c. TTS (Edge) + STT (Groq Whisper) ---
+  const ttsRuntime = createDefaultTtsProviderRuntime();
+  const ttsResponse = await ttsRuntime.synthesize({
+    requestId: "phase100c-tts",
+    text: "Hello Jarvis voice check.",
+  });
+  report.tts = {
+    providerId: ttsResponse.providerId,
+    stub: ttsResponse.stub,
+    audioBytes: ttsResponse.audioBase64?.length ?? 0,
+    error: ttsResponse.error?.code,
+  };
+  report.checks.push(pass("TTS stub=false", ttsResponse.stub === false, String(ttsResponse.stub)));
+  report.checks.push(
+    pass("TTS audio buffer returned", (ttsResponse.audioBase64?.length ?? 0) > 100, String(ttsResponse.audioBase64?.length ?? 0)),
+  );
+
+  const sttResponse = await GroqWhisperSttAdapter.transcribe({
+    requestId: "phase100c-stt",
+    text: "",
+    audioBase64: ttsResponse.audioBase64 ?? "",
+    mimeType: ttsResponse.mimeType ?? "audio/mpeg",
+  });
+  report.stt = {
+    providerId: sttResponse.providerId,
+    stub: sttResponse.stub,
+    preview: sttResponse.output.slice(0, 80),
+    latencyMs: sttResponse.latencyMs,
+    error: sttResponse.error?.code,
+  };
+  report.checks.push(pass("STT stub=false", sttResponse.stub === false, String(sttResponse.stub)));
+  report.checks.push(
+    pass("STT provider=groq-whisper", sttResponse.providerId === "groq-whisper", sttResponse.providerId),
+  );
+  report.checks.push(pass("STT transcript received", sttResponse.output.length > 0, sttResponse.output.slice(0, 40)));
+
+  const voiceProbe = { stt: sttResponse, tts: ttsResponse };
+
   // --- 3. Browser + AI combined via API ---
   process.env.JARVIS_BROWSER_REAL = process.env.JARVIS_BROWSER_REAL ?? "true";
   const orchestrator = await createDefaultOrchestratorService();
@@ -281,7 +354,7 @@ async function main() {
   );
 
   // --- 4. UI labels (derived from task output) ---
-  report.uiLabels = deriveUiLabels(workflowOutput);
+  report.uiLabels = deriveUiLabels(workflowOutput, voiceProbe);
   report.checks.push(
     pass("UI LLM REAL MODE", report.uiLabels.llm.mode === "REAL MODE", report.uiLabels.llm.detail),
   );
@@ -295,8 +368,52 @@ async function main() {
     pass("UI browser REAL MODE", report.uiLabels.browser.mode === "REAL MODE", report.uiLabels.browser.detail),
   );
   report.checks.push(
-    pass("UI no STUB in summary for LLM/browser", !report.uiLabels.summaryLabel.includes("STUB MODE") || report.uiLabels.voice.mode === "STUB MODE", report.uiLabels.summaryLabel),
+    pass("UI voice REAL MODE", report.uiLabels.voice.mode === "REAL MODE", report.uiLabels.voice.detail),
   );
+  report.checks.push(
+    pass("UI summary all REAL", report.uiLabels.summaryLabel === "REAL MODE · REAL MODE · REAL MODE", report.uiLabels.summaryLabel),
+  );
+
+  report.integrationModes = {
+    hermesMode: process.env.HERMES_MODE ?? "stub",
+    openclawMode: process.env.OPENCLAW_MODE ?? "stub",
+    memoryBackend: process.env.JARVIS_MEMORY_BACKEND ?? "memory-service",
+    orchestratorLlmPlanning: process.env.JARVIS_ALLOW_ORCHESTRATOR_LLM_PLANNING ?? "false",
+  };
+  report.checks.push(
+    pass(
+      "Hermes mode configured",
+      Boolean(report.integrationModes.hermesMode),
+      report.integrationModes.hermesMode,
+    ),
+  );
+  report.checks.push(
+    pass(
+      "OpenClaw mode configured",
+      Boolean(report.integrationModes.openclawMode),
+      report.integrationModes.openclawMode,
+    ),
+  );
+
+  if (process.env.HERMES_INTEGRATION_LIVE === "true") {
+    const { createHermesAdapterOfficial } = await import(
+      "../agents/hermes/adapter/official/src/hermes-adapter-official.ts"
+    );
+    const hermesAdapter = createHermesAdapterOfficial();
+    const hermesPlan = await hermesAdapter.invoke(
+      {
+        requestId: "probe-hermes",
+        taskId: "probe-hermes-task",
+        userId: DEFAULT_API_USER_ID,
+        intent: { kind: "plan", description: "Plan integration validation" },
+      },
+      { adapterId: "hermes-adapter-official", mode: "official" },
+    );
+    report.hermesOfficial = { stub: hermesPlan.stub, success: hermesPlan.success };
+    report.checks.push(
+      pass("Hermes official plan", hermesPlan.success && hermesPlan.stub === false, hermesPlan.error?.message),
+    );
+  }
 
   await server.stop();
 
@@ -304,9 +421,16 @@ async function main() {
     groqDirect.stub === false &&
     streamed.stub === false &&
     summarize.stub === false &&
+    searchOutput.data?.stub === false &&
+    searchOutput.success === true &&
+    ttsResponse.stub === false &&
+    (ttsResponse.audioBase64?.length ?? 0) > 0 &&
+    sttResponse.stub === false &&
+    sttResponse.providerId === "groq-whisper" &&
     workflowLlm.stub === false &&
     browserRuntime?.stub === false &&
-    workflowStatus.json?.status === "completed";
+    workflowStatus.json?.status === "completed" &&
+    report.uiLabels.summaryLabel === "REAL MODE · REAL MODE · REAL MODE";
 
   fs.writeFileSync("phase100c-evidence.json", JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report, null, 2));

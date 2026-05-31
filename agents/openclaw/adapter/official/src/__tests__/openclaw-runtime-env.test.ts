@@ -26,4 +26,13 @@ describe("readOpenClawRuntimeEnv", () => {
     expect(env.endpoint).toBe("http://localhost:18789");
     expect(env.configured).toBe(true);
   });
+
+  it("falls back to OPENCLAW_GATEWAY_URL when endpoint unset", () => {
+    const env = readOpenClawRuntimeEnv({
+      OPENCLAW_MODE: "local",
+      OPENCLAW_GATEWAY_URL: "http://localhost:8010",
+    });
+    expect(env.endpoint).toBe("http://localhost:8010");
+    expect(env.configured).toBe(true);
+  });
 });

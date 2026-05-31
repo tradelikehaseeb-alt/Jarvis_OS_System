@@ -63,5 +63,8 @@ export function toStructuredPlanJson(
   return {
     goal: plan.goal,
     steps: [...plan.steps],
+    ...(plan.executionSteps
+      ? { executionSteps: plan.executionSteps.map((step) => ({ ...step })) }
+      : {}),
   };
 }

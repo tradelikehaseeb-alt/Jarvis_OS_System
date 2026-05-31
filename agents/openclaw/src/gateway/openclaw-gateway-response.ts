@@ -12,6 +12,7 @@ export interface OpenClawGatewayResponse {
   readonly approvedActions: readonly string[];
   readonly sandbox: boolean;
   readonly permissionsChecked: boolean;
+  readonly gatewayPayload?: Readonly<Record<string, unknown>>;
   readonly error?: {
     readonly code: string;
     readonly message: string;

@@ -11,10 +11,26 @@ import {
   createHermesPlanningAdapter,
   isHermesPlanningAdapter,
 } from "./hermes-planning-adapter";
+import {
+  createHermesAdapterOfficial,
+  isHermesAdapterOfficial,
+} from "./hermes-adapter-official";
+import {
+  createHermesAdapterPython,
+  isHermesAdapterPython,
+  shouldUseHermesPythonAdapter,
+} from "./hermes-adapter-python";
+import { readHermesRuntimeEnv, type EnvSource } from "./hermes-runtime-env";
+
+function useOfficialHermesAdapter(env?: EnvSource): boolean {
+  const source = env ?? process.env;
+  if (source.NODE_ENV === "test" && source.HERMES_INTEGRATION_LIVE !== "true") {
+    return false;
+  }
+  return readHermesRuntimeEnv(source).mode === "official";
+}
 
 export type HermesAdapterSelection = "stub" | "planning";
-
-export type EnvSource = Readonly<Record<string, string | undefined>>;
 
 /**
  * Read adapter selection from `HERMES_PLANNING_ADAPTER` (Phase 22).
@@ -46,11 +62,23 @@ export function resolveHermesInnerAdapter(
   if (options.inner) {
     return options.inner;
   }
+
   const selection =
     options.selection ?? readHermesAdapterSelection(options.env);
-  return selection === "planning"
-    ? createHermesPlanningAdapter()
-    : createHermesAdapterStub();
+
+  if (selection === "planning") {
+    return createHermesPlanningAdapter();
+  }
+
+  if (shouldUseHermesPythonAdapter(options.env)) {
+    return createHermesAdapterPython({ env: options.env });
+  }
+
+  if (useOfficialHermesAdapter(options.env)) {
+    return createHermesAdapterOfficial({ env: options.env });
+  }
+
+  return createHermesAdapterStub();
 }
 
 /**
@@ -62,10 +90,15 @@ export function createResolvedHermesAdapter(
 ): HermesAdapter {
   const { env, selection, inner, forceStubMode, ...providerOptions } = options;
   const resolvedInner = resolveHermesInnerAdapter({ env, selection, inner });
+  const runtimeEnv = readHermesRuntimeEnv(env);
   return createHermesAdapterFromProvider(resolver, {
     ...providerOptions,
     inner: resolvedInner,
     forceStubMode:
-      forceStubMode ?? !isHermesPlanningAdapter(resolvedInner),
+      forceStubMode ??
+      (runtimeEnv.mode !== "official" &&
+        !isHermesPlanningAdapter(resolvedInner) &&
+        !isHermesAdapterOfficial(resolvedInner) &&
+        !isHermesAdapterPython(resolvedInner)),
   });
 }

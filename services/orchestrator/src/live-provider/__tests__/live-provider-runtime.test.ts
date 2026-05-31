@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { REAL_PROVIDER_VALIDATION_COMMANDS } from "@jarvis/types";
 
@@ -7,10 +7,6 @@ import { DEFAULT_API_USER_ID } from "../../task-execution";
 import { createTestLiveProviderRuntime } from "../../index";
 
 describe("live provider runtime", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   it("returns stub health when provider key is missing", async () => {
     const runtime = await createTestLiveProviderRuntime();
     const health = await runtime.validateProviderConnection(
@@ -24,19 +20,22 @@ describe("live provider runtime", () => {
   });
 
   it("handles connection probe failures without throwing", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockRejectedValue(new Error("network down")),
-    );
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValueOnce(new Error("network down"));
 
-    const runtime = await createTestLiveProviderRuntime();
-    const health = await runtime.validateProviderConnection(
-      "groq",
-      DEFAULT_API_USER_ID,
-    );
+    try {
+      const runtime = await createTestLiveProviderRuntime();
+      const health = await runtime.validateProviderConnection(
+        "groq",
+        DEFAULT_API_USER_ID,
+      );
 
-    expect(health.failureHandled).toBe(true);
-    expect(health.connected).toBe(false);
+      expect(health.failureHandled).toBe(true);
+      expect(health.connected).toBe(false);
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it("captures provider telemetry from live session", async () => {

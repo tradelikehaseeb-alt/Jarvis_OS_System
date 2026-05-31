@@ -1,6 +1,17 @@
 import type { ChatMessage } from "./ChatMessages";
 import { IntentBadge } from "./IntentBadge";
 import { HermesPlanMessage } from "./HermesPlanMessage";
+
+function errorHintForMessage(text: string): string | undefined {
+  if (text.includes("network_disabled") || text.includes("OpenClaw endpoint not reachable")) {
+    return "Start OpenClaw in WSL: .\\scripts\\start-openclaw-gateway-wsl.ps1 — then restart Jarvis.";
+  }
+  if (text.includes("Hermes endpoint not reachable")) {
+    return "Use HERMES_MODE=planning in .env until Nous plan API is running on :8080.";
+  }
+  return undefined;
+}
+
 export interface ChatMessageBubbleProps {
   readonly message: ChatMessage;
 }
@@ -21,10 +32,12 @@ export function ChatMessageBubble({ message }: ChatMessageBubbleProps) {
   }
 
   if (message.role === "error") {
+    const hint = errorHintForMessage(message.text);
     return (
       <div className={className} role="alert" data-testid="chat-error">
-        <strong className="chat-error-label">Error</strong>
-        <p>{message.text}</p>
+        <strong className="chat-error-label">Could not complete</strong>
+        <p className="chat-error-text">{message.text}</p>
+        {hint ? <p className="chat-error-hint">{hint}</p> : null}
       </div>
     );
   }

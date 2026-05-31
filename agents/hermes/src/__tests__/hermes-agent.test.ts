@@ -68,7 +68,7 @@ describe("HermesAgent", () => {
     };
     expect(structured.goal).toBe("Plan my week");
     expect(structured.steps.length).toBeGreaterThanOrEqual(3);
-    expect(result.payload?.memoryAccess).toBe("via-memory-service-api-only");
+    expect(result.payload?.memoryAccess).toBe("memory-service-api");
   });
 
   it("registers via AgentRegistryContract", async () => {

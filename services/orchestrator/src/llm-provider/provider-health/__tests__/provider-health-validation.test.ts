@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   createTestProviderHealthValidationRuntime,
@@ -10,10 +10,6 @@ import {
 import { DEFAULT_API_USER_ID } from "../../../task-execution";
 
 describe("provider health validation", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   it("returns stub status when API key is missing", async () => {
     const runtime = createTestProviderHealthValidationRuntime();
     const result = await runtime.validateProviderHealth(
@@ -29,42 +25,46 @@ describe("provider health validation", () => {
   });
 
   it("handles API probe failures gracefully", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockRejectedValue(new Error("network down")),
-    );
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValueOnce(new Error("network down"));
 
-    const runtime = createTestProviderHealthValidationRuntime();
-    const result = await runtime.validateProviderHealth(
-      GROQ_PROVIDER_ID,
-      DEFAULT_API_USER_ID,
-    );
+    try {
+      const runtime = createTestProviderHealthValidationRuntime();
+      const result = await runtime.validateProviderHealth(
+        GROQ_PROVIDER_ID,
+        DEFAULT_API_USER_ID,
+      );
 
-    expect(result.connected).toBe(false);
-    expect(result.failureHandled).toBe(true);
-    expect(result.connectionStatus).toBe("stub");
-    expect(result.message).toContain("API key not configured");
+      expect(result.connected).toBe(false);
+      expect(result.failureHandled).toBe(true);
+      expect(result.connectionStatus).toBe("stub");
+      expect(result.message).toContain("API key not configured");
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it("probes Ollama tags endpoint for model availability", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ models: [{ name: "llama3.2" }] }),
-      }),
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ models: [{ name: "llama3.2" }] }),
+    } as Response);
 
-    const runtime = createTestProviderHealthValidationRuntime();
-    const result = await runtime.validateProviderHealth(
-      OLLAMA_PROVIDER_ID,
-      DEFAULT_API_USER_ID,
-    );
+    try {
+      const runtime = createTestProviderHealthValidationRuntime();
+      const result = await runtime.validateProviderHealth(
+        OLLAMA_PROVIDER_ID,
+        DEFAULT_API_USER_ID,
+      );
 
-    expect(result.connected).toBe(true);
-    expect(result.availableModels).toContain("llama3.2");
-    expect(result.latencyMs).toBeGreaterThanOrEqual(0);
-    expect(result.failureHandled).toBe(true);
+      expect(result.connected).toBe(true);
+      expect(result.availableModels).toContain("llama3.2");
+      expect(result.latencyMs).toBeGreaterThanOrEqual(0);
+      expect(result.failureHandled).toBe(true);
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it("validates all seven configured providers", async () => {

@@ -4,6 +4,7 @@ import {
   extractHermesPlanFromTaskStatus,
   extractHermesPlanningDetails,
 } from "../api/extract-hermes-plan";
+import { formatAssistantReply } from "../api/format-assistant-reply";
 import { submitChatAsTask } from "../api/jarvis-client";
 import { AgentStatusPanel, useAgentStatus } from "../agent-status";
 import { TaskProgressPanel } from "../timeline";
@@ -32,25 +33,6 @@ let messageCounter = 0;
 function nextMessageId(): string {
   messageCounter += 1;
   return `msg-${messageCounter}`;
-}
-
-function formatAssistantReply(status: TaskStatusResponse): string {
-  const skill = status.output?.skill as
-    | { skillId?: string; data?: { results?: { title: string }[] } }
-    | undefined;
-
-  if (skill?.skillId === "search-skill" && skill.data?.results?.length) {
-    const titles = skill.data.results.map((r) => r.title).join(", ");
-    return `Task completed. Search results: ${titles}`;
-  }
-
-  if (status.output?.routing) {
-    const agent = (status.output.routing as { selectedAgentId?: string })
-      .selectedAgentId;
-    return `Task ${status.status}. Routed to ${agent ?? "agent"}.`;
-  }
-
-  return `Task ${status.status}.`;
 }
 
 function buildHermesPlanMessageData(

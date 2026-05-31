@@ -6,6 +6,8 @@ import {
 import { MemoryPersistenceManager } from "./memory-persistence-manager";
 import type { MemoryStore } from "./memory-store";
 import { LocalMemoryBackedMemoryStore } from "./local-memory-backed-memory-store";
+import { MemoryServiceBackedMemoryStore } from "./memory-service-backed-memory-store";
+import { readMemoryBackend } from "./read-memory-backend";
 import { StorageBackedMemoryStore } from "./storage-backed-memory-store";
 import type { StreamManager } from "../streaming/stream-manager";
 import {
@@ -17,15 +19,20 @@ import {
  * Factory for default in-memory memory persistence manager (Phase 46).
  * Uses {@link LocalMemoryBackedMemoryStore} with {@link @jarvis/local-memory} (Phase 67).
  */
+function createDefaultMemoryStore(): MemoryStore {
+  if (readMemoryBackend() === "local") {
+    return new LocalMemoryBackedMemoryStore(
+      createDefaultLocalMemoryRuntime({ useFileBackend: false }),
+    );
+  }
+  return new MemoryServiceBackedMemoryStore();
+}
+
 export function createDefaultMemoryPersistenceManager(
   store?: MemoryStore,
   streamManager?: StreamManager,
 ): MemoryPersistenceManager {
-  const memoryStore =
-    store ??
-    new LocalMemoryBackedMemoryStore(
-      createDefaultLocalMemoryRuntime({ useFileBackend: false }),
-    );
+  const memoryStore = store ?? createDefaultMemoryStore();
   return new MemoryPersistenceManager(memoryStore, streamManager);
 }
 

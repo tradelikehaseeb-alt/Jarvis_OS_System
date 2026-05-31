@@ -35,7 +35,10 @@ export function readOpenClawRuntimeEnv(
   env: EnvSource = process.env,
 ): OpenClawRuntimeEnv {
   const mode = parseMode(env.OPENCLAW_MODE);
-  const explicitEndpoint = env.OPENCLAW_ENDPOINT?.trim() ?? "";
+  const explicitEndpoint =
+    env.OPENCLAW_ENDPOINT?.trim() ||
+    env.OPENCLAW_GATEWAY_URL?.trim() ||
+    "";
 
   const endpoint =
     explicitEndpoint ||

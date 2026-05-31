@@ -55,14 +55,17 @@ export function JarvisCommandCenter() {
     statusResult,
   } = conversation;
 
-  const reconnectVisible =
-    Boolean(taskError) ||
-    providerTelemetry?.label?.includes("offline") ||
+  const runtimeDegraded =
     (statusResult?.output?.stability as { degraded?: boolean } | undefined)?.degraded ===
-      true;
+    true;
+  const reconnectVisible =
+    (loading || timeline.isStreaming) &&
+    (Boolean(taskError) ||
+      providerTelemetry?.label?.includes("offline") ||
+      runtimeDegraded);
   const reconnectMessage =
     (statusResult?.output?.stability as { message?: string } | undefined)?.message ??
-    (taskError ? "Reconnecting…" : undefined);
+    (taskError ? "Working on your request…" : undefined);
 
   const executionRuntimeState = useExecutionRuntime({
     taskOutput: statusResult?.output,

@@ -48,7 +48,7 @@ describe("Memory service contracts", () => {
     expect(res.results).toHaveLength(1);
   });
 
-  it("MemoryProvider interface is structurally assignable", () => {
+  it("MemoryProvider interface is structurally assignable", async () => {
     const provider: MemoryProvider = {
       store: async () => record,
       get: async () => record,

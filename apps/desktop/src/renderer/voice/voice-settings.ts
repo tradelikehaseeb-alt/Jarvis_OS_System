@@ -30,6 +30,21 @@ export interface VoiceSettings {
   readonly ttsProviderId?: string;
 }
 
+function resolveDefaultUseRealMicrophone(): boolean {
+  if (typeof process !== "undefined" && process.env.NODE_ENV === "test") {
+    return false;
+  }
+  if (typeof import.meta !== "undefined") {
+    const env = import.meta as ImportMeta & {
+      env?: { MODE?: string; NODE_ENV?: string };
+    };
+    if (env.env?.MODE === "test" || env.env?.NODE_ENV === "test") {
+      return false;
+    }
+  }
+  return true;
+}
+
 export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   showTranscriptPanel: true,
   pushToChatInput: true,
@@ -40,7 +55,7 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   wakeWordEnabled: true,
   wakePhrase: "jarvis",
   voiceNativeUi: true,
-  useRealMicrophone: true,
+  useRealMicrophone: resolveDefaultUseRealMicrophone(),
 };
 
 const STORAGE_KEY = "jarvis.desktop.voiceSettings";

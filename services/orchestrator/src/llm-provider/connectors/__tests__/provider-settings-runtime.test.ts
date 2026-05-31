@@ -92,6 +92,8 @@ describe("ProviderSettingsRuntime", () => {
     });
 
     expect(response.stub).toBe(true);
-    expect(response.content).toContain("Plan workflow");
+    expect(response.success).toBe(false);
+    expect(response.error?.code).toBe("PROVIDER_KEY_MISSING");
+    expect(response.content).toBe("");
   });
 });

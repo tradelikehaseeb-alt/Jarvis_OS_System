@@ -2,7 +2,12 @@
  * Environment-driven configuration for Hermes local runtime discovery (Phase 21).
  */
 
-export type HermesRuntimeMode = "stub" | "local" | "official" | "cloud";
+export type HermesRuntimeMode =
+  | "stub"
+  | "planning"
+  | "local"
+  | "official"
+  | "cloud";
 
 export interface HermesRuntimeEnv {
   readonly mode: HermesRuntimeMode;
@@ -21,7 +26,8 @@ function parseMode(raw: string | undefined): HermesRuntimeMode {
     value === "local" ||
     value === "official" ||
     value === "cloud" ||
-    value === "stub"
+    value === "stub" ||
+    value === "planning"
   ) {
     return value;
   }

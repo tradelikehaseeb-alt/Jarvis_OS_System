@@ -93,6 +93,7 @@ export class HermesAgent extends AbstractBaseAgent {
         structuredPlan: {
           goal: gatewayResponse.plan.goal,
           steps: gatewayResponse.plan.steps,
+          executionSteps: gatewayResponse.plan.executionSteps,
         },
         reasoning: gatewayResponse.reasoning,
         planning: {
@@ -101,7 +102,7 @@ export class HermesAgent extends AbstractBaseAgent {
         },
         search: skillResponse.data,
         skillExecution: skillResponse,
-        memoryAccess: "via-memory-service-api-only",
+        memoryAccess: "memory-service-api",
       },
       error: skillResponse.error,
     };

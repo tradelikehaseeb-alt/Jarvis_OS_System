@@ -23,7 +23,7 @@ describe("multi-provider connector integration", () => {
 
     expect(llmProvider?.providerId).toBe(GROQ_PROVIDER_ID);
     expect(llmProvider?.stub).toBe(true);
-    expect(llmProvider?.success).toBe(true);
+    expect(llmProvider?.success).toBe(false);
   });
 
   it("lists all connector providers from validation runtime", () => {

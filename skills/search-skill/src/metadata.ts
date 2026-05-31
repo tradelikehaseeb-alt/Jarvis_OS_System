@@ -7,7 +7,7 @@ export const SEARCH_SKILL_METADATA: SkillMetadata = {
   displayName: "Search",
   version: "0.0.0-phase13",
   capabilities: [
-    { id: "search-read", kind: "search", description: "Static search results" },
+    { id: "search-read", kind: "search", description: "Serper web search results" },
   ],
   sideEffectCapable: false,
 };

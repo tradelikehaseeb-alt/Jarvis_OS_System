@@ -72,10 +72,10 @@ export function SettingsPage() {
         className="settings-voice-section"
         aria-labelledby="settings-voice-heading"
       >
-        <h3 id="settings-voice-heading">Voice (mock shell)</h3>
+        <h3 id="settings-voice-heading">Voice</h3>
         <p className="settings-voice-note">
-          UI-only — no STT/TTS engines or microphone permissions. Prepares Chat
-          for future voice integration.
+          Voice-native command center uses streaming STT/TTS when a real microphone
+          is enabled. Tasks route through the Jarvis API to Hermes and OpenClaw.
         </p>
 
         <ul className="settings-voice-list">

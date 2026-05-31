@@ -12,6 +12,8 @@ export interface OpenClawResponse {
     readonly handleId: string;
   };
   readonly approvedActions: readonly string[];
+  /** Optional gateway tool output (official adapter). */
+  readonly gatewayPayload?: Readonly<Record<string, unknown>>;
   readonly error?: {
     readonly code: string;
     readonly message: string;

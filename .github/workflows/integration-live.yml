@@ -1,0 +1,33 @@
+name: Integration Live (optional)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  live-probe:
+    runs-on: ubuntu-latest
+    if: vars.INTEGRATION_LIVE_ENABLED == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Unit tests (stub mode)
+        run: |
+          npm run test --workspace=@jarvis/hermes
+          npm run test --workspace=@jarvis/openclaw
+          npm run test --workspace=@jarvis/orchestrator -- --run src/runtime-integration
+      - name: Phase 100C probe (requires secrets)
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+          JARVIS_ALLOW_LLM_STUB_FALLBACK: "false"
+          HERMES_MODE: stub
+          OPENCLAW_MODE: local
+          JARVIS_BROWSER_REAL: "false"
+          INTEGRATION_LIVE: "true"
+        run: npx tsx scripts/phase100c-probe.mjs

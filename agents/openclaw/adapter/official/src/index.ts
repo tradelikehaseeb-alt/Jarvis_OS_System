@@ -10,3 +10,10 @@ export {
   createOpenClawRuntimeDiscoveryAdapter,
   type OpenClawRuntimeDiscoveryAdapterOptions,
 } from "./openclaw-runtime-discovery-adapter";
+export {
+  OpenClawAdapterOfficial,
+  createOpenClawAdapterOfficial,
+  isOpenClawAdapterOfficial,
+  OPENCLAW_OFFICIAL_ADAPTER_ID,
+  type OpenClawAdapterOfficialOptions,
+} from "./openclaw-adapter-official";

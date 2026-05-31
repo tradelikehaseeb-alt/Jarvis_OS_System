@@ -28,3 +28,26 @@ export {
   type HermesAdapterSelection,
   type ResolveHermesAdapterOptions,
 } from "./resolve-hermes-adapter";
+export {
+  HermesAdapterOfficial,
+  createHermesAdapterOfficial,
+  isHermesAdapterOfficial,
+  HERMES_OFFICIAL_ADAPTER_ID,
+  type HermesAdapterOfficialOptions,
+} from "./hermes-adapter-official";
+export {
+  HermesAdapterPython,
+  createHermesAdapterPython,
+  isHermesAdapterPython,
+  shouldUseHermesPythonAdapter,
+  HERMES_PYTHON_ADAPTER_ID,
+  type HermesAdapterPythonOptions,
+} from "./hermes-adapter-python";
+export {
+  runHermesAgentProcess,
+  parseFinalResponseFromStdout,
+  resolveHermesAgentRoot,
+  hasGroqCredentialsForHermesAgent,
+  type RunHermesAgentProcessOptions,
+  type RunHermesAgentProcessResult,
+} from "./hermes-python-process-runner";

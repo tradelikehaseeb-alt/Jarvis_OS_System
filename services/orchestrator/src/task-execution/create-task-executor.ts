@@ -67,7 +67,6 @@ import {
   type FeedbackSignal,
 } from "../user-feedback";
 import {
-  createDefaultProviderSettingsRuntime,
   type LlmProviderResponse,
   type LlmProviderRuntime,
   type LlmProviderValidation,
@@ -112,6 +111,8 @@ import type { OrchestratorComponents } from "../orchestrator";
 import { mockContextRef, mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
 import type { TaskExecutionRecord, TaskStore } from "../storage";
+import { createWorkforceAgentExecutor } from "../agent-workforce/create-workforce-agent-executor";
+import { invokeTaskLlm } from "../runtime-integration/invoke-task-llm";
 
 /** Shared safe execution evaluator (Phase 94). */
 const safeExecutionFallbackRuntime = new SafeExecutionFallbackRuntime();
@@ -215,6 +216,7 @@ function buildUserTaskFromDescriptor(
   };
 }
 
+/** Hermes → OpenClaw handshake applies to automation intents only (Phase 14). */
 function intentRequiresExecutionHandshake(intent: TaskIntent): boolean {
   return intent.kind === "automate";
 }
@@ -564,6 +566,14 @@ export async function executeCreateTask(
     components.agentRegistry,
   );
 
+  const llmInvoke = await invokeTaskLlm({
+    task,
+    requestId,
+    providerSettingsRuntime: options.providerSettingsRuntime,
+  });
+  let llmProviderResponse = llmInvoke.response;
+  let llmProviderValidation = llmInvoke.validation;
+
   const { agentContext, contextRecord, recalledMemories } =
     buildAgentContextWithInjection({
     contextRef,
@@ -571,7 +581,10 @@ export async function executeCreateTask(
     conversationId,
     taskId: task.id,
     intentDescription: task.intent.description,
-    metadata: task.metadata,
+    metadata: {
+      ...task.metadata,
+      planningSource: llmInvoke.planningSource,
+    },
     contextRuntime,
     contextRankingRuntime,
     memoryRecallRuntime,
@@ -585,8 +598,6 @@ export async function executeCreateTask(
   let learningSignals: readonly LearningSignal[] = [];
   let feedbackInsights: FeedbackInsight | undefined;
   let feedbackSignals: readonly FeedbackSignal[] = [];
-  let llmProviderResponse: LlmProviderResponse | undefined;
-  let llmProviderValidation: LlmProviderValidation | undefined;
   let learnedRules: readonly AdaptiveExecutionRule[] = DEFAULT_STUB_ADAPTIVE_RULES;
   let handshake = false;
   const workflowEngine = createDefaultWorkflowExecutionEngine();
@@ -607,6 +618,14 @@ export async function executeCreateTask(
       userId: task.userId,
       conversationId,
       sharedContextRef: contextRef,
+      executor: createWorkforceAgentExecutor({
+        registry: executableRegistry,
+        userId: task.userId,
+        parentTaskId: task.id,
+        requestId,
+        agentContext,
+        correlationId: task.correlationId,
+      }),
     });
   }
 
@@ -704,53 +723,13 @@ export async function executeCreateTask(
         })
       : undefined);
 
-  const providerSettingsRuntime =
-    options.providerSettingsRuntime ?? createDefaultProviderSettingsRuntime();
-
-  let enrichedAgentContext = agentContext;
-
-  if (intentRequiresExecutionHandshake(task.intent)) {
-    const llmProviderId = providerSettingsRuntime.resolveProviderId(
-      task.userId,
-      task.metadata,
-    );
-    const providerStatus = await providerSettingsRuntime.getProviderStatus(
-      task.userId,
-      llmProviderId,
-    );
-    llmProviderValidation = {
-      valid: providerStatus.valid,
-      stub: providerStatus.stub,
-      providerId: providerStatus.providerId,
-      kind: providerStatus.kind,
-      message: providerStatus.message,
-    };
-
-    const llmExecutor = options.llmProviderRuntime ?? providerSettingsRuntime;
-    llmProviderResponse = await llmExecutor.executePrompt({
-      providerId: llmProviderId,
-      model: providerStatus.selectedModel,
-      prompt: `Hermes planning context for: ${task.intent.description}`,
-      userId: task.userId,
-      taskId: task.id,
-      systemPrompt:
-        "You are the Jarvis planning assistant. Provide concise execution planning context.",
-      metadata: task.metadata,
-      providerApiKey: providerSettingsRuntime.resolveApiKeyForExecution(
-        task.userId,
-        llmProviderId,
-      ),
-    });
-    enrichedAgentContext = {
-      ...agentContext,
-      metadata: {
-        ...agentContext.metadata,
-        llmProviderId,
-        llmPlanningContext: llmProviderResponse.content,
-        llmProviderStub: llmProviderResponse.stub,
-      },
-    };
-  }
+  const enrichedAgentContext = {
+    ...agentContext,
+    metadata: {
+      ...agentContext.metadata,
+      planningSource: llmInvoke.planningSource,
+    },
+  };
 
   const pendingUserFeedback = parseUserFeedbackFromMetadata(task.metadata);
 
@@ -1001,11 +980,16 @@ export async function executeCreateTask(
     taskId: task.id,
     conversationId,
   });
+  const assistantMessage =
+    llmProviderResponse?.success && llmProviderResponse.content.trim().length > 0
+      ? llmProviderResponse.content.trim()
+      : summary.text;
+
   memory.persistConversationTurn({
     conversationId,
     userId: task.userId,
     role: "assistant",
-    message: summary.text,
+    message: assistantMessage,
     taskId: task.id,
     intentKind: task.intent.kind,
   });
@@ -1117,12 +1101,15 @@ export async function executeCreateTask(
             stub: llmProviderResponse.stub,
             success: llmProviderResponse.success,
             model: llmProviderResponse.model,
-            validated: llmProviderValidation?.valid ?? false,
+            validated: llmProviderResponse.stub
+              ? true
+              : (llmProviderValidation?.valid ?? false),
             streamed: llmProviderResponse.streamed,
             latencyMs: llmProviderResponse.latencyMs,
             contentPreview: llmProviderResponse.content.slice(0, 240),
             error: llmProviderResponse.error,
           },
+          assistantReply: llmProviderResponse.content.trim(),
         }
       : {}),
     executionLifecycle: toExecutionLifecycleSnapshot(

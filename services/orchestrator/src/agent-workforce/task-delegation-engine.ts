@@ -1,3 +1,5 @@
+import { evaluateHermesWorkforceCoordination } from "@jarvis/hermes";
+
 import type { WorkforceWorkerType } from "./agent-capability-registry";
 import {
   AgentCapabilityRegistry,
@@ -60,6 +62,7 @@ export class TaskDelegationEngine {
   buildPlan(description: string): TaskDelegationPlan {
     const items: DelegatedWorkItem[] = [];
     const lower = description.toLowerCase();
+    const hermesHint = evaluateHermesWorkforceCoordination(description);
 
     if (RESEARCH_PATTERN.test(description)) {
       const item = buildItem(this.registry, "research", "Gather relevant information");
@@ -103,9 +106,13 @@ export class TaskDelegationEngine {
 
     return {
       planId: nextId("workforce-plan"),
-      description,
+      description: hermesHint.multiAgent
+        ? `${description} (${hermesHint.planningFocus})`
+        : description,
       items: deduped,
-      parallel: deduped.length > 1 && !SCHEDULE_PATTERN.test(lower),
+      parallel:
+        hermesHint.multiAgent ||
+        (deduped.length > 1 && !SCHEDULE_PATTERN.test(lower)),
     };
   }
 }
@@ -118,6 +125,5 @@ export function shouldCoordinateWorkforce(description: string, intentKind: strin
   if (intentKind === "research") {
     return true;
   }
-  const clauses = description.split(/,|\band\b/i).filter((part) => part.trim().length > 0);
-  return clauses.length >= 2 && /\b(research|analyze|prepare|summarize|market)\b/i.test(description);
+  return evaluateHermesWorkforceCoordination(description).multiAgent;
 }

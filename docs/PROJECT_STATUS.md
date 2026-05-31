@@ -1,7 +1,7 @@
 # Jarvis OS — Project Status
 
 **Checkpoint date:** May 2026  
-**Current phase:** **100 complete**  
+**Current phase:** **100 complete** (product phases); **real runtime integration** in progress  
 **Monorepo:** Turborepo, npm workspaces
 
 ---
@@ -10,7 +10,7 @@
 
 Jarvis OS is a production-oriented AI operating system with strict layered architecture. The desktop app delivers a **Jarvis Command Center** with voice-native interaction, multi-provider LLM inference (stub fallback), real-time speech adapters, and full task execution through API → Orchestrator → Hermes/OpenClaw → Skills.
 
-Phases **0–100** are implemented in code. Authentication, multi-tenancy, production transport, and full web UI remain planned.
+Phases **0–100** (UI, orchestrator, voice, workforce scaffolding) are implemented in code. **Official Nous Hermes + OpenClaw gateway** adapters are wired in-repo (`HermesAdapterOfficial`, `OpenClawAdapterOfficial`, memory-service default); **external runtimes** must be installed locally (see [RUNTIME_SETUP.md](./RUNTIME_SETUP.md)). Authentication, multi-tenancy, production transport, and full web UI remain planned.
 
 ---
 
@@ -20,9 +20,9 @@ Phases **0–100** are implemented in code. Authentication, multi-tenancy, produ
 |-----------|-------|
 | `@jarvis/desktop` | 190+ |
 | `@jarvis/speech-service` | 88+ |
-| `@jarvis/orchestrator` | 270+ |
-| `@jarvis/hermes` | 77+ |
-| `@jarvis/openclaw` | 70+ |
+| `@jarvis/orchestrator` | 299+ |
+| `@jarvis/hermes` | 83+ |
+| `@jarvis/openclaw` | 79+ |
 
 ```bash
 npm run test --workspace=@jarvis/desktop
@@ -44,7 +44,7 @@ UI (apps) → API Gateway → Orchestrator → Agents → Skills
 |------|--------|
 | User only sees Jarvis UI | Enforced — execution labels hide Hermes/OpenClaw |
 | Frontend never calls OpenClaw | Enforced |
-| Hermes memory via Memory Service APIs | Contract + local memory runtime |
+| Hermes memory via Memory Service APIs | Orchestrator default `JARVIS_MEMORY_BACKEND=memory-service`; `local` fallback |
 | Voice → API → Orchestrator for tasks | Enforced |
 | No duplicate state systems | Single voice session + conversation hooks |
 
@@ -84,8 +84,8 @@ See `apps/desktop/README.md`, `docs/VOICE.md`, `docs/screenshots/README.md`.
 | `api-gateway` | FastAPI — tasks, conversations, orchestrator clients |
 | `orchestrator` | Live execution, capability routing, LLM providers, speech bridge, memory |
 | `speech-service` | Normalization, voice session, real-time STT/TTS, voice execution |
-| `memory-service` | Contracts + stubs |
-| `local-memory` | File-backed persistence via orchestrator |
+| `memory-service` | Default orchestrator persistence backend (HTTP/in-process) |
+| `local-memory` | Dev fallback when `JARVIS_MEMORY_BACKEND=local` |
 
 ---
 
@@ -93,8 +93,8 @@ See `apps/desktop/README.md`, `docs/VOICE.md`, `docs/screenshots/README.md`.
 
 | Agent | Role | Integration |
 |-------|------|-------------|
-| Hermes | Planning, reasoning | LLM provider runtime + planning adapter |
-| OpenClaw | Browser/desktop execution | Gateway + sandbox boundaries |
+| Hermes | Planning, reasoning | `HermesAdapterOfficial` (HTTP) or planning/stub adapters; orchestrator LLM planning gated when `HERMES_MODE=official` |
+| OpenClaw | Browser/desktop execution | `OpenClawAdapterOfficial` (gateway `/tools/invoke`) or local Playwright path |
 
 | Skill | Bound to |
 |-------|----------|
@@ -118,9 +118,10 @@ Full matrix: [PROVIDERS.md](./PROVIDERS.md)
 - Authentication / multi-tenancy / SaaS billing
 - Full `apps/web` product UI
 - Committed UI screenshot assets (paths documented only)
-- Official Hermes/OpenClaw vendor SDKs in production deployment
+- Nous Hermes + OpenClaw gateway processes running on the machine (Phase 0 — [RUNTIME_SETUP.md](./RUNTIME_SETUP.md))
+- WSL2 + OpenClaw gateway on Windows (recommended)
 
-See [NEXT_STEPS.md](./NEXT_STEPS.md).
+See [NEXT_STEPS.md](./NEXT_STEPS.md), [RUNTIME_SETUP.md](./RUNTIME_SETUP.md).
 
 ---
 
@@ -152,7 +153,13 @@ cd services/api-gateway && uvicorn app.main:app --reload --port 8000
 npm run dev --workspace=@jarvis/desktop
 ```
 
-Setup guide: [SETUP.md](./SETUP.md)
+Setup guide: [SETUP.md](./SETUP.md)  
+Runtime install (Hermes + OpenClaw): [RUNTIME_SETUP.md](./RUNTIME_SETUP.md)
+
+```bash
+npx tsx scripts/setup-runtime-health.mjs
+node scripts/phase100c-probe.mjs
+```
 
 ---
 

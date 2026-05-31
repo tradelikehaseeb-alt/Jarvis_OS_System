@@ -5,6 +5,10 @@ import { createHermesAdapterStub } from "./hermes-adapter-stub";
 import type { HermesConfig } from "./hermes-config";
 import type { HermesRequest } from "./hermes-request";
 import type { HermesResponse } from "./hermes-response";
+import { readHermesRuntimeEnv } from "../official/src/hermes-runtime-env";
+import { isHermesPlanningAdapter } from "../official/src/hermes-planning-adapter";
+import { isHermesAdapterPython } from "../official/src/hermes-adapter-python";
+import { isHermesAdapterOfficial } from "../official/src/hermes-adapter-official";
 
 export interface ProviderSelectedHermesAdapterOptions {
   /** Inner implementation (stub, planning, or future official). */
@@ -41,10 +45,28 @@ export class ProviderSelectedHermesAdapter implements HermesAdapter {
     config?: HermesConfig,
   ): Promise<HermesResponse> {
     const resolution = this.resolver.resolveHermes();
+    const runtimeEnv = readHermesRuntimeEnv();
+    const testStub =
+      process.env.NODE_ENV === "test" &&
+      process.env.HERMES_INTEGRATION_LIVE !== "true";
+    const mode: HermesConfig["mode"] =
+      this.forceStubMode ||
+      (testStub &&
+        !isHermesPlanningAdapter(this.inner) &&
+        !isHermesAdapterPython(this.inner) &&
+        !isHermesAdapterOfficial(this.inner))
+        ? "stub"
+        : runtimeEnv.mode === "official" || isHermesAdapterOfficial(this.inner)
+          ? "official"
+          : isHermesPlanningAdapter(this.inner) || isHermesAdapterPython(this.inner)
+            ? "official"
+            : (config?.mode ?? "official");
+
     const response = await this.inner.invoke(request, {
       ...config,
       adapterId: resolution.metadata.providerId,
-      ...(this.forceStubMode ? { mode: "stub" as const } : {}),
+      mode,
+      endpoint: config?.endpoint ?? runtimeEnv.endpoint,
     } as HermesConfig);
 
     return {
