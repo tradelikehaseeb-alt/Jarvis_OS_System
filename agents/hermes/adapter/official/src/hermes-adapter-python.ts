@@ -6,6 +6,8 @@ import { buildHermesStructuredPlan, toStructuredPlanJson } from "./hermes-struct
 import {
   getHermesExecutionMode,
   getHermesSkillCategory,
+  isAutomationConfirmationQuery,
+  isConfirmedAutomationExecution,
   resolveHermesToolsets,
   resolveHermesUserStatusMessage,
 } from "./get-hermes-execution-mode";
@@ -29,6 +31,32 @@ import {
 import { readHermesRuntimeEnv, type EnvSource } from "./hermes-runtime-env";
 
 export const HERMES_PYTHON_ADAPTER_ID = "hermes-adapter-python" as const;
+
+export const JARVIS_EXECUTION_TOKEN = "[JARVIS_EXECUTION_TOKEN_ACTIVE]" as const;
+
+const JARVIS_WINDOWS_EXECUTION_DIRECTIVE = [
+  JARVIS_EXECUTION_TOKEN,
+  "CRITICAL EXECUTION PROTOCOL: The user CONFIRMED a pending Windows automation task.",
+  "You are FORBIDDEN from explaining the code, summarizing what you are about to do, or outputting conversational descriptions.",
+  "Your response must ONLY and IMMEDIATELY contain the valid JSON tool call format to execute_dynamic_windows_script(python_code=...).",
+  "No markdown conversational pre-text or post-text allowed.",
+  "Use the Extracted python_code block below — do not re-display it to the user.",
+  "After tool execution, return ONLY the real terminal outcome from tool JSON (message/stdout).",
+].join(" ");
+
+const PYTHON_FENCE_PATTERN = /```python\s*([\s\S]*?)```/gi;
+
+const CONVERSATIONAL_AUTOMATION_LINE_PATTERN =
+  /^(?:main\s+system|yeh\s+raha|python\s+script|shutdown\s+kar|karunga|karun|proceed\??|shall\s+i|kya\s+main|plan:|here\s+is|i\s+will|mai\s+|main\s+|ab\s+main|theek\s+hai|ok\s+so|let\s+me|yeh\s+script|script\s+hai|execute\s+kar|chalaun|chala\s+raha)/i;
+
+const PYTHON_SOURCE_LINE_PATTERN =
+  /^\s*(?:import\s+|from\s+\w+\s+import|def\s+|class\s+|if\s+|for\s+|while\s+|try:|with\s+|print\(|subprocess\.|os\.|pathlib\.|pyautogui\.|ctypes\.|shutdown\s*\/|#)/i;
+
+const AUTOMATION_TERMINAL_CONFIRMATION_PATTERN =
+  /"success"\s*:\s*true|"exit_code"\s*:\s*0\b|folder\s+(?:successfully\s+)?created|directory\s+created|dynamic\s+windows\s+script\s+completed|process\s+terminated|taskkill\b/i;
+
+const UNEXECUTED_PYTHON_SCRIPT_PATTERN =
+  /```python|execute_dynamic_windows_script|import\s+(?:os|subprocess|pyautogui)|def\s+main\s*\(/i;
 
 export interface HermesAdapterPythonOptions {
   readonly env?: EnvSource;
@@ -57,11 +85,145 @@ function failure(
   };
 }
 
-function buildSkillsQuery(request: HermesRequest): string {
+/** Extract Python source blocks from assistant text (fenced or inline). */
+export function extractPythonScriptBlocks(text: string): readonly string[] {
+  const blocks: string[] = [];
+  const source = text.trim();
+  if (!source) {
+    return blocks;
+  }
+
+  for (const match of source.matchAll(PYTHON_FENCE_PATTERN)) {
+    const code = match[1]?.trim();
+    if (code) {
+      blocks.push(code);
+    }
+  }
+
+  if (blocks.length > 0) {
+    return blocks;
+  }
+
+  const codeLines = source
+    .split(/\r?\n/)
+    .map((line) => line.trimEnd())
+    .filter(
+      (line) =>
+        line.trim().length > 0 && PYTHON_SOURCE_LINE_PATTERN.test(line.trim()),
+    );
+
+  if (codeLines.length > 0) {
+    blocks.push(codeLines.join("\n").trim());
+  }
+
+  return blocks;
+}
+
+/** Strip Urdu/English automation filler; keep code fences and source lines. */
+export function stripAutomationConversationalFiller(text: string): string {
+  const kept: string[] = [];
+
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trimEnd();
+    const trimmed = line.trim();
+    if (!trimmed) {
+      continue;
+    }
+    if (/^```/.test(trimmed)) {
+      kept.push(line);
+      continue;
+    }
+    if (CONVERSATIONAL_AUTOMATION_LINE_PATTERN.test(trimmed)) {
+      continue;
+    }
+    if (
+      PYTHON_SOURCE_LINE_PATTERN.test(trimmed) ||
+      /shutdown\s*\/[sr]/i.test(trimmed)
+    ) {
+      kept.push(line);
+    }
+  }
+
+  return kept.join("\n").trim();
+}
+
+/** Build script-only context for confirmed execution (no conversational prose). */
+export function buildExecutionScriptContext(
+  turns: NonNullable<HermesRequest["conversationTurns"]>,
+): string {
+  const scripts: string[] = [];
+  let latestUserIntent = "";
+
+  for (const turn of turns.slice(-8)) {
+    const message = turn.message.trim();
+    if (!message) {
+      continue;
+    }
+    if (turn.role === "assistant") {
+      const sanitized = stripAutomationConversationalFiller(message);
+      scripts.push(...extractPythonScriptBlocks(sanitized));
+      if (scripts.length === 0 && sanitized.length > 0) {
+        scripts.push(...extractPythonScriptBlocks(message));
+      }
+      continue;
+    }
+    if (
+      turn.role === "user" &&
+      !isAutomationConfirmationQuery(message) &&
+      message.length > 0
+    ) {
+      latestUserIntent = message;
+    }
+  }
+
+  const script = scripts.at(-1)?.trim();
+  const parts: string[] = [];
+  if (latestUserIntent) {
+    parts.push(`Original user intent: ${latestUserIntent}`);
+  }
+  if (script) {
+    parts.push(
+      "Extracted python_code (execute immediately via execute_dynamic_windows_script tool call only — no conversational text):",
+      "```python",
+      script,
+      "```",
+    );
+  }
+  return parts.join("\n");
+}
+
+function buildSkillsQuery(
+  request: HermesRequest,
+  options?: { readonly executionTokenActive?: boolean },
+): string {
   const description = request.intent.description.trim();
   const turns = request.conversationTurns ?? [];
-  const contextBlock =
-    turns.length > 0
+
+  const contextBlock = options?.executionTokenActive
+    ? (() => {
+        const scriptContext = buildExecutionScriptContext(turns);
+        return scriptContext.length > 0
+          ? `\n\n${scriptContext}`
+          : turns.length > 0
+            ? `\n\nConversation context (script-only):\n${turns
+                .slice(-8)
+                .map((turn) => {
+                  if (turn.role !== "assistant") {
+                    return `${turn.role}: ${turn.message}`;
+                  }
+                  const sanitized = stripAutomationConversationalFiller(
+                    turn.message,
+                  );
+                  const scripts = extractPythonScriptBlocks(sanitized);
+                  if (scripts.length > 0) {
+                    return `assistant:\n\`\`\`python\n${scripts.at(-1)}\n\`\`\``;
+                  }
+                  return `assistant: ${sanitized}`;
+                })
+                .join("\n")}`
+            : "";
+      })()
+    : turns.length > 0
       ? `\n\nConversation context:\n${turns
           .slice(-8)
           .map((turn) => `${turn.role}: ${turn.message}`)
@@ -73,7 +235,45 @@ function buildSkillsQuery(request: HermesRequest): string {
             .join("\n")}`
         : "";
 
-  return `${description}${contextBlock}`.trim();
+  const executionDirective = options?.executionTokenActive
+    ? `\n\n${JARVIS_WINDOWS_EXECUTION_DIRECTIVE}`
+    : "";
+
+  return `${description}${contextBlock}${executionDirective}`.trim();
+}
+
+function hasAutomationTerminalConfirmation(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed || /```python/i.test(trimmed)) {
+    return false;
+  }
+
+  if (trimmed.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(trimmed) as {
+        success?: boolean;
+        exit_code?: number;
+      };
+      if (
+        parsed.success === true &&
+        (parsed.exit_code === 0 || parsed.exit_code === undefined)
+      ) {
+        return true;
+      }
+    } catch {
+      // fall through to marker patterns
+    }
+  }
+
+  return AUTOMATION_TERMINAL_CONFIRMATION_PATTERN.test(trimmed);
+}
+
+function looksLikeUnexecutedPythonScript(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed || hasAutomationTerminalConfirmation(trimmed)) {
+    return false;
+  }
+  return UNEXECUTED_PYTHON_SCRIPT_PATTERN.test(trimmed);
 }
 
 function stepsFromAgentText(
@@ -230,8 +430,19 @@ export class HermesAdapterPython implements HermesAdapter {
   ): Promise<HermesResponse> {
     const adapterId = config?.adapterId ?? this.adapterId;
     const description = request.intent.description.trim();
-    const executionMode = getHermesExecutionMode(description);
-    const skillCategory = getHermesSkillCategory(description);
+    const conversationTurns = conversationTurnsFromRequest(request);
+    const confirmedAutomationExecution = isConfirmedAutomationExecution(
+      description,
+      conversationTurns ?? [],
+    );
+    const executionMode = getHermesExecutionMode(
+      description,
+      conversationTurns ?? [],
+    );
+    const skillCategory = getHermesSkillCategory(
+      description,
+      conversationTurns ?? [],
+    );
 
     if (config?.mode === "stub") {
       return failure(
@@ -260,9 +471,8 @@ export class HermesAdapterPython implements HermesAdapter {
       );
     }
 
-    const conversationTurns = conversationTurnsFromRequest(request);
     console.info(
-      `[hermes-python] mode=${executionMode} category=${skillCategory} conversationTurns=${conversationTurns?.length ?? 0}`,
+      `[hermes-python] mode=${executionMode} category=${skillCategory} confirmedAutomation=${confirmedAutomationExecution} conversationTurns=${conversationTurns?.length ?? 0}`,
     );
 
     if (executionMode === "fast") {
@@ -283,13 +493,15 @@ export class HermesAdapterPython implements HermesAdapter {
     const runtime = readHermesRuntimeEnv(this.env);
     const skillsProcessOptions = {
       agentRoot: this.agentRoot,
-      query: buildSkillsQuery(request),
+      query: buildSkillsQuery(request, {
+        executionTokenActive: confirmedAutomationExecution,
+      }),
       enabledToolsets: toolsets,
       timeoutMs: this.timeoutMs,
       env: this.env as NodeJS.ProcessEnv,
       skillCategory,
       userStatusMessage: statusMessage,
-      maxRetries: 1,
+      maxRetries: confirmedAutomationExecution ? 0 : 1,
     };
 
     let processResult = await runHermesAgentProcess(skillsProcessOptions);
@@ -344,7 +556,7 @@ export class HermesAdapterPython implements HermesAdapter {
         isGroqRateLimitFailure(processResult) ||
         resolvedApiFailureText;
 
-      if (shouldFallback && hasGeminiRuntime) {
+      if (shouldFallback && hasGeminiRuntime && !confirmedAutomationExecution) {
         console.info(
           "[hermes-python] skills subprocess failed — Gemini provider fallback",
         );
@@ -372,7 +584,7 @@ export class HermesAdapterPython implements HermesAdapter {
         }
       }
 
-      if (shouldFallback && !hasGeminiRuntime) {
+      if (shouldFallback && !hasGeminiRuntime && !confirmedAutomationExecution) {
         console.info(
           "[hermes-python] skills subprocess failed — Groq fast path fallback",
         );
@@ -415,6 +627,19 @@ export class HermesAdapterPython implements HermesAdapter {
 
     const structured = buildHermesStructuredPlan(request);
     const finalResponse = processResult.finalResponse.trim();
+
+    if (
+      confirmedAutomationExecution &&
+      looksLikeUnexecutedPythonScript(finalResponse)
+    ) {
+      return failure(
+        adapterId,
+        request,
+        "AUTOMATION_SCRIPT_NOT_EXECUTED",
+        "Automation confirmation was received but execute_dynamic_windows_script did not return terminal output. The agent displayed a script instead of executing it.",
+      );
+    }
+
     const steps = stepsFromAgentText(request, finalResponse, "skills");
     const planJson = toStructuredPlanJson({
       ...structured,

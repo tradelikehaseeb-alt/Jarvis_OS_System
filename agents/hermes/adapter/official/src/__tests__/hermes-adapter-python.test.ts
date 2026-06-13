@@ -1,6 +1,11 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 
-import { HermesAdapterPython } from "../hermes-adapter-python";
+import {
+  HermesAdapterPython,
+  buildExecutionScriptContext,
+  extractPythonScriptBlocks,
+  stripAutomationConversationalFiller,
+} from "../hermes-adapter-python";
 import type { HermesRequest } from "../../../src/hermes-request";
 
 const sampleRequest: HermesRequest = {
@@ -222,5 +227,159 @@ describe("HermesAdapterPython", () => {
     expect(response.success).toBe(true);
     expect(response.plan.executionMode).toBe("skills");
     expect(response.plan.summary).toContain("Gemini skills result");
+  });
+
+  it("uses skills subprocess for yes kro after pending automation plan", async () => {
+    const runner = await import("../hermes-python-process-runner");
+    const spawnSpy = vi.spyOn(runner, "runHermesAgentProcess").mockResolvedValue({
+      success: true,
+      finalResponse: '{"success": true, "exit_code": 0, "message": "Folder successfully created"}',
+      stdout:
+        'FINAL RESPONSE:\n{"success": true, "exit_code": 0, "message": "Folder successfully created"}',
+      stderr: "",
+      exitCode: 0,
+      skillCategory: "automate",
+      userStatusMessage: "Jarvis is automating your desktop...",
+    });
+    const groq = await import("../hermes-groq-conversational");
+    const groqSpy = vi.spyOn(groq, "invokeHermesGroqConversational");
+
+    const adapter = new HermesAdapterPython({
+      env: { GROQ_API_KEY: "test-key" },
+      agentRoot: "C:\\hermes-agent",
+    });
+
+    const response = await adapter.invoke({
+      ...sampleRequest,
+      intent: { kind: "automate", description: "yes kro" },
+      conversationTurns: [
+        { role: "user", message: "create folder TestJarvis on desktop" },
+        {
+          role: "assistant",
+          message:
+            "Plan: ```python\nimport os\nos.makedirs('TestJarvis')\nprint('Folder created')\n``` Proceed?",
+        },
+        { role: "user", message: "yes kro" },
+      ],
+    });
+
+    expect(response.success).toBe(true);
+    expect(response.plan.executionMode).toBe("skills");
+    expect(spawnSpy).toHaveBeenCalled();
+    expect(groqSpy).not.toHaveBeenCalled();
+    const spawnArgs = spawnSpy.mock.calls[0]?.[0];
+    expect(spawnArgs?.enabledToolsets).toBe("safe,windows_automation,file");
+    expect(spawnArgs?.query).toContain("[JARVIS_EXECUTION_TOKEN_ACTIVE]");
+    expect(spawnArgs?.query).toContain("execute_dynamic_windows_script");
+    expect(spawnArgs?.query).toContain("CRITICAL EXECUTION PROTOCOL");
+    expect(spawnArgs?.query).toContain("import os");
+    expect(spawnArgs?.query).not.toContain("Proceed?");
+    expect(response.plan.summary).toContain("Folder successfully created");
+  });
+
+  it("strips conversational filler from shutdown confirmation context", async () => {
+    const runner = await import("../hermes-python-process-runner");
+    const spawnSpy = vi.spyOn(runner, "runHermesAgentProcess").mockResolvedValue({
+      success: true,
+      finalResponse: '{"success": true, "exit_code": 0, "message": "Shutdown initiated"}',
+      stdout: 'FINAL RESPONSE:\nShutdown initiated',
+      stderr: "",
+      exitCode: 0,
+      skillCategory: "automate",
+    });
+
+    const adapter = new HermesAdapterPython({
+      env: { GROQ_API_KEY: "test-key" },
+      agentRoot: "C:\\hermes-agent",
+    });
+
+    await adapter.invoke({
+      ...sampleRequest,
+      intent: { kind: "automate", description: "yes kro" },
+      conversationTurns: [
+        { role: "user", message: "system shutdown karo" },
+        {
+          role: "assistant",
+          message:
+            "Main system ko shutdown karunga. Yeh raha Python script:\n```python\nimport subprocess\nsubprocess.run(['shutdown', '/s', '/t', '1'])\nprint('Shutdown initiated')\n```\nProceed?",
+        },
+        { role: "user", message: "yes kro" },
+      ],
+    });
+
+    const spawnArgs = spawnSpy.mock.calls[0]?.[0];
+    const query = spawnArgs?.query ?? "";
+    expect(query).toContain("shutdown");
+    expect(query).toContain("Extracted python_code");
+    expect(query).not.toMatch(/Main system ko shutdown/i);
+    expect(query).not.toMatch(/Yeh raha Python script/i);
+    expect(query).not.toContain("Proceed?");
+  });
+
+  it("rejects raw python display after confirmed automation", async () => {
+    const runner = await import("../hermes-python-process-runner");
+    vi.spyOn(runner, "runHermesAgentProcess").mockResolvedValue({
+      success: true,
+      finalResponse:
+        "```python\nimport os\nos.makedirs('TestJarvis')\nprint('Folder created')\n```",
+      stdout: "FINAL RESPONSE:\n```python\nimport os\n```",
+      stderr: "",
+      exitCode: 0,
+      skillCategory: "automate",
+    });
+
+    const adapter = new HermesAdapterPython({
+      env: { GROQ_API_KEY: "test-key" },
+      agentRoot: "C:\\hermes-agent",
+    });
+
+    const response = await adapter.invoke({
+      ...sampleRequest,
+      intent: { kind: "automate", description: "yes kro" },
+      conversationTurns: [
+        { role: "user", message: "create folder TestJarvis" },
+        {
+          role: "assistant",
+          message: "Here is the script ```python\nimport os\n``` Proceed?",
+        },
+      ],
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.error?.code).toBe("AUTOMATION_SCRIPT_NOT_EXECUTED");
+  });
+});
+
+describe("automation execution context sanitizers", () => {
+  it("extracts python from fenced blocks", () => {
+    const blocks = extractPythonScriptBlocks(
+      "Plan:\n```python\nimport os\nos.makedirs('x')\n```",
+    );
+    expect(blocks).toEqual(["import os\nos.makedirs('x')"]);
+  });
+
+  it("strips Urdu/English conversational filler around scripts", () => {
+    const cleaned = stripAutomationConversationalFiller(
+      "Main system ko shutdown karunga. Yeh raha Python script:\nimport subprocess\nsubprocess.run(['shutdown', '/s', '/t', '1'])",
+    );
+    expect(cleaned).toContain("import subprocess");
+    expect(cleaned).not.toMatch(/Main system/i);
+    expect(cleaned).not.toMatch(/Yeh raha/i);
+  });
+
+  it("builds script-only execution context for confirmed automation", () => {
+    const context = buildExecutionScriptContext([
+      { role: "user", message: "folder banao TestJarvis" },
+      {
+        role: "assistant",
+        message:
+          "Main ab folder banata hun. Yeh script:\n```python\nimport os\nos.makedirs('TestJarvis')\nprint('Folder created')\n```",
+      },
+      { role: "user", message: "yes kro" },
+    ]);
+    expect(context).toContain("Original user intent: folder banao TestJarvis");
+    expect(context).toContain("Extracted python_code");
+    expect(context).toContain("import os");
+    expect(context).not.toMatch(/Main ab folder/i);
   });
 });

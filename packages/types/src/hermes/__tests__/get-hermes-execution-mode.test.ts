@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   getHermesExecutionMode,
   getHermesSkillCategory,
+  hasPendingAutomationInConversation,
+  isAutomationConfirmationQuery,
+  isConfirmedAutomationExecution,
   resolveHermesToolsets,
   resolveHermesUserStatusMessage,
 } from "../get-hermes-execution-mode";
@@ -77,5 +80,31 @@ describe("getHermesExecutionMode", () => {
     expect(resolveHermesUserStatusMessage("memory", "mere fav color bataw")).toBe(
       "Jarvis is checking what you shared...",
     );
+  });
+
+  it("routes automation confirmation with pending context to skills subprocess", () => {
+    const turns = [
+      { role: "user" as const, message: "create folder TestJarvis on desktop" },
+      {
+        role: "assistant" as const,
+        message:
+          "I will run this Python via execute_dynamic_windows_script:\n```python\nimport os\nos.makedirs(r'C:\\Users\\Test\\Desktop\\TestJarvis')\nprint('Folder created')\n```\nProceed?",
+      },
+      { role: "user" as const, message: "yes kro" },
+    ];
+
+    expect(isAutomationConfirmationQuery("yes kro")).toBe(true);
+    expect(hasPendingAutomationInConversation(turns)).toBe(true);
+    expect(isConfirmedAutomationExecution("yes kro", turns)).toBe(true);
+    expect(getHermesExecutionMode("yes kro", turns)).toBe("skills");
+    expect(getHermesSkillCategory("yes kro", turns)).toBe("automate");
+    expect(resolveHermesToolsets("automate")).toBe(
+      "safe,windows_automation,file",
+    );
+  });
+
+  it("keeps bare yes on fast path without pending automation context", () => {
+    expect(getHermesExecutionMode("yes")).toBe("fast");
+    expect(isConfirmedAutomationExecution("yes", [])).toBe(false);
   });
 });

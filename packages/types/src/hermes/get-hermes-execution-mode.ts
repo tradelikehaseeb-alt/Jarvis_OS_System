@@ -30,6 +30,17 @@ const GREETING_PATTERN =
   /^(hello|hi|hey|salam|assalam|assalamu|kya\s+haal|kaise\s+ho|thanks|thank\s+you|shukriya|theek|ok|okay)\b/i;
 const YES_NO_PATTERN =
   /^(yes|no|haan|han|nahi|nah|theek\s+hai|bilkul|sure|ok)\b/i;
+const AUTOMATION_CONFIRMATION_PATTERN =
+  /^(yes|haan|han|bilkul|sure|ok|okay|theek\s+hai|kar\s*do|kardo|kar\s*lo|yes\s+kro|haan\s+kro|han\s+kro|kr[oa]|karo)\b/i;
+const PENDING_AUTOMATION_ASSISTANT_PATTERN =
+  /```python|execute_dynamic_windows_script|python_code|shutdown\s*\/[sr]|mkdir\b|folder\b|taskkill\b|pyautogui|confirm|proceed|shall\s+i|kya\s+main|karoon|karu\b|script_path|windows\s+automation/i;
+const PENDING_AUTOMATION_USER_PATTERN =
+  /\b(folder|shutdown|mkdir|taskkill|close\s+window|banao|create\s+folder|desktop|move\s+file|window\s+control)\b/i;
+
+export interface HermesConversationTurn {
+  readonly role: "user" | "assistant" | "system";
+  readonly message: string;
+}
 const EXPLAIN_PATTERN =
   /\b(explain|samjhao|samjha|matlab|meaning|kya\s+hai)\b/i;
 
@@ -67,7 +78,14 @@ function hasSearchSkillSignal(normalized: string, tokens: readonly string[]): bo
 }
 
 /** Detect skill category from query text. */
-export function getHermesSkillCategory(query: string): HermesSkillCategory {
+export function getHermesSkillCategory(
+  query: string,
+  conversationTurns: readonly HermesConversationTurn[] = [],
+): HermesSkillCategory {
+  if (isConfirmedAutomationExecution(query, conversationTurns)) {
+    return "automate";
+  }
+
   const normalized = normalizeQuery(query);
   if (MEMORY_STORE_PATTERN.test(normalized)) {
     return "memory";
@@ -109,6 +127,56 @@ function isSimpleYesNo(normalized: string): boolean {
   return YES_NO_PATTERN.test(normalized);
 }
 
+/** True when the user affirms a pending automation plan (e.g. "yes kro"). */
+export function isAutomationConfirmationQuery(query: string): boolean {
+  const normalized = normalizeQuery(query);
+  if (!normalized) {
+    return false;
+  }
+  return AUTOMATION_CONFIRMATION_PATTERN.test(normalized);
+}
+
+/** True when recent assistant/user turns contain a pending Windows automation task. */
+export function hasPendingAutomationInConversation(
+  turns: readonly HermesConversationTurn[],
+): boolean {
+  if (turns.length === 0) {
+    return false;
+  }
+
+  const recent = turns.slice(-10);
+  let sawAutomationIntent = false;
+
+  for (const turn of recent) {
+    const message = turn.message.trim();
+    if (!message) {
+      continue;
+    }
+    if (turn.role === "user" && PENDING_AUTOMATION_USER_PATTERN.test(message)) {
+      sawAutomationIntent = true;
+    }
+    if (
+      turn.role === "assistant" &&
+      PENDING_AUTOMATION_ASSISTANT_PATTERN.test(message)
+    ) {
+      return true;
+    }
+  }
+
+  return sawAutomationIntent;
+}
+
+/** User confirmed a pending automation task — must run skills subprocess with tools. */
+export function isConfirmedAutomationExecution(
+  query: string,
+  turns: readonly HermesConversationTurn[] = [],
+): boolean {
+  return (
+    isAutomationConfirmationQuery(query) &&
+    hasPendingAutomationInConversation(turns)
+  );
+}
+
 function isRealWorldInfoQuestion(normalized: string): boolean {
   return REAL_WORLD_PATTERN.test(normalized);
 }
@@ -127,10 +195,17 @@ function isActionRequest(normalized: string, tokens: readonly string[]): boolean
 /**
  * Route Hermes between Groq fast chat and Python skills subprocess.
  */
-export function getHermesExecutionMode(query: string): HermesExecutionMode {
+export function getHermesExecutionMode(
+  query: string,
+  conversationTurns: readonly HermesConversationTurn[] = [],
+): HermesExecutionMode {
   const normalized = normalizeQuery(query);
   if (!normalized) {
     return "fast";
+  }
+
+  if (isConfirmedAutomationExecution(query, conversationTurns)) {
+    return "skills";
   }
 
   const tokens = tokenize(query);
