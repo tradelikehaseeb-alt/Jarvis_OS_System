@@ -14,9 +14,11 @@
     "@jarvis/logger": "*",
     "@jarvis/shared-utils": "*",
     "@jarvis/types": "*",
-    "next": "^15.3.3",
+    "electron": "42.3.2",
+    "next": "^15.5.18",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "vitest": "4.1.8"
   },
   "devDependencies": {
     "@types/node": "^22.15.21",

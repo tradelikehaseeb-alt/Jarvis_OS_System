@@ -1,3 +1,5 @@
+import { resolveAssistantReplyFromTaskOutput } from "@jarvis/types";
+
 import type { SpeechConversationManager } from "../conversation/speech-conversation-manager";
 import { createDefaultSpeechConversationManager } from "../conversation/create-default-speech-conversation-manager";
 import type { SpeechStreamManager } from "../events/speech-stream-manager";
@@ -62,6 +64,7 @@ export interface VoiceSessionRuntime {
   readonly getStreamingResponse: () => string;
   readonly subscribe: (listener: VoiceSessionListener) => () => void;
   readonly startContinuousListening: () => Promise<void>;
+  readonly startWakeWordListening: () => Promise<void>;
   readonly pushToTalkStart: () => Promise<void>;
   readonly pushToTalkEnd: () => Promise<void>;
   readonly stopListening: () => void;
@@ -177,7 +180,18 @@ class DefaultVoiceSessionRuntime implements VoiceSessionRuntime {
   }
 
   async startContinuousListening(): Promise<void> {
-    this.setMode("continuous");
+    if (this.mode !== "wake-word") {
+      this.setMode("continuous");
+    }
+    this.continuousLoop = true;
+    await this.beginListening();
+    if (this.continuousLoop && this.state === "idle") {
+      void this.runContinuousLoop();
+    }
+  }
+
+  async startWakeWordListening(): Promise<void> {
+    this.setMode("wake-word");
     this.continuousLoop = true;
     await this.beginListening();
     if (this.continuousLoop && this.state === "idle") {
@@ -313,8 +327,7 @@ class DefaultVoiceSessionRuntime implements VoiceSessionRuntime {
     let commandText = trimmed;
     const wakeGating =
       this.mode === "wake-word" ||
-      (this.wakeWordConfig.enabled &&
-        (this.mode === "continuous" || this.mode === "push-to-talk"));
+      (this.wakeWordConfig.enabled && this.mode === "continuous");
 
     if (wakeGating) {
       const detection = detectWakeWord(trimmed, this.wakeWordConfig, this.wakeWordState);
@@ -323,7 +336,6 @@ class DefaultVoiceSessionRuntime implements VoiceSessionRuntime {
         this.setState("idle");
         if (this.mode === "wake-word") {
           this.wakeWordState = "armed";
-          this.continuousLoop = false;
         }
         this.emit();
         return;
@@ -371,9 +383,12 @@ class DefaultVoiceSessionRuntime implements VoiceSessionRuntime {
       return;
     }
 
+    const taskOutput = (
+      result.taskStatus as { output?: Readonly<Record<string, unknown>> } | undefined
+    )?.output;
     const responseText =
-      (result.taskStatus as { output?: { summary?: string } } | undefined)?.output
-        ?.summary ??
+      resolveAssistantReplyFromTaskOutput(taskOutput) ??
+      (typeof taskOutput?.summary === "string" ? taskOutput.summary : undefined) ??
       result.normalizedInput ??
       "Done.";
 

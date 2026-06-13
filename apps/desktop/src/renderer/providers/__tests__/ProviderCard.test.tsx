@@ -30,9 +30,28 @@ describe("ProviderCard", () => {
 
     expect(screen.getByText("OpenAI")).toBeInTheDocument();
     expect(screen.getByTestId("provider-status-openai")).toHaveTextContent(
-      "Stub fallback",
+      "Real Production Mode",
     );
     expect(screen.getByTestId("model-selector-openai")).toBeInTheDocument();
+  });
+
+  it("shows Active badge for configured active provider", () => {
+    render(
+      <ProviderCard
+        provider={{
+          ...provider,
+          configured: true,
+          valid: true,
+          stub: false,
+          active: true,
+        }}
+        onActivate={vi.fn()}
+        onModelChange={vi.fn()}
+        onSaveApiKey={vi.fn().mockResolvedValue({ valid: true, message: "saved" })}
+      />,
+    );
+
+    expect(screen.getByTestId("provider-status-openai")).toHaveTextContent("Active");
   });
 
   it("calls onActivate when use provider is clicked", () => {

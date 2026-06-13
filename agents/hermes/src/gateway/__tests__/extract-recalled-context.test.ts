@@ -23,5 +23,26 @@ describe("extractRecalledContextFromAgentContext", () => {
 
     expect(context?.count).toBe(1);
     expect(context?.snippets[0]).toContain("dashboard rollout");
+    expect(context?.turns[0]?.message).toContain("dashboard rollout");
+  });
+
+  it("extracts structured conversation messages for Hermes multi-turn", () => {
+    const context = extractRecalledContextFromAgentContext({
+      contextRef: "ctx-2",
+      userId: "user-1",
+      metadata: {
+        conversationMessages: [
+          { role: "user", message: "mai lahore mai hu" },
+          { role: "assistant", message: "Theek hai, aap Lahore mein hain." },
+        ],
+      },
+    });
+
+    expect(context?.count).toBe(2);
+    expect(context?.turns[0]).toEqual({
+      role: "user",
+      message: "mai lahore mai hu",
+    });
+    expect(context?.turns[1]?.role).toBe("assistant");
   });
 });

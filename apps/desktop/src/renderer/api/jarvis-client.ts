@@ -21,9 +21,6 @@ import {
   type ApiLifecycleListener,
 } from "./api-communication";
 
-/**
- * Renderer client for Jarvis API runtime via Electron preload (Phase 54).
- */
 export class JarvisApiError extends Error {
   constructor(
     message: string,
@@ -81,10 +78,46 @@ export async function getTaskStatus(
   }
 }
 
+const TERMINAL_TASK_STATUSES = new Set<TaskStatusResponse["status"]>([
+  "completed",
+  "failed",
+  "cancelled",
+]);
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Poll until background orchestration reaches a terminal state. */
+export async function pollTaskUntilTerminal(
+  taskId: string,
+  options: {
+    readonly intervalMs?: number;
+    readonly maxAttempts?: number;
+    readonly onLifecycle?: ApiLifecycleListener;
+  } = {},
+): Promise<TaskStatusResponse> {
+  const intervalMs = options.intervalMs ?? 500;
+  const maxAttempts = options.maxAttempts ?? 240;
+  let status = await getTaskStatus(taskId, options.onLifecycle);
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    if (TERMINAL_TASK_STATUSES.has(status.status)) {
+      return status;
+    }
+    await sleep(intervalMs);
+    status = await getTaskStatus(taskId, options.onLifecycle);
+  }
+
+  return status;
+}
+
 export interface SubmitChatAsTaskOptions {
   readonly classification: IntentClassification;
   readonly onLifecycle?: ApiLifecycleListener;
   readonly skipHealthCheck?: boolean;
+  /** Workspace conversation id — must match desktop session for memory recall. */
+  readonly conversationId?: string;
 }
 
 /**
@@ -104,7 +137,8 @@ export async function submitChatAsTask(
     throw new JarvisApiError("Message must not be empty");
   }
 
-  const { classification, onLifecycle, skipHealthCheck = false } = options;
+  const { classification, onLifecycle, skipHealthCheck = false, conversationId } =
+    options;
   let lifecycle = createInitialApiLifecycle();
 
   const emit = (state: ApiRequestLifecycle["state"], attempt: number, lastError?: string) => {
@@ -133,11 +167,16 @@ export async function submitChatAsTask(
         source: "desktop-chat",
         classifiedIntent: classification.intent,
         classificationRule: classification.ruleId,
+        ...(conversationId?.trim()
+          ? { conversationId: conversationId.trim() }
+          : {}),
       },
     });
 
     emit("fetching_status", 1);
-    const status = await getBridge().getTaskStatus(create.taskId);
+    const status = await pollTaskUntilTerminal(create.taskId, {
+      onLifecycle: (lifecycle) => notifyLifecycle(onLifecycle, lifecycle),
+    });
 
     emit("completed", 1);
     return { create, status, classification, lifecycle };

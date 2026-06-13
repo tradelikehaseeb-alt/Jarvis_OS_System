@@ -63,21 +63,31 @@ export function resolveHermesInnerAdapter(
     return options.inner;
   }
 
+  const env = options.env ?? process.env;
+
+  if (shouldUseHermesPythonAdapter(env)) {
+    console.info(
+      "[hermes] resolveHermesInnerAdapter: HermesAdapterPython",
+      "HERMES_AGENT_PATH=",
+      env.HERMES_AGENT_PATH ?? "(unset)",
+    );
+    return createHermesAdapterPython({ env });
+  }
+
   const selection =
-    options.selection ?? readHermesAdapterSelection(options.env);
+    options.selection ?? readHermesAdapterSelection(env);
 
   if (selection === "planning") {
+    console.info("[hermes] resolveHermesInnerAdapter: HermesPlanningAdapter");
     return createHermesPlanningAdapter();
   }
 
-  if (shouldUseHermesPythonAdapter(options.env)) {
-    return createHermesAdapterPython({ env: options.env });
+  if (useOfficialHermesAdapter(env)) {
+    console.info("[hermes] resolveHermesInnerAdapter: HermesAdapterOfficial");
+    return createHermesAdapterOfficial({ env });
   }
 
-  if (useOfficialHermesAdapter(options.env)) {
-    return createHermesAdapterOfficial({ env: options.env });
-  }
-
+  console.info("[hermes] resolveHermesInnerAdapter: HermesAdapterStub");
   return createHermesAdapterStub();
 }
 
@@ -91,6 +101,14 @@ export function createResolvedHermesAdapter(
   const { env, selection, inner, forceStubMode, ...providerOptions } = options;
   const resolvedInner = resolveHermesInnerAdapter({ env, selection, inner });
   const runtimeEnv = readHermesRuntimeEnv(env);
+  console.info(
+    "[hermes] createResolvedHermesAdapter:",
+    resolvedInner.adapterId,
+    "mode=",
+    runtimeEnv.mode,
+    "configured=",
+    runtimeEnv.configured,
+  );
   return createHermesAdapterFromProvider(resolver, {
     ...providerOptions,
     inner: resolvedInner,

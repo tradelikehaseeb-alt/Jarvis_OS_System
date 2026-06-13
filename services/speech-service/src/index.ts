@@ -293,6 +293,19 @@ export {
 export * from "./hardening";
 
 /** Module identifiers for structure tests. */
+export { readJarvisSpeechEnvConfig } from "./adapters/internal/speech-env-config";
+export { transcribeWithGroqWhisper } from "./adapters/internal/groq-whisper-client";
+export { transcribeWithDeepgram } from "./adapters/internal/deepgram-stt-client";
+export { synthesizeWithEdgeTts } from "./adapters/internal/edge-tts-synthesis";
+export { synthesizeWithElevenLabs } from "./adapters/internal/elevenlabs-tts-synthesis";
+export {
+  speechDebug,
+  isAudioBufferTooSmall,
+  isGroqSttFailureRetryable,
+  transcribeSpeechForIpc,
+  synthesizeSpeechForIpc,
+} from "./adapters/internal/speech-ipc-helpers";
+
 export const SPEECH_SERVICE_MODULE_IDS = [
   "speech-context",
   "language-detector",

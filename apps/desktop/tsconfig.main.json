@@ -15,6 +15,13 @@
       "@jarvis/desktop-intent/*": ["./src/renderer/intent/*"]
     }
   },
-  "include": ["src/main.ts", "src/preload.ts", "src/ipc/**/*.ts"],
+  "include": [
+    "src/main.ts",
+    "src/desktop-env-bootstrap.ts",
+    "src/preload.ts",
+    "src/load-env.ts",
+    "src/ensure-electron-memory-backend.ts",
+    "src/ipc/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist", "src/renderer"]
 }

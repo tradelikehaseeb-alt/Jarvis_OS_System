@@ -51,11 +51,26 @@ function buildLlmPrompt(task: UserTask, useOrchestratorPlanning: boolean): strin
  * Phase 1 — invoke configured LLM for conversational reply (Groq/OpenAI/etc.).
  * Orchestrator planning prompts only when {@link shouldUseOrchestratorLlmPlanning} is true.
  */
+const HERMES_OWNED_CHAT_KINDS = new Set(["default", "chat", "conversation"]);
+
+function hermesOwnsConversationalReply(task: UserTask): boolean {
+  return HERMES_OWNED_CHAT_KINDS.has(task.intent.kind.trim().toLowerCase());
+}
+
+function executionAgentOwnsReply(task: UserTask): boolean {
+  return task.intent.kind.trim().toLowerCase() === "automate";
+}
+
 export async function invokeTaskLlm(
   input: InvokeTaskLlmInput,
 ): Promise<InvokeTaskLlmResult> {
   const useOrchestratorPlanning = shouldUseOrchestratorLlmPlanning();
-  if (!useOrchestratorPlanning && !conversationalLlmEnabled()) {
+  if (
+    !useOrchestratorPlanning &&
+    (!conversationalLlmEnabled() ||
+      hermesOwnsConversationalReply(input.task) ||
+      executionAgentOwnsReply(input.task))
+  ) {
     return { planningSource: "hermes-adapter" };
   }
 

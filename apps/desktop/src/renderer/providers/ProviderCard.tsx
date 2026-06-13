@@ -1,6 +1,10 @@
 import { ApiKeyManager } from "./ApiKeyManager";
 import { ProviderModelSelector } from "./ProviderModelSelector";
 import type { ProviderStatus } from "./provider-settings-types";
+import {
+  resolveProviderStatusClass,
+  resolveProviderStatusLabel,
+} from "../settings/production-mode";
 
 export interface ProviderCardProps {
   readonly provider: ProviderStatus;
@@ -15,19 +19,6 @@ export interface ProviderCardProps {
     providerId: string,
     apiKey: string,
   ) => Promise<{ valid: boolean; message: string }>;
-}
-
-function connectionLabel(provider: ProviderStatus): string {
-  if (provider.stub) {
-    return "Stub fallback";
-  }
-  if (provider.valid) {
-    return "Connected";
-  }
-  if (provider.configured) {
-    return "Configured";
-  }
-  return "Not configured";
 }
 
 /** Single provider configuration card (Phase 83). */
@@ -52,10 +43,10 @@ export function ProviderCard({
           <p className="provider-card-id">{provider.providerId}</p>
         </div>
         <span
-          className={`provider-status-badge provider-status-${provider.valid ? "ok" : "stub"}`}
+          className={`provider-status-badge ${resolveProviderStatusClass(provider)}`}
           data-testid={`provider-status-${provider.providerId}`}
         >
-          {connectionLabel(provider)}
+          {resolveProviderStatusLabel(provider)}
         </span>
       </header>
 

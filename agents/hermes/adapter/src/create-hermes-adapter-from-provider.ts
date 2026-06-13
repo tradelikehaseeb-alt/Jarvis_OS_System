@@ -10,6 +10,20 @@ import { isHermesPlanningAdapter } from "../official/src/hermes-planning-adapter
 import { isHermesAdapterPython } from "../official/src/hermes-adapter-python";
 import { isHermesAdapterOfficial } from "../official/src/hermes-adapter-official";
 
+function shouldDecorateHermesResponse(
+  inner: HermesAdapter,
+  response: HermesResponse,
+): boolean {
+  if (response.stub) {
+    return true;
+  }
+  return (
+    !isHermesAdapterPython(inner) &&
+    !isHermesPlanningAdapter(inner) &&
+    !isHermesAdapterOfficial(inner)
+  );
+}
+
 export interface ProviderSelectedHermesAdapterOptions {
   /** Inner implementation (stub, planning, or future official). */
   readonly inner?: HermesAdapter;
@@ -69,17 +83,23 @@ export class ProviderSelectedHermesAdapter implements HermesAdapter {
       endpoint: config?.endpoint ?? runtimeEnv.endpoint,
     } as HermesConfig);
 
+    const decorate = shouldDecorateHermesResponse(this.inner, response);
+
     return {
       ...response,
       adapterId: resolution.metadata.providerId,
       plan: {
         ...response.plan,
-        summary: `${resolution.stubPayload.label}: ${response.plan.summary}`,
+        summary: decorate
+          ? `${resolution.stubPayload.label}: ${response.plan.summary}`
+          : response.plan.summary,
         goal: response.plan.goal,
       },
       reasoning: {
         ...response.reasoning,
-        summary: `[${resolution.metadata.deployment}] ${response.reasoning.summary}`,
+        summary: decorate
+          ? `[${resolution.metadata.deployment}] ${response.reasoning.summary}`
+          : response.reasoning.summary,
       },
     };
   }

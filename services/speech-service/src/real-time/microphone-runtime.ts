@@ -20,11 +20,18 @@ export interface MicrophoneCaptureOptions {
   readonly onLevel?: (sample: MicrophoneLevelSample) => void;
 }
 
+export interface RecordedMicrophoneAudio {
+  readonly audioBase64: string;
+  readonly mimeType: string;
+}
+
 export interface MicrophoneRuntime {
   readonly isAvailable: () => boolean;
   readonly startCapture: (options?: MicrophoneCaptureOptions) => Promise<void>;
   readonly stopCapture: () => void;
   readonly getLatestLevels: () => readonly number[];
+  /** Optional encoded recording for STT (e.g. WebM from MediaRecorder). */
+  readonly flushRecordedAudio?: () => Promise<RecordedMicrophoneAudio | undefined>;
 }
 
 function computeRms(pcm: Float32Array): number {
@@ -102,5 +109,16 @@ export class SyntheticMicrophoneRuntime implements MicrophoneRuntime {
 
   getLatestLevels(): readonly number[] {
     return this.levels;
+  }
+
+  async flushRecordedAudio(): Promise<RecordedMicrophoneAudio | undefined> {
+    if (this.levels.length === 0) {
+      return undefined;
+    }
+    const padding = Buffer.alloc(600, 0x01);
+    return {
+      audioBase64: padding.toString("base64"),
+      mimeType: "audio/webm",
+    };
   }
 }

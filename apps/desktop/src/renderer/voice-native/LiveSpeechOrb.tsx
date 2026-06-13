@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 import type { VoiceSessionState } from "@jarvis/speech-service";
 
@@ -68,15 +68,28 @@ export const LiveSpeechOrb = memo(function LiveSpeechOrb({
       />
       <WaveformBars levels={levels} />
       <p className="live-speech-orb__label">{label}</p>
-      {typeof confidence === "number" ? (
-        <p className="live-speech-orb__meta" data-testid="voice-transcript-confidence">
-          {Math.round(confidence * 100)}% confident
-        </p>
-      ) : null}
-      {typeof latencyMs === "number" ? (
-        <p className="live-speech-orb__meta" data-testid="voice-stt-latency">
-          {latencyMs} ms
-        </p>
+      {typeof confidence === "number" || typeof latencyMs === "number" ? (
+        <div
+          className="cc-orb-micro-dashboard cc-glass"
+          data-testid="live-speech-orb-dashboard"
+        >
+          {typeof confidence === "number" ? (
+            <span
+              className="cc-orb-micro-dashboard__item"
+              data-testid="voice-transcript-confidence"
+            >
+              {Math.round(confidence * 100)}% conf
+            </span>
+          ) : null}
+          {typeof latencyMs === "number" ? (
+            <span
+              className="cc-orb-micro-dashboard__item"
+              data-testid="voice-stt-latency"
+            >
+              {Math.round(latencyMs)} ms
+            </span>
+          ) : null}
+        </div>
       ) : null}
     </motion.div>
   );

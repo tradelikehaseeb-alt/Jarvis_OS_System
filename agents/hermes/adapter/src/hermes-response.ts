@@ -1,3 +1,5 @@
+import type { HermesSkillCategory } from "@jarvis/types";
+
 /**
  * Structured plan returned by {@link HermesAdapter} (Phase 22).
  *
@@ -34,6 +36,11 @@ export interface HermesResponse {
     readonly intentKind: string;
     /** Human-readable plan summary (typically mirrors {@link HermesStructuredPlan.goal}). */
     readonly summary: string;
+    /** Fast Groq/Gemini chat vs Python skills subprocess. */
+    readonly executionMode?: "fast" | "skills";
+    readonly skillCategory?: HermesSkillCategory;
+    readonly userStatusMessage?: string;
+    readonly llmProvider?: "groq" | "gemini";
   };
   readonly reasoning: {
     readonly summary: string;

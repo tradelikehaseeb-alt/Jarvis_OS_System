@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockJarvisApi } from "../../test/mock-jarvis-api";
+import { createMockJarvisApi, defaultProviderSettingsSnapshot } from "../../test/mock-jarvis-api";
 import { ProviderSettingsPage } from "../ProviderSettingsPage";
 
 describe("ProviderSettingsPage", () => {
@@ -22,6 +22,14 @@ describe("ProviderSettingsPage", () => {
   });
 
   it("activates a provider through IPC", async () => {
+    window.jarvis.getProviderSettings = vi.fn().mockResolvedValue({
+      ...defaultProviderSettingsSnapshot,
+      locale: {
+        timeZone: "Asia/Karachi",
+        locale: "en-US",
+        cityLabel: "Karachi",
+      },
+    });
     render(<ProviderSettingsPage />);
 
     await waitFor(() => {
@@ -34,5 +42,6 @@ describe("ProviderSettingsPage", () => {
     );
 
     expect(window.jarvis.selectProvider).toHaveBeenCalled();
+    expect(screen.getByTestId("client-locale-banner")).toHaveTextContent(/Karachi/);
   });
 });

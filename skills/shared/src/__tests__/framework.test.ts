@@ -114,4 +114,14 @@ describe("skills framework contracts", () => {
     };
     expect(ctx.memoryApiRef).toBeDefined();
   });
+
+  it("exports Hermes dynamic Windows automation capability metadata", async () => {
+    const { HERMES_DYNAMIC_WINDOWS_AUTOMATION_CAPABILITY } = await import(
+      "../hermes-dynamic-windows-automation"
+    );
+    expect(HERMES_DYNAMIC_WINDOWS_AUTOMATION_CAPABILITY.id).toBe(
+      "hermes-dynamic-windows-script",
+    );
+    expect(HERMES_DYNAMIC_WINDOWS_AUTOMATION_CAPABILITY.kind).toBe("automate");
+  });
 });

@@ -7,7 +7,7 @@ import type {
 
 import type { EmbeddingProvider } from "../embedding-provider/contract";
 import { TfidfEmbeddingProvider } from "../embedding-provider/tfidf-embedding-provider";
-import { SqliteStorageAdapter } from "../storage-adapter/sqlite-storage-adapter";
+import type { JarvisPersistentStorage } from "../storage-adapter/jarvis-persistent-storage";
 import type { MemoryCategory } from "../storage-adapter/sqlite-schema";
 import type { MemoryProviderComponent } from "./contract";
 
@@ -31,7 +31,7 @@ export class DefaultMemoryProvider implements MemoryProviderComponent {
   readonly componentId = "memory-provider" as const;
 
   constructor(
-    private readonly storage: SqliteStorageAdapter,
+    private readonly storage: JarvisPersistentStorage,
     private readonly embeddings: EmbeddingProvider,
   ) {}
 

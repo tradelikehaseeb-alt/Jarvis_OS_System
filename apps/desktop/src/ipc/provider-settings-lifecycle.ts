@@ -2,6 +2,11 @@ import {
   createDefaultProviderSettingsRuntime,
   type ProviderSettingsRuntime,
 } from "@jarvis/orchestrator";
+import {
+  getProviderFactory,
+  type JarvisClientLocale,
+  type ProviderFactorySelection,
+} from "@jarvis/provider-runtime";
 
 import type {
   ProviderSettingsSnapshot,
@@ -14,9 +19,19 @@ let runtime: ProviderSettingsRuntime | undefined;
 
 function getProviderSettingsRuntime(): ProviderSettingsRuntime {
   if (!runtime) {
-    runtime = createDefaultProviderSettingsRuntime();
+    const factory = getProviderFactory();
+    runtime = createDefaultProviderSettingsRuntime({
+      providerRuntime: factory.getRuntime(),
+    });
   }
   return runtime;
+}
+
+async function reallocateProviderRuntime(
+  selection: ProviderFactorySelection,
+): Promise<void> {
+  const factory = getProviderFactory();
+  await factory.configure(selection);
 }
 
 /** @internal test hook */
@@ -34,17 +49,38 @@ export async function getProviderSettingsSnapshot(
     settingsRuntime.listProviderStatuses(userId),
   ]);
 
-  return { settings, providers };
+  const factory = getProviderFactory();
+  await reallocateProviderRuntime({
+    userId,
+    providerId: settings.selectedProviderId,
+    model: settings.selectedModels[settings.selectedProviderId],
+  });
+
+  return {
+    settings,
+    providers,
+    locale: factory.getLocale(),
+  };
 }
 
 export async function saveProviderApiKeyForUser(
   request: SaveProviderApiKeyRequest,
 ) {
-  return getProviderSettingsRuntime().saveApiKey(
+  const result = await getProviderSettingsRuntime().saveApiKey(
     request.userId,
     request.providerId,
     request.apiKey,
   );
+
+  const settings = getProviderSettingsRuntime().getSettings(request.userId);
+  await reallocateProviderRuntime({
+    userId: request.userId,
+    providerId: settings.selectedProviderId,
+    model: settings.selectedModels[settings.selectedProviderId],
+    apiKey: request.apiKey,
+  });
+
+  return result;
 }
 
 export async function validateProviderApiKeyForUser(
@@ -56,18 +92,50 @@ export async function validateProviderApiKeyForUser(
 }
 
 export async function selectProviderForUser(request: SelectProviderRequest) {
-  return getProviderSettingsRuntime().selectProvider(
+  const settings = getProviderSettingsRuntime().selectProvider(
     request.userId,
     request.providerId,
   );
+
+  await reallocateProviderRuntime({
+    userId: request.userId,
+    providerId: request.providerId,
+    model: settings.selectedModels[request.providerId],
+  });
+
+  return settings;
 }
 
 export async function selectProviderModelForUser(
   request: SelectProviderModelRequest,
 ) {
-  return getProviderSettingsRuntime().selectModel(
+  const settings = getProviderSettingsRuntime().selectModel(
     request.userId,
     request.providerId,
     request.model,
   );
+
+  await reallocateProviderRuntime({
+    userId: request.userId,
+    providerId: request.providerId,
+    model: request.model,
+  });
+
+  return settings;
+}
+
+/** Sync renderer locale (timezone/city) into the provider factory on boot. */
+export async function syncClientLocaleForUser(
+  userId: string,
+  locale: Partial<JarvisClientLocale>,
+): Promise<JarvisClientLocale> {
+  const factory = getProviderFactory();
+  const resolved = factory.setClientLocale(locale);
+  const settings = getProviderSettingsRuntime().getSettings(userId);
+  await reallocateProviderRuntime({
+    userId,
+    providerId: settings.selectedProviderId,
+    model: settings.selectedModels[settings.selectedProviderId],
+  });
+  return resolved;
 }

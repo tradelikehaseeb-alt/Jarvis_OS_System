@@ -61,6 +61,7 @@ export interface CreateDefaultProviderSettingsRuntimeOptions {
   readonly storageRuntime?: StorageRuntime;
   readonly registry?: ProviderRegistry;
   readonly fallbackProviderId?: string;
+  readonly providerRuntime?: import("@jarvis/provider-runtime").ProviderRuntime;
 }
 
 function defaultSettings(userId: string, fallbackProviderId: string): ProviderSettings {
@@ -83,6 +84,7 @@ class DefaultProviderSettingsRuntime implements ProviderSettingsRuntime {
       options.validationRuntime ??
       createDefaultProviderValidationRuntime({
         registry: options.registry,
+        providerRuntime: options.providerRuntime,
       });
     this.storageRuntime = options.storageRuntime ?? createDefaultStorageRuntime();
     this.credentialStore =

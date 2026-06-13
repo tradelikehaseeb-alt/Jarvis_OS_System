@@ -1,3 +1,9 @@
+import {
+  getHermesExecutionMode,
+  getHermesSkillCategory,
+  resolveHermesUserStatusMessage,
+} from "@jarvis/types";
+
 import { ACTIVITY_EVENT_LABELS } from "../activity/activity-event";
 
 /** User-facing execution copy — never exposes internal agent/runtime names (Phase 89). */
@@ -42,7 +48,18 @@ export const JARVIS_EXECUTION_LABELS = {
 
 export const JARVIS_ACTIVITY_LABELS = ACTIVITY_EVENT_LABELS;
 
-export function loadingMessageForJarvisIntent(intent: string): string {
+export function loadingMessageForJarvisIntent(
+  intent: string,
+  query?: string,
+): string {
+  if (query?.trim()) {
+    const mode = getHermesExecutionMode(query);
+    if (mode === "skills") {
+      return resolveHermesUserStatusMessage(getHermesSkillCategory(query));
+    }
+    return JARVIS_EXECUTION_LABELS.thinking;
+  }
+
   if (intent === "plan") {
     return JARVIS_EXECUTION_LABELS.understandingActive;
   }
@@ -50,7 +67,7 @@ export function loadingMessageForJarvisIntent(intent: string): string {
     return JARVIS_EXECUTION_LABELS.performingActive;
   }
   if (intent === "search" || intent === "research") {
-    return "Researching…";
+    return JARVIS_EXECUTION_LABELS.workforceResearching;
   }
   return JARVIS_EXECUTION_LABELS.thinking;
 }

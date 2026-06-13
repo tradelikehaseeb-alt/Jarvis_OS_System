@@ -4,6 +4,7 @@
  */
 
 export type { SkillCapability, SkillCapabilityKind } from "./skill-capability";
+export { HERMES_DYNAMIC_WINDOWS_AUTOMATION_CAPABILITY } from "./hermes-dynamic-windows-automation";
 export type { SkillMetadata } from "./skill-metadata";
 export type { SkillInput } from "./skill-input";
 export type { SkillError, SkillOutput } from "./skill-output";

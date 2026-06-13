@@ -5,8 +5,12 @@ export interface FloatingCommandInputProps {
   readonly onChange: (value: string) => void;
   readonly onSubmit: () => void;
   readonly loading?: boolean;
+  readonly onCancel?: () => void;
   readonly placeholder?: string;
   readonly leadingAction?: ReactNode;
+  /** Terminal marquee status shown above the command bar */
+  readonly statusMarquee?: string;
+  readonly className?: string;
 }
 
 /**
@@ -17,11 +21,26 @@ export function FloatingCommandInput({
   onChange,
   onSubmit,
   loading = false,
+  onCancel,
   placeholder = "Ask Jarvis anything…",
   leadingAction,
+  statusMarquee,
+  className = "",
 }: FloatingCommandInputProps) {
   return (
-    <div className="floating-command-input" data-testid="floating-command-input">
+    <div className="cc-command-dock" data-testid="floating-command-input">
+      {statusMarquee ? (
+        <div
+          className="cc-command-marquee"
+          role="status"
+          aria-live="polite"
+          data-testid="command-status-marquee"
+        >
+          <span className="cc-command-marquee__prefix">&gt;</span>
+          <span className="cc-command-marquee__track">{statusMarquee}</span>
+        </div>
+      ) : null}
+      <div className={`floating-command-input cc-command-bar cc-glass cc-hud-frame ${className}`.trim()}>
       {leadingAction ? (
         <div className="floating-command-input__leading">{leadingAction}</div>
       ) : null}
@@ -33,22 +52,35 @@ export function FloatingCommandInput({
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
-            onSubmit();
+            if (value.trim().length > 0) {
+              onSubmit();
+            }
           }
         }}
-        placeholder={placeholder}
-        disabled={loading}
+        placeholder={loading ? "Type next question while Jarvis thinks…" : placeholder}
+        aria-busy={loading || undefined}
         aria-label="Command input"
       />
+      {loading && onCancel ? (
+        <button
+          type="button"
+          className="floating-command-input__cancel btn btn--ghost"
+          onClick={onCancel}
+          aria-label="Dismiss thinking state"
+        >
+          Dismiss
+        </button>
+      ) : null}
       <button
         type="button"
         className="floating-command-input__send btn"
         onClick={onSubmit}
-        disabled={loading || value.trim().length === 0}
+        disabled={value.trim().length === 0}
         aria-label="Send"
       >
-        {loading ? "…" : "Send"}
+        {loading ? "Send" : "Send"}
       </button>
+      </div>
     </div>
   );
 }

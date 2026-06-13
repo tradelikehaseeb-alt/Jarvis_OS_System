@@ -20,6 +20,7 @@ import {
   recoverDesktopRuntime,
   validateDesktopRuntime,
 } from "./runtime-startup-lifecycle";
+import { getHermesStartupStatus } from "./hermes-startup-status";
 import {
   buildAggregatedRuntimeHealthResponse,
   getAggregatedRuntimeHealthSnapshot,
@@ -30,6 +31,7 @@ import {
   saveProviderApiKeyForUser,
   selectProviderForUser,
   selectProviderModelForUser,
+  syncClientLocaleForUser,
   validateProviderApiKeyForUser,
 } from "./provider-settings-lifecycle";
 
@@ -201,6 +203,8 @@ export function registerApiHandlers(): void {
 
   ipcMain.handle("jarvis:getStartupStatus", () => getDesktopStartupStatus());
 
+  ipcMain.handle("jarvis:getHermesStartupStatus", () => getHermesStartupStatus());
+
   ipcMain.handle("jarvis:getAggregatedRuntimeHealth", () =>
     buildAggregatedRuntimeHealthResponse(),
   );
@@ -233,6 +237,10 @@ export function registerApiHandlers(): void {
 
   ipcMain.handle("jarvis:selectProviderModel", (_event, request) =>
     selectProviderModelForUser(request),
+  );
+
+  ipcMain.handle("jarvis:syncClientLocale", (_event, request) =>
+    syncClientLocaleForUser(request.userId, request),
   );
 }
 

@@ -4,6 +4,8 @@ export { DynamicActivityPanel } from "./DynamicActivityPanel";
 export { LiveExecutionPanel } from "./LiveExecutionPanel";
 export { MinimalSidebar, type CommandCenterPageId } from "./MinimalSidebar";
 export { FloatingCommandInput } from "./FloatingCommandInput";
+export { PipelineTelemetryPanel } from "./PipelineTelemetryPanel";
+export { buildPipelineTelemetryView } from "./command-center-telemetry";
 export {
   JARVIS_EXECUTION_LABELS,
   JARVIS_ACTIVITY_LABELS,

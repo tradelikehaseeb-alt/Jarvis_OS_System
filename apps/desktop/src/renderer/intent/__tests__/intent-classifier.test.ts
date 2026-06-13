@@ -18,6 +18,13 @@ describe("classifyChatIntent", () => {
     expect(result.intent).toBe("automate");
   });
 
+  it("classifies media editing and local command requests as automation", () => {
+    expect(classifyChatIntent("Is video ko edit karo").intent).toBe("automate");
+    expect(classifyChatIntent("Run command and build project").intent).toBe(
+      "automate",
+    );
+  });
+
   it("classifies search before generic research", () => {
     const result = classifyChatIntent("Search for API documentation");
     expect(result.intent).toBe("search");
@@ -33,6 +40,24 @@ describe("classifyChatIntent", () => {
     const result = classifyChatIntent("Hello!");
     expect(result.intent).toBe("conversation");
     expect(mapChatIntentToTaskKind(result.intent)).toBe("default");
+  });
+
+  it("classifies personal memory questions as conversation", () => {
+    const result = classifyChatIntent("what is my name");
+    expect(result.intent).toBe("conversation");
+    expect(result.ruleId).toBe("conversation-personal");
+  });
+
+  it("strips wake phrase before classifying personal questions", () => {
+    const result = classifyChatIntent("hey jarvis, what is my name ?");
+    expect(result.intent).toBe("conversation");
+    expect(result.ruleId).toBe("conversation-personal");
+  });
+
+  it("defaults unknown prompts to conversation instead of research", () => {
+    const result = classifyChatIntent("tell me about yesterday");
+    expect(result.intent).toBe("conversation");
+    expect(result.ruleId).toBe("fallback-conversation");
   });
 
   it("is deterministic for the same input", () => {

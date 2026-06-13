@@ -1,5 +1,9 @@
 import type { AgentRegistryContract } from "@jarvis/agents-shared";
 import { registerDefaultAgents } from "@jarvis/agents-bootstrap";
+import {
+  createDefaultLocalMemoryRuntime,
+  type LocalMemoryRuntime,
+} from "@jarvis/local-memory";
 import type {
   CreateTaskResponse,
   TaskStatusResponse,
@@ -7,6 +11,12 @@ import type {
 
 import { createServiceComponents } from "./create-orchestrator-service";
 import type { OrchestratorComponents, OrchestratorService } from "./orchestrator";
+import {
+  createDefaultMemoryPersistenceManager,
+  type MemoryPersistenceManager,
+} from "./memory";
+import { LocalMemoryBackedMemoryStore } from "./memory/local-memory-backed-memory-store";
+import type { MemoryStore } from "./memory/memory-store";
 import {
   TaskStoreFactory,
   type TaskStore,
@@ -43,6 +53,9 @@ export class OrchestratorServiceImpl
     readonly components: OrchestratorComponents,
     private readonly executableRegistry: AgentRegistryContract,
     private readonly taskStore: TaskStore,
+    private readonly sharedLocalMemory?: LocalMemoryRuntime,
+    private readonly sharedMemoryStore?: MemoryStore,
+    private readonly sharedMemoryPersistence?: MemoryPersistenceManager,
   ) {}
 
   async executeCreateTask(
@@ -54,7 +67,13 @@ export class OrchestratorServiceImpl
       this.executableRegistry,
       input,
       this.taskStore,
-      options,
+      {
+        ...options,
+        localMemoryRuntime:
+          options?.localMemoryRuntime ?? this.sharedLocalMemory,
+        memoryPersistenceManager:
+          options?.memoryPersistenceManager ?? this.sharedMemoryPersistence,
+      },
     );
   }
 
@@ -80,11 +99,22 @@ export async function createDefaultOrchestratorService(
   taskStore: TaskStore = TaskStoreFactory.getSharedDefault(),
 ): Promise<OrchestratorServiceImpl> {
   const { registry: executableRegistry } = await registerDefaultAgents();
-  const components = createServiceComponents(executableRegistry);
+  const sharedLocalMemory = createDefaultLocalMemoryRuntime();
+  const sharedMemoryStore = new LocalMemoryBackedMemoryStore(sharedLocalMemory);
+  const sharedMemoryPersistence = createDefaultMemoryPersistenceManager(
+    sharedMemoryStore,
+  );
+  const components = createServiceComponents(executableRegistry, {
+    localMemory: sharedLocalMemory,
+    memoryStore: sharedMemoryStore,
+  });
   return new OrchestratorServiceImpl(
     components,
     executableRegistry,
     taskStore,
+    sharedLocalMemory,
+    sharedMemoryStore,
+    sharedMemoryPersistence,
   );
 }
 

@@ -3,6 +3,8 @@ import {
   createDefaultLocalMemoryRuntime,
   type LocalMemoryRuntime,
 } from "@jarvis/local-memory";
+import { LocalMemoryBackedMemoryStore } from "./memory/local-memory-backed-memory-store";
+import type { MemoryStore } from "./memory/memory-store";
 
 import { AgentRegistryStub, ConfiguredAgentRegistry } from "./agent-registry/stub";
 import { LiveAgentRegistry } from "./agent-registry/live-registry";
@@ -29,6 +31,7 @@ export interface CreateOrchestratorComponentsOptions {
   readonly agentRegistry?: AgentRegistry;
   readonly agentExecutors?: AgentRegistryContract;
   readonly localMemory?: LocalMemoryRuntime;
+  readonly memoryStore?: MemoryStore;
   readonly capabilityRouter?: CapabilityRouter;
 }
 
@@ -40,9 +43,11 @@ export function createOrchestratorComponents(
 ): OrchestratorComponents {
   const localMemory =
     options.localMemory ??
-    createDefaultLocalMemoryRuntime({
-      useFileBackend: process.env.NODE_ENV !== "test",
-    });
+    createDefaultLocalMemoryRuntime(
+      process.env.NODE_ENV === "test" ? { useFileBackend: false } : undefined,
+    );
+  const memoryStore =
+    options.memoryStore ?? new LocalMemoryBackedMemoryStore(localMemory);
 
   const agentRegistry =
     options.agentRegistry ?? new ConfiguredAgentRegistry();
@@ -50,7 +55,7 @@ export function createOrchestratorComponents(
   return {
     taskRouter: new DefaultTaskRouter(),
     workflowManager: new DefaultWorkflowManager(),
-    contextManager: new DefaultContextManager({ localMemory }),
+    contextManager: new DefaultContextManager({ localMemory, memoryStore }),
     executionManager: new DefaultExecutionManager({
       agents: options.agentExecutors,
       localMemory,

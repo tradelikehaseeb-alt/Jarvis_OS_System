@@ -11,7 +11,12 @@ interface IntentRule {
 }
 
 function normalizeMessage(message: string): string {
-  return message.trim().toLowerCase().replace(/\s+/g, " ");
+  return message
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/^(hey|hi|ok)\s+jarvis[,!\s]+/u, "")
+    .trim();
 }
 
 function tokenize(normalized: string): readonly string[] {
@@ -39,6 +44,43 @@ const INTENT_RULES: readonly IntentRule[] = [
     test: (text) => matchesDesktopValidationPrompt(text),
   },
   {
+    id: "voice-ui",
+    intent: "conversation",
+    confidence: 0.96,
+    reason: "Voice or microphone UI — chat, not browser automation",
+    test: (text, tokens) =>
+      includesAnyPhrase(text, [
+        "voice button",
+        "microphone",
+        "press to talk",
+        "voice input",
+        "voice mode",
+        "start recording",
+        "sun raha",
+        "bol raha",
+      ]) ||
+      (includesAnyToken(tokens, [
+        "voice",
+        "microphone",
+        "mic",
+        "record",
+        "recording",
+        "listen",
+        "speak",
+        "audio",
+        "sun",
+        "bol",
+      ]) &&
+        includesAnyToken(tokens, [
+          "button",
+          "click",
+          "press",
+          "tap",
+          "on",
+          "per",
+        ])),
+  },
+  {
     id: "automate-keywords",
     intent: "automate",
     confidence: 0.92,
@@ -50,10 +92,27 @@ const INTENT_RULES: readonly IntentRule[] = [
         "run script",
         "workflow",
         "open app",
-        "click ",
+        "open website",
+        "click on screen",
+        "browser mein",
         "desktop app",
+        "video edit",
+        "edit video",
+        "audio edit",
+        "edit audio",
+        "convert file",
+        "convert video",
+        "run command",
+        "command chala",
+        "code fix",
+        "fix code",
+        "debug code",
+        "build project",
+        "test project",
         "macro",
       ]) ||
+      (includesAnyToken(tokens, ["click"]) &&
+        includesAnyToken(tokens, ["screen", "page", "button", "link"])) ||
       includesAnyToken(tokens, [
         "automate",
         "automation",
@@ -61,6 +120,13 @@ const INTENT_RULES: readonly IntentRule[] = [
         "workflow",
         "macro",
         "execute",
+        "edit",
+        "convert",
+        "render",
+        "debug",
+        "build",
+        "compile",
+        "install",
       ]),
   },
   {
@@ -158,6 +224,24 @@ const INTENT_RULES: readonly IntentRule[] = [
     },
   },
   {
+    id: "conversation-personal",
+    intent: "conversation",
+    confidence: 0.82,
+    reason: "Personal or memory question — chat, not research",
+    test: (text, tokens) =>
+      includesAnyPhrase(text, [
+        "what is my name",
+        "whats my name",
+        "who am i",
+        "my name",
+        "remember me",
+        "do you know me",
+        "what do you know about me",
+      ]) ||
+      (includesAnyToken(tokens, ["name", "remember"]) &&
+        includesAnyToken(tokens, ["my", "me", "who"])),
+  },
+  {
     id: "conversation-question-short",
     intent: "conversation",
     confidence: 0.8,
@@ -175,13 +259,36 @@ const INTENT_RULES: readonly IntentRule[] = [
         "run",
       ]),
   },
+  {
+    id: "conversation-general-question",
+    intent: "conversation",
+    confidence: 0.78,
+    reason: "General question without research or automation keywords",
+    test: (text, tokens) =>
+      text.length < 120 &&
+      tokens.length <= 14 &&
+      (text.includes("?") ||
+        includesAnyToken(tokens, ["what", "who", "when", "where", "why", "how"])) &&
+      !includesAnyToken(tokens, [
+        "research",
+        "investigate",
+        "analyze",
+        "compare",
+        "automate",
+        "workflow",
+        "search",
+        "find",
+        "plan",
+        "schedule",
+      ]),
+  },
 ];
 
 const FALLBACK_RULE: IntentRule = {
-  id: "fallback-research",
-  intent: "research",
-  confidence: 0.65,
-  reason: "No specific rule matched — defaulting to research",
+  id: "fallback-conversation",
+  intent: "conversation",
+  confidence: 0.7,
+  reason: "No specific rule matched — defaulting to conversation",
   test: () => true,
 };
 

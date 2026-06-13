@@ -9,18 +9,25 @@ export type RoutedIntentKind =
   | "automate"
   | "browse"
   | "file"
+  | "local-execution"
   | "cron"
   | "plan"
   | "draft";
 
 const SEARCH_PATTERN =
   /\b(search|find|research|look\s*up|investigate|discover)\b/i;
+/** Voice/mic UI phrases — internal chat feature, never browser automation. */
+const VOICE_UI_PATTERN =
+  /\b(voice|microphone|mic|record(?:ing)?|sun(?:o|na)?|bol(?:o|na)?|listen(?:ing)?|speak(?:ing)?|audio|press\s+to\s+talk|ptt)\b/i;
+/** Narrow browser automation — avoids matching casual "open" / "click" on voice UI. */
 const BROWSE_PATTERN =
-  /\b(open|click|browse|navigate|go\s+to|visit|scrape|screenshot)\b/i;
+  /\b(open\s+(?:the\s+)?(?:website|web\s*site|url|page|site|browser|tab)|click\s+on\s+(?:the\s+)?(?:screen|page|button|link|element)|browser\s+mein|navigate\s+to|go\s+to\s+(?:the\s+)?(?:website|url|page|site)|visit\s+(?:the\s+)?(?:website|url|page|site)|scrape|screenshot)\b/i;
 const CRON_PATTERN =
   /\b(remind|schedule|cron|every\s+day|every\s+week|recurring)\b/i;
 const FILE_PATTERN =
   /\b(create|read|write|save|list|find|search|delete)\b.*\b(file|files|folder|directory|dir)\b/i;
+const LOCAL_EXECUTION_PATTERN =
+  /\b(debug|fix\s+(?:the\s+)?code|code\s+fix|run\s+(?:the\s+)?command|command\s+chala|terminal|shell|build\s+(?:the\s+)?project|test\s+(?:the\s+)?project|compile|install|video(?:\s+\w+){0,3}\s+edit|edit\s+(?:the\s+)?video|audio(?:\s+\w+){0,3}\s+edit|edit\s+(?:the\s+)?audio|convert\s+(?:the\s+)?(?:file|video|audio)|render|ffmpeg)\b/i;
 
 /**
  * Detect orchestrator routing kind from explicit intent + natural-language description.
@@ -29,6 +36,9 @@ export function detectRoutedIntentKind(intent: TaskIntent): RoutedIntentKind {
   const description = intent.description.trim();
   const explicit = intent.kind.trim().toLowerCase();
 
+  if (LOCAL_EXECUTION_PATTERN.test(description)) {
+    return "local-execution";
+  }
   if (FILE_PATTERN.test(description)) {
     return "file";
   }
@@ -37,6 +47,9 @@ export function detectRoutedIntentKind(intent: TaskIntent): RoutedIntentKind {
   }
   if (SEARCH_PATTERN.test(description)) {
     return "research";
+  }
+  if (VOICE_UI_PATTERN.test(description)) {
+    return "chat";
   }
   if (BROWSE_PATTERN.test(description)) {
     return "browse";
@@ -115,6 +128,16 @@ export function buildWorkflowStepsForTask(task: UserTask): readonly WorkflowStep
           agentId: OPENCLAW_AGENT_ID,
           skillId: "file-skill",
           dependsOn: ["file-plan"],
+        },
+      ];
+    case "local-execution":
+      return [
+        {
+          stepId: "hermes-local-execute",
+          order: 0,
+          name: "Execute with native Hermes tools",
+          agentId: HERMES_AGENT_ID,
+          dependsOn: [],
         },
       ];
     case "automate":

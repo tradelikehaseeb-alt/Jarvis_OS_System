@@ -245,6 +245,7 @@ class DefaultHermesRuntimeSession implements HermesRuntimeSession {
       correlationId: request.correlationId,
       workflowStepId: request.workflowStepId,
       recalledContextSnippets: request.recalledContext?.snippets,
+      conversationTurns: request.recalledContext?.turns,
     });
 
     const response = buildGatewayResponse(request, adapterResponse, health.status);

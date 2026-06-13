@@ -3,2035 +3,2199 @@
   "backend": "file",
   "sqliteReady": true,
   "records": {
-    "conv-turn-1779956534512-1": {
-      "recordId": "conv-turn-1779956534512-1",
-      "type": "conversation",
+    "continuous-session-user-1-cont-1": {
+      "recordId": "continuous-session-user-1-cont-1",
+      "type": "continuous-session",
       "userId": "user-1",
-      "timestamp": "2026-05-28T08:22:14.510Z",
-      "conversationId": "conv-adaptive",
+      "conversationId": "conv-1",
+      "sessionId": "cont-1",
+      "timestamp": "2026-06-13T20:14:26.407Z",
       "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
+        "continuousSession": {
+          "sessionId": "cont-1",
+          "userId": "user-1",
+          "conversationId": "conv-1",
+          "presence": "background",
+          "backgroundTaskCount": 2,
+          "state": "active",
+          "updatedAt": "2026-06-13T20:14:26.407Z"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-conversation-1781386267407-1": {
+      "recordId": "mem-conversation-1781386267407-1",
+      "type": "conversation",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.407Z",
+      "taskId": "task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "conversationId": "conv-user-api-stub",
+        "userId": "user-api-stub",
         "turnIndex": 1,
         "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T08:22:14.510Z"
+        "message": "Find API docs",
+        "taskId": "task-1781386267406",
+        "intentKind": "research",
+        "timestamp": "2026-06-13T21:31:07.407Z"
       },
       "schemaVersion": 1
     },
-    "conv-turn-1779956534519-2": {
-      "recordId": "conv-turn-1779956534519-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T08:22:14.519Z",
-      "conversationId": "conv-adaptive",
+    "session-profile-user-api-stub-conv-user-api-stub": {
+      "recordId": "session-profile-user-api-stub-conv-user-api-stub",
+      "type": "session-profile",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.846Z",
+      "conversationId": "conv-user-api-stub",
       "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
+        "sessionMemoryProfile": {
+          "profileId": "profile-user-api-stub-conv-user-api-stub-1781386267419",
+          "userId": "user-api-stub",
+          "conversationId": "conv-user-api-stub",
+          "recentInteractionIds": [
+            "task-1781386267843",
+            "task-1781386267560",
+            "task-1781386267406"
+          ],
+          "topicKeywords": [
+            "find",
+            "docs",
+            "open",
+            "dashboard",
+            "plan",
+            "sprint"
+          ],
+          "recallWeights": {},
+          "updatedAt": "2026-06-13T21:31:07.846Z"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267426-2": {
+      "recordId": "mem-activity-1781386267426-2",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.426Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "state_changed",
+        "eventId": "evt-1781386267426-2",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "kind": "state_changed",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.426Z",
+        "message": "Single-agent planning"
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267432-3": {
+      "recordId": "mem-activity-1781386267432-3",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.432Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267432-4",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.432Z",
+        "message": "Hermes planning started",
+        "activity": {
+          "activityId": "act-1781386267432-3",
+          "sessionId": "exec-session-task-1781386267406",
+          "taskId": "task-1781386267406",
+          "source": "hermes",
+          "kind": "planning_started",
+          "timestamp": "2026-06-13T21:31:07.432Z",
+          "summary": "Hermes planning started"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267440-4": {
+      "recordId": "mem-activity-1781386267440-4",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.440Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267432-3",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "source": "hermes",
+        "kind": "planning_started",
+        "timestamp": "2026-06-13T21:31:07.432Z",
+        "summary": "Hermes planning started"
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267441-5": {
+      "recordId": "mem-activity-1781386267441-5",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.441Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267441-6",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.441Z",
+        "message": "Plan generated: Find API docs",
+        "activity": {
+          "activityId": "act-1781386267441-5",
+          "sessionId": "exec-session-task-1781386267406",
+          "taskId": "task-1781386267406",
+          "source": "hermes",
+          "kind": "plan_generated",
+          "timestamp": "2026-06-13T21:31:07.441Z",
+          "summary": "Plan generated: Find API docs",
+          "payload": {
+            "plan": {
+              "goal": "Find API docs",
+              "steps": [
+                "stub-plan",
+                "stub-review",
+                "stub-execute-via-skills"
+              ]
+            }
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267450-6": {
+      "recordId": "mem-activity-1781386267450-6",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.450Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267441-5",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "source": "hermes",
+        "kind": "plan_generated",
+        "timestamp": "2026-06-13T21:31:07.441Z",
+        "summary": "Plan generated: Find API docs",
+        "payload": {
+          "plan": {
+            "goal": "Find API docs",
+            "steps": [
+              "stub-plan",
+              "stub-review",
+              "stub-execute-via-skills"
+            ]
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267451-7": {
+      "recordId": "mem-activity-1781386267451-7",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.451Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267451-8",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.451Z",
+        "message": "Hermes gateway runtime status reported",
+        "activity": {
+          "activityId": "act-1781386267451-7",
+          "sessionId": "exec-session-task-1781386267406",
+          "taskId": "task-1781386267406",
+          "source": "hermes",
+          "kind": "execution_progress",
+          "timestamp": "2026-06-13T21:31:07.451Z",
+          "summary": "Hermes gateway runtime status reported",
+          "payload": {
+            "runtimeStatus": "stub",
+            "stub": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267461-8": {
+      "recordId": "mem-activity-1781386267461-8",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.461Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267451-7",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "source": "hermes",
+        "kind": "execution_progress",
+        "timestamp": "2026-06-13T21:31:07.451Z",
+        "summary": "Hermes gateway runtime status reported",
+        "payload": {
+          "runtimeStatus": "stub",
+          "stub": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267471-9": {
+      "recordId": "mem-activity-1781386267471-9",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.471Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267471-10",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.471Z",
+        "message": "Hermes planning completed",
+        "activity": {
+          "activityId": "act-1781386267471-9",
+          "sessionId": "exec-session-task-1781386267406",
+          "taskId": "task-1781386267406",
+          "source": "hermes",
+          "kind": "planning_completed",
+          "timestamp": "2026-06-13T21:31:07.471Z",
+          "summary": "Hermes planning completed",
+          "payload": {
+            "success": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267472-10": {
+      "recordId": "mem-activity-1781386267472-10",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.472Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267471-9",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "source": "hermes",
+        "kind": "planning_completed",
+        "timestamp": "2026-06-13T21:31:07.471Z",
+        "summary": "Hermes planning completed",
+        "payload": {
+          "success": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267483-11": {
+      "recordId": "mem-activity-1781386267483-11",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.483Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "session_completed",
+        "eventId": "evt-1781386267483-11",
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "kind": "session_completed",
+        "state": "completed",
+        "timestamp": "2026-06-13T21:31:07.483Z",
+        "message": "Task completed"
+      },
+      "schemaVersion": 1
+    },
+    "mem-execution-1781386267485-12": {
+      "recordId": "mem-execution-1781386267485-12",
+      "type": "execution",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.485Z",
+      "taskId": "task-1781386267406",
+      "sessionId": "exec-session-task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "sessionId": "exec-session-task-1781386267406",
+        "taskId": "task-1781386267406",
+        "userId": "user-api-stub",
+        "state": "completed",
+        "events": [
+          {
+            "eventId": "evt-1781386267406-1",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "kind": "session_started",
+            "state": "queued",
+            "timestamp": "2026-06-13T21:31:07.406Z",
+            "message": "Execution session queued"
+          },
+          {
+            "eventId": "evt-1781386267426-2",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "kind": "state_changed",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.426Z",
+            "message": "Single-agent planning"
+          },
+          {
+            "eventId": "evt-1781386267432-4",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.432Z",
+            "message": "Hermes planning started",
+            "activity": {
+              "activityId": "act-1781386267432-3",
+              "sessionId": "exec-session-task-1781386267406",
+              "taskId": "task-1781386267406",
+              "source": "hermes",
+              "kind": "planning_started",
+              "timestamp": "2026-06-13T21:31:07.432Z",
+              "summary": "Hermes planning started"
+            }
+          },
+          {
+            "eventId": "evt-1781386267441-6",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.441Z",
+            "message": "Plan generated: Find API docs",
+            "activity": {
+              "activityId": "act-1781386267441-5",
+              "sessionId": "exec-session-task-1781386267406",
+              "taskId": "task-1781386267406",
+              "source": "hermes",
+              "kind": "plan_generated",
+              "timestamp": "2026-06-13T21:31:07.441Z",
+              "summary": "Plan generated: Find API docs",
+              "payload": {
+                "plan": {
+                  "goal": "Find API docs",
+                  "steps": [
+                    "stub-plan",
+                    "stub-review",
+                    "stub-execute-via-skills"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267451-8",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.451Z",
+            "message": "Hermes gateway runtime status reported",
+            "activity": {
+              "activityId": "act-1781386267451-7",
+              "sessionId": "exec-session-task-1781386267406",
+              "taskId": "task-1781386267406",
+              "source": "hermes",
+              "kind": "execution_progress",
+              "timestamp": "2026-06-13T21:31:07.451Z",
+              "summary": "Hermes gateway runtime status reported",
+              "payload": {
+                "runtimeStatus": "stub",
+                "stub": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267471-10",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.471Z",
+            "message": "Hermes planning completed",
+            "activity": {
+              "activityId": "act-1781386267471-9",
+              "sessionId": "exec-session-task-1781386267406",
+              "taskId": "task-1781386267406",
+              "source": "hermes",
+              "kind": "planning_completed",
+              "timestamp": "2026-06-13T21:31:07.471Z",
+              "summary": "Hermes planning completed",
+              "payload": {
+                "success": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267483-11",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "kind": "session_completed",
+            "state": "completed",
+            "timestamp": "2026-06-13T21:31:07.483Z",
+            "message": "Task completed"
+          }
+        ],
+        "activities": [
+          {
+            "activityId": "act-1781386267432-3",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "source": "hermes",
+            "kind": "planning_started",
+            "timestamp": "2026-06-13T21:31:07.432Z",
+            "summary": "Hermes planning started"
+          },
+          {
+            "activityId": "act-1781386267441-5",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "source": "hermes",
+            "kind": "plan_generated",
+            "timestamp": "2026-06-13T21:31:07.441Z",
+            "summary": "Plan generated: Find API docs",
+            "payload": {
+              "plan": {
+                "goal": "Find API docs",
+                "steps": [
+                  "stub-plan",
+                  "stub-review",
+                  "stub-execute-via-skills"
+                ]
+              }
+            }
+          },
+          {
+            "activityId": "act-1781386267451-7",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "source": "hermes",
+            "kind": "execution_progress",
+            "timestamp": "2026-06-13T21:31:07.451Z",
+            "summary": "Hermes gateway runtime status reported",
+            "payload": {
+              "runtimeStatus": "stub",
+              "stub": true
+            }
+          },
+          {
+            "activityId": "act-1781386267471-9",
+            "sessionId": "exec-session-task-1781386267406",
+            "taskId": "task-1781386267406",
+            "source": "hermes",
+            "kind": "planning_completed",
+            "timestamp": "2026-06-13T21:31:07.471Z",
+            "summary": "Hermes planning completed",
+            "payload": {
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-06-13T21:31:07.485Z"
+      },
+      "schemaVersion": 1
+    },
+    "mem-summary-1781386267535-13": {
+      "recordId": "mem-summary-1781386267535-13",
+      "type": "summary",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.535Z",
+      "taskId": "task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "text": "Memory summary for user user-api-stub. Records: 13; tasks: 1. Last message (user): Find API docs Last execution state: completed. Current task: task-1781386267406.",
+        "recordCount": 13,
+        "taskCount": 1
+      },
+      "schemaVersion": 1
+    },
+    "mem-conversation-1781386267536-14": {
+      "recordId": "mem-conversation-1781386267536-14",
+      "type": "conversation",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.536Z",
+      "taskId": "task-1781386267406",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "conversationId": "conv-user-api-stub",
+        "userId": "user-api-stub",
         "turnIndex": 2,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T08:22:14.519Z"
+        "role": "assistant",
+        "message": "Stub plan for: Find API docs (with 1 remembered context item(s))",
+        "taskId": "task-1781386267406",
+        "intentKind": "research",
+        "timestamp": "2026-06-13T21:31:07.536Z"
       },
       "schemaVersion": 1
     },
-    "conv-turn-1779956535445-1": {
-      "recordId": "conv-turn-1779956535445-1",
+    "mem-conversation-1781386267560-15": {
+      "recordId": "mem-conversation-1781386267560-15",
       "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T08:22:15.442Z",
-      "conversationId": "conv-engine",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.560Z",
+      "taskId": "task-1781386267560",
+      "conversationId": "conv-user-api-stub",
       "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 1,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T08:22:15.442Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779960368740-1": {
-      "recordId": "conv-turn-1779960368740-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:26:08.738Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
+        "conversationId": "conv-user-api-stub",
+        "userId": "user-api-stub",
         "turnIndex": 3,
         "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:26:08.738Z"
+        "message": "Open dashboard",
+        "taskId": "task-1781386267560",
+        "intentKind": "automate",
+        "timestamp": "2026-06-13T21:31:07.560Z"
       },
       "schemaVersion": 1
     },
-    "conv-turn-1779960368743-2": {
-      "recordId": "conv-turn-1779960368743-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:26:08.742Z",
-      "conversationId": "conv-adaptive",
+    "mem-activity-1781386267576-16": {
+      "recordId": "mem-activity-1781386267576-16",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.576Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
       "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
+        "eventKind": "state_changed",
+        "eventId": "evt-1781386267576-13",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "state_changed",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.576Z",
+        "message": "Hermes planning phase"
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267587-17": {
+      "recordId": "mem-activity-1781386267587-17",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.587Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267587-15",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.587Z",
+        "message": "Hermes planning started",
+        "activity": {
+          "activityId": "act-1781386267587-14",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "hermes",
+          "kind": "planning_started",
+          "timestamp": "2026-06-13T21:31:07.587Z",
+          "summary": "Hermes planning started"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267597-18": {
+      "recordId": "mem-activity-1781386267597-18",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.597Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267587-14",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "hermes",
+        "kind": "planning_started",
+        "timestamp": "2026-06-13T21:31:07.587Z",
+        "summary": "Hermes planning started"
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267598-19": {
+      "recordId": "mem-activity-1781386267598-19",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.598Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267598-17",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.598Z",
+        "message": "Plan generated: Open dashboard",
+        "activity": {
+          "activityId": "act-1781386267598-16",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "hermes",
+          "kind": "plan_generated",
+          "timestamp": "2026-06-13T21:31:07.598Z",
+          "summary": "Plan generated: Open dashboard",
+          "payload": {
+            "plan": {
+              "goal": "Open dashboard",
+              "steps": [
+                "stub-plan",
+                "stub-review",
+                "stub-execute-via-skills"
+              ]
+            }
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267599-20": {
+      "recordId": "mem-activity-1781386267599-20",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.599Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267598-16",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "hermes",
+        "kind": "plan_generated",
+        "timestamp": "2026-06-13T21:31:07.598Z",
+        "summary": "Plan generated: Open dashboard",
+        "payload": {
+          "plan": {
+            "goal": "Open dashboard",
+            "steps": [
+              "stub-plan",
+              "stub-review",
+              "stub-execute-via-skills"
+            ]
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267611-21": {
+      "recordId": "mem-activity-1781386267611-21",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.611Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267611-19",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.611Z",
+        "message": "Hermes gateway runtime status reported",
+        "activity": {
+          "activityId": "act-1781386267611-18",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "hermes",
+          "kind": "execution_progress",
+          "timestamp": "2026-06-13T21:31:07.611Z",
+          "summary": "Hermes gateway runtime status reported",
+          "payload": {
+            "runtimeStatus": "stub",
+            "stub": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267621-22": {
+      "recordId": "mem-activity-1781386267621-22",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.621Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267611-18",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "hermes",
+        "kind": "execution_progress",
+        "timestamp": "2026-06-13T21:31:07.611Z",
+        "summary": "Hermes gateway runtime status reported",
+        "payload": {
+          "runtimeStatus": "stub",
+          "stub": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267622-23": {
+      "recordId": "mem-activity-1781386267622-23",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.622Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267622-21",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.622Z",
+        "message": "Hermes planning completed",
+        "activity": {
+          "activityId": "act-1781386267622-20",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "hermes",
+          "kind": "planning_completed",
+          "timestamp": "2026-06-13T21:31:07.622Z",
+          "summary": "Hermes planning completed",
+          "payload": {
+            "success": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267622-24": {
+      "recordId": "mem-activity-1781386267622-24",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.622Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267622-20",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "hermes",
+        "kind": "planning_completed",
+        "timestamp": "2026-06-13T21:31:07.622Z",
+        "summary": "Hermes planning completed",
+        "payload": {
+          "success": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267634-25": {
+      "recordId": "mem-activity-1781386267634-25",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.634Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "state_changed",
+        "eventId": "evt-1781386267634-22",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "state_changed",
+        "state": "executing",
+        "timestamp": "2026-06-13T21:31:07.634Z",
+        "message": "OpenClaw execution phase"
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267649-26": {
+      "recordId": "mem-activity-1781386267649-26",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.649Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267649-24",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "executing",
+        "timestamp": "2026-06-13T21:31:07.649Z",
+        "message": "Adaptive step 1/3",
+        "activity": {
+          "activityId": "act-1781386267649-23",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "openclaw",
+          "kind": "execution_progress",
+          "timestamp": "2026-06-13T21:31:07.649Z",
+          "summary": "Adaptive step 1/3",
+          "payload": {
+            "executionId": "adaptive-task-1781386267560",
+            "stepId": "task-1781386267560-step-0",
+            "stepIndex": 0,
+            "adaptive": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267659-27": {
+      "recordId": "mem-activity-1781386267659-27",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.659Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267649-23",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "openclaw",
+        "kind": "execution_progress",
+        "timestamp": "2026-06-13T21:31:07.649Z",
+        "summary": "Adaptive step 1/3",
+        "payload": {
+          "executionId": "adaptive-task-1781386267560",
+          "stepId": "task-1781386267560-step-0",
+          "stepIndex": 0,
+          "adaptive": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267681-28": {
+      "recordId": "mem-activity-1781386267681-28",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.681Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267681-26",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "executing",
+        "timestamp": "2026-06-13T21:31:07.681Z",
+        "message": "Adaptive step 2/3",
+        "activity": {
+          "activityId": "act-1781386267681-25",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "openclaw",
+          "kind": "execution_progress",
+          "timestamp": "2026-06-13T21:31:07.681Z",
+          "summary": "Adaptive step 2/3",
+          "payload": {
+            "executionId": "adaptive-task-1781386267560",
+            "stepId": "task-1781386267560-step-1",
+            "stepIndex": 1,
+            "adaptive": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267681-29": {
+      "recordId": "mem-activity-1781386267681-29",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.681Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267681-25",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "openclaw",
+        "kind": "execution_progress",
+        "timestamp": "2026-06-13T21:31:07.681Z",
+        "summary": "Adaptive step 2/3",
+        "payload": {
+          "executionId": "adaptive-task-1781386267560",
+          "stepId": "task-1781386267560-step-1",
+          "stepIndex": 1,
+          "adaptive": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267683-30": {
+      "recordId": "mem-activity-1781386267683-30",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.683Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267683-28",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "executing",
+        "timestamp": "2026-06-13T21:31:07.683Z",
+        "message": "Adaptive step 3/3",
+        "activity": {
+          "activityId": "act-1781386267683-27",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "openclaw",
+          "kind": "execution_progress",
+          "timestamp": "2026-06-13T21:31:07.683Z",
+          "summary": "Adaptive step 3/3",
+          "payload": {
+            "executionId": "adaptive-task-1781386267560",
+            "stepId": "task-1781386267560-step-2",
+            "stepIndex": 2,
+            "adaptive": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267692-31": {
+      "recordId": "mem-activity-1781386267692-31",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.692Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267683-27",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "openclaw",
+        "kind": "execution_progress",
+        "timestamp": "2026-06-13T21:31:07.683Z",
+        "summary": "Adaptive step 3/3",
+        "payload": {
+          "executionId": "adaptive-task-1781386267560",
+          "stepId": "task-1781386267560-step-2",
+          "stepIndex": 2,
+          "adaptive": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267707-32": {
+      "recordId": "mem-activity-1781386267707-32",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.707Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267707-30",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "executing",
+        "timestamp": "2026-06-13T21:31:07.707Z",
+        "message": "OpenClaw execution started",
+        "activity": {
+          "activityId": "act-1781386267707-29",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "openclaw",
+          "kind": "execution_started",
+          "timestamp": "2026-06-13T21:31:07.707Z",
+          "summary": "OpenClaw execution started"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267718-33": {
+      "recordId": "mem-activity-1781386267718-33",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.718Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267707-29",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "openclaw",
+        "kind": "execution_started",
+        "timestamp": "2026-06-13T21:31:07.707Z",
+        "summary": "OpenClaw execution started"
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267732-34": {
+      "recordId": "mem-activity-1781386267732-34",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.732Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267732-32",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "executing",
+        "timestamp": "2026-06-13T21:31:07.732Z",
+        "message": "OpenClaw runtime status: stub",
+        "activity": {
+          "activityId": "act-1781386267732-31",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "openclaw",
+          "kind": "execution_progress",
+          "timestamp": "2026-06-13T21:31:07.732Z",
+          "summary": "OpenClaw runtime status: stub",
+          "payload": {
+            "runtimeStatus": "stub",
+            "handleId": "handle-openclaw-local-task-1781386267560-step-2"
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267745-35": {
+      "recordId": "mem-activity-1781386267745-35",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.745Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267732-31",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "openclaw",
+        "kind": "execution_progress",
+        "timestamp": "2026-06-13T21:31:07.732Z",
+        "summary": "OpenClaw runtime status: stub",
+        "payload": {
+          "runtimeStatus": "stub",
+          "handleId": "handle-openclaw-local-task-1781386267560-step-2"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267746-36": {
+      "recordId": "mem-activity-1781386267746-36",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.746Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267746-34",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "activity",
+        "state": "executing",
+        "timestamp": "2026-06-13T21:31:07.746Z",
+        "message": "OpenClaw execution completed",
+        "activity": {
+          "activityId": "act-1781386267746-33",
+          "sessionId": "exec-session-task-1781386267560",
+          "taskId": "task-1781386267560",
+          "source": "openclaw",
+          "kind": "execution_completed",
+          "timestamp": "2026-06-13T21:31:07.746Z",
+          "summary": "OpenClaw execution completed",
+          "payload": {
+            "success": true,
+            "approvedActions": [
+              "browser:local",
+              "file:local"
+            ]
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267756-37": {
+      "recordId": "mem-activity-1781386267756-37",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.756Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267746-33",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "source": "openclaw",
+        "kind": "execution_completed",
+        "timestamp": "2026-06-13T21:31:07.746Z",
+        "summary": "OpenClaw execution completed",
+        "payload": {
+          "success": true,
+          "approvedActions": [
+            "browser:local",
+            "file:local"
+          ]
+        }
+      },
+      "schemaVersion": 1
+    },
+    "learning-task-1781386267560-1": {
+      "recordId": "learning-task-1781386267560-1",
+      "type": "execution",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.757Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "category": "execution-learning",
+        "record": {
+          "recordId": "learning-task-1781386267560-1",
+          "userId": "user-api-stub",
+          "taskId": "task-1781386267560",
+          "intentKind": "automate",
+          "success": true,
+          "stepCount": 3,
+          "failureCount": 0,
+          "stub": true,
+          "timestamp": "2026-06-13T21:31:07.757Z",
+          "executionId": "adaptive-task-1781386267560",
+          "conversationId": "conv-user-api-stub",
+          "sessionId": "exec-session-task-1781386267560"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267770-38": {
+      "recordId": "mem-activity-1781386267770-38",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.770Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "session_completed",
+        "eventId": "evt-1781386267770-35",
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "kind": "session_completed",
+        "state": "completed",
+        "timestamp": "2026-06-13T21:31:07.770Z",
+        "message": "Task completed"
+      },
+      "schemaVersion": 1
+    },
+    "mem-execution-1781386267780-39": {
+      "recordId": "mem-execution-1781386267780-39",
+      "type": "execution",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.780Z",
+      "taskId": "task-1781386267560",
+      "sessionId": "exec-session-task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "sessionId": "exec-session-task-1781386267560",
+        "taskId": "task-1781386267560",
+        "userId": "user-api-stub",
+        "state": "completed",
+        "events": [
+          {
+            "eventId": "evt-1781386267560-12",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "session_started",
+            "state": "queued",
+            "timestamp": "2026-06-13T21:31:07.560Z",
+            "message": "Execution session queued"
+          },
+          {
+            "eventId": "evt-1781386267576-13",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "state_changed",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.576Z",
+            "message": "Hermes planning phase"
+          },
+          {
+            "eventId": "evt-1781386267587-15",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.587Z",
+            "message": "Hermes planning started",
+            "activity": {
+              "activityId": "act-1781386267587-14",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "hermes",
+              "kind": "planning_started",
+              "timestamp": "2026-06-13T21:31:07.587Z",
+              "summary": "Hermes planning started"
+            }
+          },
+          {
+            "eventId": "evt-1781386267598-17",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.598Z",
+            "message": "Plan generated: Open dashboard",
+            "activity": {
+              "activityId": "act-1781386267598-16",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "hermes",
+              "kind": "plan_generated",
+              "timestamp": "2026-06-13T21:31:07.598Z",
+              "summary": "Plan generated: Open dashboard",
+              "payload": {
+                "plan": {
+                  "goal": "Open dashboard",
+                  "steps": [
+                    "stub-plan",
+                    "stub-review",
+                    "stub-execute-via-skills"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267611-19",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.611Z",
+            "message": "Hermes gateway runtime status reported",
+            "activity": {
+              "activityId": "act-1781386267611-18",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "hermes",
+              "kind": "execution_progress",
+              "timestamp": "2026-06-13T21:31:07.611Z",
+              "summary": "Hermes gateway runtime status reported",
+              "payload": {
+                "runtimeStatus": "stub",
+                "stub": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267622-21",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.622Z",
+            "message": "Hermes planning completed",
+            "activity": {
+              "activityId": "act-1781386267622-20",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "hermes",
+              "kind": "planning_completed",
+              "timestamp": "2026-06-13T21:31:07.622Z",
+              "summary": "Hermes planning completed",
+              "payload": {
+                "success": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267634-22",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "state_changed",
+            "state": "executing",
+            "timestamp": "2026-06-13T21:31:07.634Z",
+            "message": "OpenClaw execution phase"
+          },
+          {
+            "eventId": "evt-1781386267649-24",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "executing",
+            "timestamp": "2026-06-13T21:31:07.649Z",
+            "message": "Adaptive step 1/3",
+            "activity": {
+              "activityId": "act-1781386267649-23",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "openclaw",
+              "kind": "execution_progress",
+              "timestamp": "2026-06-13T21:31:07.649Z",
+              "summary": "Adaptive step 1/3",
+              "payload": {
+                "executionId": "adaptive-task-1781386267560",
+                "stepId": "task-1781386267560-step-0",
+                "stepIndex": 0,
+                "adaptive": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267681-26",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "executing",
+            "timestamp": "2026-06-13T21:31:07.681Z",
+            "message": "Adaptive step 2/3",
+            "activity": {
+              "activityId": "act-1781386267681-25",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "openclaw",
+              "kind": "execution_progress",
+              "timestamp": "2026-06-13T21:31:07.681Z",
+              "summary": "Adaptive step 2/3",
+              "payload": {
+                "executionId": "adaptive-task-1781386267560",
+                "stepId": "task-1781386267560-step-1",
+                "stepIndex": 1,
+                "adaptive": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267683-28",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "executing",
+            "timestamp": "2026-06-13T21:31:07.683Z",
+            "message": "Adaptive step 3/3",
+            "activity": {
+              "activityId": "act-1781386267683-27",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "openclaw",
+              "kind": "execution_progress",
+              "timestamp": "2026-06-13T21:31:07.683Z",
+              "summary": "Adaptive step 3/3",
+              "payload": {
+                "executionId": "adaptive-task-1781386267560",
+                "stepId": "task-1781386267560-step-2",
+                "stepIndex": 2,
+                "adaptive": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267707-30",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "executing",
+            "timestamp": "2026-06-13T21:31:07.707Z",
+            "message": "OpenClaw execution started",
+            "activity": {
+              "activityId": "act-1781386267707-29",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "openclaw",
+              "kind": "execution_started",
+              "timestamp": "2026-06-13T21:31:07.707Z",
+              "summary": "OpenClaw execution started"
+            }
+          },
+          {
+            "eventId": "evt-1781386267732-32",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "executing",
+            "timestamp": "2026-06-13T21:31:07.732Z",
+            "message": "OpenClaw runtime status: stub",
+            "activity": {
+              "activityId": "act-1781386267732-31",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "openclaw",
+              "kind": "execution_progress",
+              "timestamp": "2026-06-13T21:31:07.732Z",
+              "summary": "OpenClaw runtime status: stub",
+              "payload": {
+                "runtimeStatus": "stub",
+                "handleId": "handle-openclaw-local-task-1781386267560-step-2"
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267746-34",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "activity",
+            "state": "executing",
+            "timestamp": "2026-06-13T21:31:07.746Z",
+            "message": "OpenClaw execution completed",
+            "activity": {
+              "activityId": "act-1781386267746-33",
+              "sessionId": "exec-session-task-1781386267560",
+              "taskId": "task-1781386267560",
+              "source": "openclaw",
+              "kind": "execution_completed",
+              "timestamp": "2026-06-13T21:31:07.746Z",
+              "summary": "OpenClaw execution completed",
+              "payload": {
+                "success": true,
+                "approvedActions": [
+                  "browser:local",
+                  "file:local"
+                ]
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267770-35",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "kind": "session_completed",
+            "state": "completed",
+            "timestamp": "2026-06-13T21:31:07.770Z",
+            "message": "Task completed"
+          }
+        ],
+        "activities": [
+          {
+            "activityId": "act-1781386267587-14",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "hermes",
+            "kind": "planning_started",
+            "timestamp": "2026-06-13T21:31:07.587Z",
+            "summary": "Hermes planning started"
+          },
+          {
+            "activityId": "act-1781386267598-16",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "hermes",
+            "kind": "plan_generated",
+            "timestamp": "2026-06-13T21:31:07.598Z",
+            "summary": "Plan generated: Open dashboard",
+            "payload": {
+              "plan": {
+                "goal": "Open dashboard",
+                "steps": [
+                  "stub-plan",
+                  "stub-review",
+                  "stub-execute-via-skills"
+                ]
+              }
+            }
+          },
+          {
+            "activityId": "act-1781386267611-18",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "hermes",
+            "kind": "execution_progress",
+            "timestamp": "2026-06-13T21:31:07.611Z",
+            "summary": "Hermes gateway runtime status reported",
+            "payload": {
+              "runtimeStatus": "stub",
+              "stub": true
+            }
+          },
+          {
+            "activityId": "act-1781386267622-20",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "hermes",
+            "kind": "planning_completed",
+            "timestamp": "2026-06-13T21:31:07.622Z",
+            "summary": "Hermes planning completed",
+            "payload": {
+              "success": true
+            }
+          },
+          {
+            "activityId": "act-1781386267649-23",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-06-13T21:31:07.649Z",
+            "summary": "Adaptive step 1/3",
+            "payload": {
+              "executionId": "adaptive-task-1781386267560",
+              "stepId": "task-1781386267560-step-0",
+              "stepIndex": 0,
+              "adaptive": true
+            }
+          },
+          {
+            "activityId": "act-1781386267681-25",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-06-13T21:31:07.681Z",
+            "summary": "Adaptive step 2/3",
+            "payload": {
+              "executionId": "adaptive-task-1781386267560",
+              "stepId": "task-1781386267560-step-1",
+              "stepIndex": 1,
+              "adaptive": true
+            }
+          },
+          {
+            "activityId": "act-1781386267683-27",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-06-13T21:31:07.683Z",
+            "summary": "Adaptive step 3/3",
+            "payload": {
+              "executionId": "adaptive-task-1781386267560",
+              "stepId": "task-1781386267560-step-2",
+              "stepIndex": 2,
+              "adaptive": true
+            }
+          },
+          {
+            "activityId": "act-1781386267707-29",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "openclaw",
+            "kind": "execution_started",
+            "timestamp": "2026-06-13T21:31:07.707Z",
+            "summary": "OpenClaw execution started"
+          },
+          {
+            "activityId": "act-1781386267732-31",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "openclaw",
+            "kind": "execution_progress",
+            "timestamp": "2026-06-13T21:31:07.732Z",
+            "summary": "OpenClaw runtime status: stub",
+            "payload": {
+              "runtimeStatus": "stub",
+              "handleId": "handle-openclaw-local-task-1781386267560-step-2"
+            }
+          },
+          {
+            "activityId": "act-1781386267746-33",
+            "sessionId": "exec-session-task-1781386267560",
+            "taskId": "task-1781386267560",
+            "source": "openclaw",
+            "kind": "execution_completed",
+            "timestamp": "2026-06-13T21:31:07.746Z",
+            "summary": "OpenClaw execution completed",
+            "payload": {
+              "success": true,
+              "approvedActions": [
+                "browser:local",
+                "file:local"
+              ]
+            }
+          }
+        ],
+        "timestamp": "2026-06-13T21:31:07.780Z"
+      },
+      "schemaVersion": 1
+    },
+    "mem-summary-1781386267790-40": {
+      "recordId": "mem-summary-1781386267790-40",
+      "type": "summary",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.790Z",
+      "taskId": "task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "text": "Memory summary for user user-api-stub. Records: 41; tasks: 2. Last message (user): Open dashboard Last execution state: completed. Current task: task-1781386267560.",
+        "recordCount": 41,
+        "taskCount": 2
+      },
+      "schemaVersion": 1
+    },
+    "mem-conversation-1781386267803-41": {
+      "recordId": "mem-conversation-1781386267803-41",
+      "type": "conversation",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.803Z",
+      "taskId": "task-1781386267560",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "conversationId": "conv-user-api-stub",
+        "userId": "user-api-stub",
         "turnIndex": 4,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:26:08.742Z"
+        "role": "assistant",
+        "message": "[stub-stub] Planning context for: You are Jarvis OS planning layer.\nIntent: automate\nTask: Open dashboard\nReturn a concise numbered plan the execution agents can follow.",
+        "taskId": "task-1781386267560",
+        "intentKind": "automate",
+        "timestamp": "2026-06-13T21:31:07.803Z"
       },
       "schemaVersion": 1
     },
-    "conv-turn-1779960371503-1": {
-      "recordId": "conv-turn-1779960371503-1",
+    "mem-conversation-1781386267843-42": {
+      "recordId": "mem-conversation-1781386267843-42",
       "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:26:11.501Z",
-      "conversationId": "conv-engine",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.843Z",
+      "taskId": "task-1781386267843",
+      "conversationId": "conv-user-api-stub",
       "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 2,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T09:26:11.501Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779960599719-1": {
-      "recordId": "conv-turn-1779960599719-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:29:59.715Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
+        "conversationId": "conv-user-api-stub",
+        "userId": "user-api-stub",
         "turnIndex": 5,
         "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:29:59.715Z"
+        "message": "Plan sprint",
+        "taskId": "task-1781386267843",
+        "intentKind": "plan",
+        "timestamp": "2026-06-13T21:31:07.843Z"
       },
       "schemaVersion": 1
     },
-    "conv-turn-1779960599722-2": {
-      "recordId": "conv-turn-1779960599722-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:29:59.722Z",
-      "conversationId": "conv-adaptive",
+    "mem-activity-1781386267860-43": {
+      "recordId": "mem-activity-1781386267860-43",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.860Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
       "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
+        "eventKind": "state_changed",
+        "eventId": "evt-1781386267860-37",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "kind": "state_changed",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.860Z",
+        "message": "Single-agent planning"
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267874-44": {
+      "recordId": "mem-activity-1781386267874-44",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.874Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267874-39",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.874Z",
+        "message": "Hermes planning started",
+        "activity": {
+          "activityId": "act-1781386267874-38",
+          "sessionId": "exec-session-task-1781386267843",
+          "taskId": "task-1781386267843",
+          "source": "hermes",
+          "kind": "planning_started",
+          "timestamp": "2026-06-13T21:31:07.874Z",
+          "summary": "Hermes planning started"
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267876-45": {
+      "recordId": "mem-activity-1781386267876-45",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.876Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267874-38",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "source": "hermes",
+        "kind": "planning_started",
+        "timestamp": "2026-06-13T21:31:07.874Z",
+        "summary": "Hermes planning started"
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267887-46": {
+      "recordId": "mem-activity-1781386267887-46",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.887Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267887-41",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.887Z",
+        "message": "Plan generated: Plan sprint",
+        "activity": {
+          "activityId": "act-1781386267887-40",
+          "sessionId": "exec-session-task-1781386267843",
+          "taskId": "task-1781386267843",
+          "source": "hermes",
+          "kind": "plan_generated",
+          "timestamp": "2026-06-13T21:31:07.887Z",
+          "summary": "Plan generated: Plan sprint",
+          "payload": {
+            "plan": {
+              "goal": "Plan sprint",
+              "steps": [
+                "stub-plan",
+                "stub-review",
+                "stub-execute-via-skills"
+              ]
+            }
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267900-47": {
+      "recordId": "mem-activity-1781386267900-47",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.900Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267887-40",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "source": "hermes",
+        "kind": "plan_generated",
+        "timestamp": "2026-06-13T21:31:07.887Z",
+        "summary": "Plan generated: Plan sprint",
+        "payload": {
+          "plan": {
+            "goal": "Plan sprint",
+            "steps": [
+              "stub-plan",
+              "stub-review",
+              "stub-execute-via-skills"
+            ]
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267914-48": {
+      "recordId": "mem-activity-1781386267914-48",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.914Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267914-43",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.914Z",
+        "message": "Hermes gateway runtime status reported",
+        "activity": {
+          "activityId": "act-1781386267914-42",
+          "sessionId": "exec-session-task-1781386267843",
+          "taskId": "task-1781386267843",
+          "source": "hermes",
+          "kind": "execution_progress",
+          "timestamp": "2026-06-13T21:31:07.914Z",
+          "summary": "Hermes gateway runtime status reported",
+          "payload": {
+            "runtimeStatus": "stub",
+            "stub": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267926-49": {
+      "recordId": "mem-activity-1781386267926-49",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.926Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267914-42",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "source": "hermes",
+        "kind": "execution_progress",
+        "timestamp": "2026-06-13T21:31:07.914Z",
+        "summary": "Hermes gateway runtime status reported",
+        "payload": {
+          "runtimeStatus": "stub",
+          "stub": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267938-50": {
+      "recordId": "mem-activity-1781386267938-50",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.938Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "activity",
+        "eventId": "evt-1781386267938-45",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "kind": "activity",
+        "state": "planning",
+        "timestamp": "2026-06-13T21:31:07.938Z",
+        "message": "Hermes planning completed",
+        "activity": {
+          "activityId": "act-1781386267938-44",
+          "sessionId": "exec-session-task-1781386267843",
+          "taskId": "task-1781386267843",
+          "source": "hermes",
+          "kind": "planning_completed",
+          "timestamp": "2026-06-13T21:31:07.938Z",
+          "summary": "Hermes planning completed",
+          "payload": {
+            "success": true
+          }
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267939-51": {
+      "recordId": "mem-activity-1781386267939-51",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.939Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "activityId": "act-1781386267938-44",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "source": "hermes",
+        "kind": "planning_completed",
+        "timestamp": "2026-06-13T21:31:07.938Z",
+        "summary": "Hermes planning completed",
+        "payload": {
+          "success": true
+        }
+      },
+      "schemaVersion": 1
+    },
+    "mem-activity-1781386267940-52": {
+      "recordId": "mem-activity-1781386267940-52",
+      "type": "activity",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.940Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "eventKind": "session_completed",
+        "eventId": "evt-1781386267940-46",
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "kind": "session_completed",
+        "state": "completed",
+        "timestamp": "2026-06-13T21:31:07.940Z",
+        "message": "Task completed"
+      },
+      "schemaVersion": 1
+    },
+    "mem-execution-1781386267953-53": {
+      "recordId": "mem-execution-1781386267953-53",
+      "type": "execution",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.953Z",
+      "taskId": "task-1781386267843",
+      "sessionId": "exec-session-task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "sessionId": "exec-session-task-1781386267843",
+        "taskId": "task-1781386267843",
+        "userId": "user-api-stub",
+        "state": "completed",
+        "events": [
+          {
+            "eventId": "evt-1781386267843-36",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "kind": "session_started",
+            "state": "queued",
+            "timestamp": "2026-06-13T21:31:07.843Z",
+            "message": "Execution session queued"
+          },
+          {
+            "eventId": "evt-1781386267860-37",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "kind": "state_changed",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.860Z",
+            "message": "Single-agent planning"
+          },
+          {
+            "eventId": "evt-1781386267874-39",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.874Z",
+            "message": "Hermes planning started",
+            "activity": {
+              "activityId": "act-1781386267874-38",
+              "sessionId": "exec-session-task-1781386267843",
+              "taskId": "task-1781386267843",
+              "source": "hermes",
+              "kind": "planning_started",
+              "timestamp": "2026-06-13T21:31:07.874Z",
+              "summary": "Hermes planning started"
+            }
+          },
+          {
+            "eventId": "evt-1781386267887-41",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.887Z",
+            "message": "Plan generated: Plan sprint",
+            "activity": {
+              "activityId": "act-1781386267887-40",
+              "sessionId": "exec-session-task-1781386267843",
+              "taskId": "task-1781386267843",
+              "source": "hermes",
+              "kind": "plan_generated",
+              "timestamp": "2026-06-13T21:31:07.887Z",
+              "summary": "Plan generated: Plan sprint",
+              "payload": {
+                "plan": {
+                  "goal": "Plan sprint",
+                  "steps": [
+                    "stub-plan",
+                    "stub-review",
+                    "stub-execute-via-skills"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267914-43",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.914Z",
+            "message": "Hermes gateway runtime status reported",
+            "activity": {
+              "activityId": "act-1781386267914-42",
+              "sessionId": "exec-session-task-1781386267843",
+              "taskId": "task-1781386267843",
+              "source": "hermes",
+              "kind": "execution_progress",
+              "timestamp": "2026-06-13T21:31:07.914Z",
+              "summary": "Hermes gateway runtime status reported",
+              "payload": {
+                "runtimeStatus": "stub",
+                "stub": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267938-45",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "kind": "activity",
+            "state": "planning",
+            "timestamp": "2026-06-13T21:31:07.938Z",
+            "message": "Hermes planning completed",
+            "activity": {
+              "activityId": "act-1781386267938-44",
+              "sessionId": "exec-session-task-1781386267843",
+              "taskId": "task-1781386267843",
+              "source": "hermes",
+              "kind": "planning_completed",
+              "timestamp": "2026-06-13T21:31:07.938Z",
+              "summary": "Hermes planning completed",
+              "payload": {
+                "success": true
+              }
+            }
+          },
+          {
+            "eventId": "evt-1781386267940-46",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "kind": "session_completed",
+            "state": "completed",
+            "timestamp": "2026-06-13T21:31:07.940Z",
+            "message": "Task completed"
+          }
+        ],
+        "activities": [
+          {
+            "activityId": "act-1781386267874-38",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "source": "hermes",
+            "kind": "planning_started",
+            "timestamp": "2026-06-13T21:31:07.874Z",
+            "summary": "Hermes planning started"
+          },
+          {
+            "activityId": "act-1781386267887-40",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "source": "hermes",
+            "kind": "plan_generated",
+            "timestamp": "2026-06-13T21:31:07.887Z",
+            "summary": "Plan generated: Plan sprint",
+            "payload": {
+              "plan": {
+                "goal": "Plan sprint",
+                "steps": [
+                  "stub-plan",
+                  "stub-review",
+                  "stub-execute-via-skills"
+                ]
+              }
+            }
+          },
+          {
+            "activityId": "act-1781386267914-42",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "source": "hermes",
+            "kind": "execution_progress",
+            "timestamp": "2026-06-13T21:31:07.914Z",
+            "summary": "Hermes gateway runtime status reported",
+            "payload": {
+              "runtimeStatus": "stub",
+              "stub": true
+            }
+          },
+          {
+            "activityId": "act-1781386267938-44",
+            "sessionId": "exec-session-task-1781386267843",
+            "taskId": "task-1781386267843",
+            "source": "hermes",
+            "kind": "planning_completed",
+            "timestamp": "2026-06-13T21:31:07.938Z",
+            "summary": "Hermes planning completed",
+            "payload": {
+              "success": true
+            }
+          }
+        ],
+        "timestamp": "2026-06-13T21:31:07.953Z"
+      },
+      "schemaVersion": 1
+    },
+    "mem-summary-1781386267965-54": {
+      "recordId": "mem-summary-1781386267965-54",
+      "type": "summary",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.965Z",
+      "taskId": "task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "text": "Memory summary for user user-api-stub. Records: 55; tasks: 3. Last message (user): Plan sprint Last execution state: completed. Current task: task-1781386267843.",
+        "recordCount": 55,
+        "taskCount": 3
+      },
+      "schemaVersion": 1
+    },
+    "mem-conversation-1781386267977-55": {
+      "recordId": "mem-conversation-1781386267977-55",
+      "type": "conversation",
+      "userId": "user-api-stub",
+      "timestamp": "2026-06-13T21:31:07.977Z",
+      "taskId": "task-1781386267843",
+      "conversationId": "conv-user-api-stub",
+      "content": {
+        "conversationId": "conv-user-api-stub",
+        "userId": "user-api-stub",
         "turnIndex": 6,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:29:59.722Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779960600880-1": {
-      "recordId": "conv-turn-1779960600880-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:30:00.878Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 3,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T09:30:00.878Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779960745971-1": {
-      "recordId": "conv-turn-1779960745971-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:32:25.969Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 4,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T09:32:25.969Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779960746254-1": {
-      "recordId": "conv-turn-1779960746254-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:32:26.251Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 7,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:32:26.251Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779960746256-2": {
-      "recordId": "conv-turn-1779960746256-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:32:26.256Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 8,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:32:26.256Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779961573370-1": {
-      "recordId": "conv-turn-1779961573370-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:46:13.366Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 9,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:46:13.366Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779961573377-2": {
-      "recordId": "conv-turn-1779961573377-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:46:13.377Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 10,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:46:13.377Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779961574145-1": {
-      "recordId": "conv-turn-1779961574145-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:46:14.142Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 5,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T09:46:14.142Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779961732887-1": {
-      "recordId": "conv-turn-1779961732887-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:48:52.885Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 11,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:48:52.885Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779961732892-2": {
-      "recordId": "conv-turn-1779961732892-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:48:52.892Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 12,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:48:52.892Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779961735515-1": {
-      "recordId": "conv-turn-1779961735515-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:48:55.512Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 6,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T09:48:55.512Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779962096082-1": {
-      "recordId": "conv-turn-1779962096082-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:54:56.080Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 13,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:54:56.080Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779962096085-2": {
-      "recordId": "conv-turn-1779962096085-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:54:56.084Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 14,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T09:54:56.084Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779962097575-1": {
-      "recordId": "conv-turn-1779962097575-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T09:54:57.573Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 7,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T09:54:57.573Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963142840-1": {
-      "recordId": "conv-turn-1779963142840-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:12:22.838Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 15,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T10:12:22.838Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963142843-2": {
-      "recordId": "conv-turn-1779963142843-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:12:22.843Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 16,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T10:12:22.843Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963143387-1": {
-      "recordId": "conv-turn-1779963143387-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:12:23.384Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 8,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T10:12:23.384Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963288629-1": {
-      "recordId": "conv-turn-1779963288629-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:14:48.627Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 17,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T10:14:48.627Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963288631-2": {
-      "recordId": "conv-turn-1779963288631-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:14:48.631Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 18,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T10:14:48.631Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963289248-1": {
-      "recordId": "conv-turn-1779963289248-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:14:49.245Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 9,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T10:14:49.245Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963904972-1": {
-      "recordId": "conv-turn-1779963904972-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:25:04.969Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 19,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T10:25:04.969Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963904977-2": {
-      "recordId": "conv-turn-1779963904977-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:25:04.977Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 20,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T10:25:04.977Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779963905195-1": {
-      "recordId": "conv-turn-1779963905195-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:25:05.192Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 10,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T10:25:05.192Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779965223792-1": {
-      "recordId": "conv-turn-1779965223792-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:47:03.790Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 11,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T10:47:03.790Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779965223940-1": {
-      "recordId": "conv-turn-1779965223940-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:47:03.938Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 21,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T10:47:03.938Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779965223942-2": {
-      "recordId": "conv-turn-1779965223942-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T10:47:03.942Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 22,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T10:47:03.942Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779966478706-1": {
-      "recordId": "conv-turn-1779966478706-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:07:58.703Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 23,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T11:07:58.703Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779966478710-2": {
-      "recordId": "conv-turn-1779966478710-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:07:58.710Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 24,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T11:07:58.710Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779966480251-1": {
-      "recordId": "conv-turn-1779966480251-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:08:00.249Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 12,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T11:08:00.249Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779967406638-1": {
-      "recordId": "conv-turn-1779967406638-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:23:26.635Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 25,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T11:23:26.635Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779967406645-2": {
-      "recordId": "conv-turn-1779967406645-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:23:26.645Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 26,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T11:23:26.645Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779967407891-1": {
-      "recordId": "conv-turn-1779967407891-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:23:27.888Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 13,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T11:23:27.888Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779968276431-1": {
-      "recordId": "conv-turn-1779968276431-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:37:56.428Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 27,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T11:37:56.428Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779968276541-2": {
-      "recordId": "conv-turn-1779968276541-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:37:56.541Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 28,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T11:37:56.541Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779968277864-1": {
-      "recordId": "conv-turn-1779968277864-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:37:57.862Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 14,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T11:37:57.862Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779969110546-1": {
-      "recordId": "conv-turn-1779969110546-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:51:50.466Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 29,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T11:51:50.466Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779969110548-2": {
-      "recordId": "conv-turn-1779969110548-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:51:50.548Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 30,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-28T11:51:50.548Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1779969118741-1": {
-      "recordId": "conv-turn-1779969118741-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-28T11:51:58.738Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 15,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-28T11:51:58.738Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780132473499-1": {
-      "recordId": "conv-turn-1780132473499-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:14:33.496Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 31,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:14:33.496Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780132473509-2": {
-      "recordId": "conv-turn-1780132473509-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:14:33.508Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 32,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:14:33.508Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780132485543-1": {
-      "recordId": "conv-turn-1780132485543-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:14:45.541Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 16,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T09:14:45.541Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780132575721-1": {
-      "recordId": "conv-turn-1780132575721-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:16:15.717Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 17,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T09:16:15.717Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780132576373-1": {
-      "recordId": "conv-turn-1780132576373-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:16:16.370Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 33,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:16:16.370Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780132576376-2": {
-      "recordId": "conv-turn-1780132576376-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:16:16.376Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 34,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:16:16.376Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134717944-1": {
-      "recordId": "conv-turn-1780134717944-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:51:57.941Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 35,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:51:57.941Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134717958-2": {
-      "recordId": "conv-turn-1780134717958-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:51:57.958Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 36,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:51:57.958Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134718681-1": {
-      "recordId": "conv-turn-1780134718681-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:51:58.679Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 18,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T09:51:58.679Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134810044-1": {
-      "recordId": "conv-turn-1780134810044-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:53:30.042Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 37,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:53:30.042Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134810048-2": {
-      "recordId": "conv-turn-1780134810048-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:53:30.048Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 38,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:53:30.048Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134811898-1": {
-      "recordId": "conv-turn-1780134811898-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:53:31.891Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 19,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T09:53:31.891Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134850688-1": {
-      "recordId": "conv-turn-1780134850688-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:54:10.679Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 39,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:54:10.679Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134850691-2": {
-      "recordId": "conv-turn-1780134850691-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:54:10.691Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 40,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:54:10.691Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780134853021-1": {
-      "recordId": "conv-turn-1780134853021-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:54:13.018Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 20,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T09:54:13.018Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135052336-1": {
-      "recordId": "conv-turn-1780135052336-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:57:32.333Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 41,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:57:32.333Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135052340-2": {
-      "recordId": "conv-turn-1780135052340-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:57:32.340Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 42,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:57:32.340Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135052437-1": {
-      "recordId": "conv-turn-1780135052437-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:57:32.435Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 21,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T09:57:32.435Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135096719-1": {
-      "recordId": "conv-turn-1780135096719-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:58:16.716Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 22,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T09:58:16.716Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135098134-1": {
-      "recordId": "conv-turn-1780135098134-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:58:18.132Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 43,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:58:18.132Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135098138-2": {
-      "recordId": "conv-turn-1780135098138-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T09:58:18.138Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 44,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T09:58:18.138Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135400075-1": {
-      "recordId": "conv-turn-1780135400075-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:03:20.071Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 45,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T10:03:20.071Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135400081-2": {
-      "recordId": "conv-turn-1780135400081-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:03:20.081Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 46,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T10:03:20.081Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135400206-1": {
-      "recordId": "conv-turn-1780135400206-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:03:20.203Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 23,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T10:03:20.203Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135944393-1": {
-      "recordId": "conv-turn-1780135944393-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:12:24.391Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 24,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T10:12:24.391Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135946091-1": {
-      "recordId": "conv-turn-1780135946091-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:12:26.089Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 47,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T10:12:26.089Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780135946096-2": {
-      "recordId": "conv-turn-1780135946096-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:12:26.096Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 48,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T10:12:26.096Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780136044596-1": {
-      "recordId": "conv-turn-1780136044596-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:14:04.593Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 49,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T10:14:04.593Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780136044600-2": {
-      "recordId": "conv-turn-1780136044600-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:14:04.600Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 50,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T10:14:04.600Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780136045035-1": {
-      "recordId": "conv-turn-1780136045035-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T10:14:05.032Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 25,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T10:14:05.032Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780139564237-1": {
-      "recordId": "conv-turn-1780139564237-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T11:12:44.234Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 26,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T11:12:44.234Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780139565697-1": {
-      "recordId": "conv-turn-1780139565697-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T11:12:45.690Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 51,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T11:12:45.690Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780139565701-2": {
-      "recordId": "conv-turn-1780139565701-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T11:12:45.701Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 52,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T11:12:45.701Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780139967106-1": {
-      "recordId": "conv-turn-1780139967106-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T11:19:27.102Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 27,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-30T11:19:27.102Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780139967543-1": {
-      "recordId": "conv-turn-1780139967543-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T11:19:27.540Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 53,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T11:19:27.540Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780139967547-2": {
-      "recordId": "conv-turn-1780139967547-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-30T11:19:27.547Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 54,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-30T11:19:27.547Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780235773645-1": {
-      "recordId": "conv-turn-1780235773645-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T13:56:13.643Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 55,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T13:56:13.643Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780235773651-2": {
-      "recordId": "conv-turn-1780235773651-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T13:56:13.651Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 56,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T13:56:13.651Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780235776134-1": {
-      "recordId": "conv-turn-1780235776134-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T13:56:16.131Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 28,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T13:56:16.131Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780235825875-1": {
-      "recordId": "conv-turn-1780235825875-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T13:57:05.872Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 57,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T13:57:05.872Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780235825880-2": {
-      "recordId": "conv-turn-1780235825880-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T13:57:05.879Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 58,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T13:57:05.879Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780235825979-1": {
-      "recordId": "conv-turn-1780235825979-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T13:57:05.977Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 29,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T13:57:05.977Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780236022306-1": {
-      "recordId": "conv-turn-1780236022306-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T14:00:22.301Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 30,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T14:00:22.301Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780236023757-1": {
-      "recordId": "conv-turn-1780236023757-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T14:00:23.754Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 59,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T14:00:23.754Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780236023761-2": {
-      "recordId": "conv-turn-1780236023761-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T14:00:23.761Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 60,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T14:00:23.761Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780259890441-1": {
-      "recordId": "conv-turn-1780259890441-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:38:10.432Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 61,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:38:10.432Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780259890493-2": {
-      "recordId": "conv-turn-1780259890493-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:38:10.493Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 62,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:38:10.493Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780259894340-1": {
-      "recordId": "conv-turn-1780259894340-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:38:14.337Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 31,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T20:38:14.337Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260119320-1": {
-      "recordId": "conv-turn-1780260119320-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:41:59.316Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 63,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:41:59.316Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260119325-2": {
-      "recordId": "conv-turn-1780260119325-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:41:59.325Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 64,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:41:59.325Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260126568-1": {
-      "recordId": "conv-turn-1780260126568-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:42:06.565Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 32,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T20:42:06.565Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260573364-1": {
-      "recordId": "conv-turn-1780260573364-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:49:33.362Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 65,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:49:33.362Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260573368-2": {
-      "recordId": "conv-turn-1780260573368-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:49:33.368Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 66,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:49:33.368Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260575718-1": {
-      "recordId": "conv-turn-1780260575718-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:49:35.715Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 33,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T20:49:35.715Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260744651-1": {
-      "recordId": "conv-turn-1780260744651-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:52:24.596Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 67,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:52:24.596Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260744653-2": {
-      "recordId": "conv-turn-1780260744653-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:52:24.653Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 68,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:52:24.653Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260745767-1": {
-      "recordId": "conv-turn-1780260745767-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:52:25.765Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 34,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T20:52:25.765Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260839514-1": {
-      "recordId": "conv-turn-1780260839514-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:53:59.512Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 69,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:53:59.512Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260839518-2": {
-      "recordId": "conv-turn-1780260839518-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:53:59.518Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 70,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T20:53:59.518Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780260840565-1": {
-      "recordId": "conv-turn-1780260840565-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:54:00.562Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 35,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T20:54:00.562Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261137666-1": {
-      "recordId": "conv-turn-1780261137666-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T20:58:57.663Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 36,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T20:58:57.663Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261312544-1": {
-      "recordId": "conv-turn-1780261312544-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:01:52.542Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 37,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T21:01:52.542Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261316746-1": {
-      "recordId": "conv-turn-1780261316746-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:01:56.744Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 71,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:01:56.744Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261316750-2": {
-      "recordId": "conv-turn-1780261316750-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:01:56.749Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 72,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:01:56.749Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261565856-1": {
-      "recordId": "conv-turn-1780261565856-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:06:05.853Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 73,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:06:05.853Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261565859-2": {
-      "recordId": "conv-turn-1780261565859-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:06:05.859Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 74,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:06:05.859Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261571259-1": {
-      "recordId": "conv-turn-1780261571259-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:06:11.256Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 38,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T21:06:11.256Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261635109-1": {
-      "recordId": "conv-turn-1780261635109-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:07:15.107Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 75,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:07:15.107Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261635113-2": {
-      "recordId": "conv-turn-1780261635113-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:07:15.113Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 76,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:07:15.113Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261636365-1": {
-      "recordId": "conv-turn-1780261636365-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:07:16.362Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 39,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T21:07:16.362Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261802973-1": {
-      "recordId": "conv-turn-1780261802973-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:10:02.972Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 77,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:10:02.972Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261802974-2": {
-      "recordId": "conv-turn-1780261802974-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:10:02.974Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 78,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:10:02.974Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780261809375-1": {
-      "recordId": "conv-turn-1780261809375-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:10:09.374Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 40,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T21:10:09.374Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780262092080-1": {
-      "recordId": "conv-turn-1780262092080-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:14:52.079Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 79,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:14:52.079Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780262092081-2": {
-      "recordId": "conv-turn-1780262092081-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:14:52.081Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 80,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:14:52.081Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780262093437-1": {
-      "recordId": "conv-turn-1780262093437-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:14:53.436Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 41,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T21:14:53.436Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780264369795-1": {
-      "recordId": "conv-turn-1780264369795-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:52:49.793Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 42,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T21:52:49.793Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780264371733-1": {
-      "recordId": "conv-turn-1780264371733-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:52:51.731Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 81,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:52:51.731Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780264371736-2": {
-      "recordId": "conv-turn-1780264371736-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:52:51.736Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 82,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:52:51.736Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780264772282-1": {
-      "recordId": "conv-turn-1780264772282-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:59:32.280Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 83,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:59:32.280Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780264772284-2": {
-      "recordId": "conv-turn-1780264772284-2",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:59:32.284Z",
-      "conversationId": "conv-adaptive",
-      "content": {
-        "conversationId": "conv-adaptive",
-        "userId": "user-1",
-        "turnIndex": 84,
-        "role": "user",
-        "message": "Plan dashboard rollout milestones",
-        "timestamp": "2026-05-31T21:59:32.284Z"
-      },
-      "schemaVersion": 1
-    },
-    "conv-turn-1780264780906-1": {
-      "recordId": "conv-turn-1780264780906-1",
-      "type": "conversation",
-      "userId": "user-1",
-      "timestamp": "2026-05-31T21:59:40.904Z",
-      "conversationId": "conv-engine",
-      "content": {
-        "conversationId": "conv-engine",
-        "userId": "user-1",
-        "turnIndex": 43,
-        "role": "user",
-        "message": "Earlier discussion about dashboard rollout",
-        "timestamp": "2026-05-31T21:59:40.904Z"
+        "role": "assistant",
+        "message": "Stub plan for: Plan sprint (with 5 remembered context item(s))",
+        "taskId": "task-1781386267843",
+        "intentKind": "plan",
+        "timestamp": "2026-06-13T21:31:07.977Z"
       },
       "schemaVersion": 1
     }

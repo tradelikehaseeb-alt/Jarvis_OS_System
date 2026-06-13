@@ -78,7 +78,33 @@ export class HermesAgent extends AbstractBaseAgent {
       correlationId: task.correlationId,
     };
 
-    const skillResponse = await this.skillExecutor.execute(skillRequest, context);
+    const executionMode = gatewayResponse.plan.executionMode ?? "fast";
+    const conversationalReply =
+      executionMode === "fast" &&
+      gatewayResponse.plan.summary.trim().length > 0
+        ? gatewayResponse.plan.summary.trim()
+        : undefined;
+    const nativeToolReply =
+      executionMode === "skills" &&
+      gatewayResponse.plan.summary.trim().length > 0
+        ? gatewayResponse.plan.summary.trim()
+        : undefined;
+
+    const skillResponse = conversationalReply || nativeToolReply
+      ? {
+          executionId: skillRequest.executionId,
+          agentId: HERMES_AGENT_ID,
+          skillId: SEARCH_SKILL_ID,
+          success: true,
+          data: {
+            skipped: true,
+            reason: conversationalReply
+              ? "conversational-chat"
+              : "native-hermes-tools",
+            ...(nativeToolReply ? { finalResponse: nativeToolReply } : {}),
+          },
+        }
+      : await this.skillExecutor.execute(skillRequest, context);
 
     return {
       taskId: task.taskId,
@@ -96,6 +122,8 @@ export class HermesAgent extends AbstractBaseAgent {
           executionSteps: gatewayResponse.plan.executionSteps,
         },
         reasoning: gatewayResponse.reasoning,
+        ...(conversationalReply ? { conversationalReply } : {}),
+        ...(nativeToolReply ? { conversationalReply: nativeToolReply } : {}),
         planning: {
           runtimeStatus: gatewayResponse.runtimeStatus,
           contextRef: context.contextRef,

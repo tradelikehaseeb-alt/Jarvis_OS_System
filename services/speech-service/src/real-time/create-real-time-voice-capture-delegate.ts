@@ -46,7 +46,7 @@ export function createRealTimeVoiceCaptureDelegate(
     getConfidence: () => runtime.getTranscriptionSession().getConfidence(),
     getLatencyMs: () => runtime.getTranscriptionSession().getLatencyMs(),
     getMicLevels: () => runtime.getMicrophone().getLatestLevels(),
-    async capture({ signal }) {
+    async capture({ mode, signal }) {
       const partialChunks: string[] = [];
       const unsubscribe = runtime.subscribe((partial) => {
         if (!partial.isFinal) {
@@ -54,26 +54,64 @@ export function createRealTimeVoiceCaptureDelegate(
         }
       });
 
+      const listenSegmentMs =
+        mode === "wake-word" ? 5_500 : mode === "continuous" ? 6_500 : 0;
+      const maxSilentRetries = mode === "push-to-talk" ? 0 : 2;
+
       try {
-        await runtime.startListening(signal);
-        while (!signal.aborted && runtime.getMicrophone().getLatestLevels().length < 3) {
-          await new Promise((resolve) => setTimeout(resolve, 40));
+        for (let attempt = 0; attempt <= maxSilentRetries; attempt += 1) {
+          await runtime.startListening(signal);
+          while (!signal.aborted && runtime.getMicrophone().getLatestLevels().length < 2) {
+            await new Promise((resolve) => setTimeout(resolve, 40));
+          }
+          if (listenSegmentMs > 0) {
+            const startedAt = Date.now();
+            while (!signal.aborted && Date.now() - startedAt < listenSegmentMs) {
+              await new Promise((resolve) => setTimeout(resolve, 80));
+            }
+          } else {
+            while (!signal.aborted) {
+              await new Promise((resolve) => setTimeout(resolve, 50));
+            }
+          }
+
+          const response = await runtime.finalizeTranscript(
+            `voice-capture-${Date.now()}-a${attempt}`,
+          );
+          const transcript = response.output.trim();
+          const emptyBuffer = response.error?.code === "EMPTY_AUDIO_BUFFER";
+          if (transcript || signal.aborted) {
+            if (!transcript) {
+              return { transcript: "", partialChunks };
+            }
+            return {
+              transcript,
+              partialChunks,
+              confidence: response.confidence,
+              latencyMs: response.latencyMs,
+            };
+          }
+          if (!emptyBuffer && (response.stub || response.error)) {
+            throw new Error(
+              response.error?.message ?? "Speech recognition returned no transcript",
+            );
+          }
+          if (attempt < maxSilentRetries && !signal.aborted) {
+            await new Promise((resolve) => setTimeout(resolve, 200));
+            continue;
+          }
+          if (mode === "wake-word" || mode === "continuous") {
+            return { transcript: "", partialChunks };
+          }
+          return { transcript: "", partialChunks };
         }
-        if (signal.aborted) {
+
+        return { transcript: "", partialChunks };
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
           runtime.interrupt();
-          throw new DOMException("Aborted", "AbortError");
         }
-
-        const response = await runtime.finalizeTranscript(
-          `voice-capture-${Date.now()}`,
-        );
-
-        return {
-          transcript: response.output,
-          partialChunks,
-          confidence: response.confidence,
-          latencyMs: response.latencyMs,
-        };
+        throw error;
       } finally {
         unsubscribe();
       }

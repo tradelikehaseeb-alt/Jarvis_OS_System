@@ -14,3 +14,6 @@ export * from "./live-provider";
 export * from "./user-session";
 export * from "./demo-validation";
 export * from "./real-world-validation";
+export * from "./task-output/resolve-assistant-reply";
+export * from "./task-output/sanitize-assistant-reply";
+export * from "./hermes";

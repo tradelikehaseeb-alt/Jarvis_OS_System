@@ -46,7 +46,7 @@ const defaultAggregatedHealthResponse = {
   events: [] as const,
 };
 
-const defaultProviderSettingsSnapshot = {
+export const defaultProviderSettingsSnapshot = {
   settings: {
     userId: "desktop-user",
     selectedProviderId: "openai",
@@ -123,6 +123,30 @@ export function createMockJarvisApi(
     validateRuntime: vi.fn().mockResolvedValue(defaultStartupResponse),
     recoverRuntime: vi.fn().mockResolvedValue(defaultStartupResponse),
     getStartupStatus: vi.fn().mockResolvedValue(defaultStartupResponse),
+    getHermesStartupStatus: vi.fn().mockResolvedValue({
+      connected: true,
+      label: "Hermes: Connected ✅",
+      detail: "Python agent (mock)",
+      adapterId: "hermes-adapter-python",
+      agentRoot: "",
+    }),
+    speechInit: vi.fn().mockResolvedValue({
+      ready: true,
+      sttEngine: "Groq Whisper ✅",
+      ttsEngine: "Edge TTS ✅",
+      ttsVoice: "en-US-GuyNeural",
+      groqConfigured: true,
+      message: "Speech engines ready",
+    }),
+    speechTranscribe: vi.fn().mockResolvedValue({
+      output: "hello jarvis",
+      confidence: 0.9,
+    }),
+    speechSpeak: vi.fn().mockResolvedValue({
+      output: "Hello I am Jarvis",
+      audioBase64: "",
+      mimeType: "audio/mpeg",
+    }),
     getAggregatedRuntimeHealth: vi.fn().mockResolvedValue(defaultAggregatedHealthResponse),
     getAggregatedRuntimeHealthSnapshot: vi
       .fn()
@@ -134,6 +158,11 @@ export function createMockJarvisApi(
     validateProviderApiKey: vi.fn().mockResolvedValue(defaultApiKeyValidation),
     selectProvider: vi.fn().mockResolvedValue(defaultProviderSettingsSnapshot.settings),
     selectProviderModel: vi.fn().mockResolvedValue(defaultProviderSettingsSnapshot.settings),
+    syncClientLocale: vi.fn().mockResolvedValue({
+      timeZone: "Asia/Karachi",
+      locale: "en-US",
+      cityLabel: "Karachi",
+    }),
     ...overrides,
   };
 }

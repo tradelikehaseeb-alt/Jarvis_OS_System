@@ -7,6 +7,7 @@ import type { ApiHealth } from "./api-health";
 import { JarvisApiRouter } from "./jarvis-api-router";
 import { JarvisApiServer } from "./jarvis-api-server";
 import { validateCreateTaskRequest } from "./validate-create-task-request";
+import { countMemoryFacts, registerMemoryRoutes } from "./memory-routes";
 
 export interface CreateDefaultJarvisApiServerOptions {
   readonly port?: number;
@@ -35,8 +36,8 @@ function registerDefaultRoutes(
     status: 200,
     body: {
       status: "ok",
-      memoryStatus: "embedded",
-      factsCount: 0,
+      memoryStatus: "ok",
+      factsCount: await countMemoryFacts(),
       activeTasks: 0,
       checkedAt: new Date().toISOString(),
     },
@@ -47,10 +48,7 @@ function registerDefaultRoutes(
     body: { tasks: [], limit: 10, source: "api-runtime" },
   }));
 
-  router.get("/memory/facts", async () => ({
-    status: 200,
-    body: { facts: [] },
-  }));
+  registerMemoryRoutes(router);
 
   router.post("/tasks", async (request) => {
     const validated = validateCreateTaskRequest(request.body);
@@ -168,3 +166,4 @@ export async function createDefaultJarvisApiServer(
 }
 
 export { registerDefaultRoutes, buildHealth };
+export { registerMemoryRoutes, countMemoryFacts } from "./memory-routes";

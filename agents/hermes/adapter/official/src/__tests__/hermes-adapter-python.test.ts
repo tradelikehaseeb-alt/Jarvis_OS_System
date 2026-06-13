@@ -28,7 +28,7 @@ describe("HermesAdapterPython", () => {
     expect(response.error?.code).toBe("HERMES_AGENT_PATH_MISSING");
   });
 
-  it("returns failure when Groq key is missing", async () => {
+  it("returns failure when LLM credentials are missing", async () => {
     const adapter = new HermesAdapterPython({
       env: {},
       agentRoot: "C:\\hermes-agent",
@@ -36,7 +36,115 @@ describe("HermesAdapterPython", () => {
 
     const response = await adapter.invoke(sampleRequest);
     expect(response.success).toBe(false);
-    expect(response.error?.code).toBe("GROQ_API_KEY_MISSING");
+    expect(response.error?.code).toBe("LLM_CREDENTIALS_MISSING");
+  });
+
+  it("uses fast Groq path for hello via adapter (no subprocess)", async () => {
+    const runner = await import("../hermes-python-process-runner");
+    const spawnSpy = vi.spyOn(runner, "runHermesAgentProcess");
+    const groq = await import("../hermes-groq-conversational");
+    vi.spyOn(groq, "invokeHermesGroqConversational").mockResolvedValue({
+      success: true,
+      adapterId: "hermes-adapter-python",
+      stub: false,
+      plan: {
+        goal: "hello",
+        steps: ["Hello! How can I help you today?"],
+        intentKind: "default",
+        summary: "Hello! How can I help you today?",
+        executionMode: "fast",
+      },
+      reasoning: {
+        summary: "Hello! How can I help you today?",
+        confidence: 0.9,
+      },
+    });
+
+    const adapter = new HermesAdapterPython({
+      env: { GROQ_API_KEY: "test-key" },
+      agentRoot: "C:\\hermes-agent",
+    });
+
+    const response = await adapter.invoke({
+      ...sampleRequest,
+      intent: { kind: "default", description: "hello" },
+    });
+
+    expect(response.success).toBe(true);
+    expect(response.plan.executionMode).toBe("fast");
+    expect(spawnSpy).not.toHaveBeenCalled();
+  });
+
+  it("uses fast Groq path for default chat intents (no subprocess)", async () => {
+    const runner = await import("../hermes-python-process-runner");
+    const spawnSpy = vi.spyOn(runner, "runHermesAgentProcess");
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () =>
+        JSON.stringify({
+          choices: [
+            { message: { content: "Hello! How can I help you today?" } },
+          ],
+        }),
+    });
+
+    const adapter = new HermesAdapterPython({
+      env: { GROQ_API_KEY: "test-key" },
+      agentRoot: "C:\\hermes-agent",
+    });
+
+    const groq = await import("../hermes-groq-conversational");
+    const response = await groq.invokeHermesGroqConversational(
+      {
+        ...sampleRequest,
+        intent: { kind: "default", description: "hello" },
+      },
+      {
+        adapterId: adapter.adapterId,
+        env: { GROQ_API_KEY: "test-key", JARVIS_USER_DISPLAY_NAME: "Haseeb" },
+        fetchFn: fetchSpy,
+      },
+    );
+
+    expect(response.success).toBe(true);
+    expect(response.plan.summary).toBe("Hello! How can I help you today?");
+    expect(spawnSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalled();
+  });
+
+  it("uses skills subprocess for price search queries", async () => {
+    const runner = await import("../hermes-python-process-runner");
+    const spawnSpy = vi.spyOn(runner, "runHermesAgentProcess").mockResolvedValue({
+      success: true,
+      finalResponse: "iPhone 17 starts around PKR 450,000 on official Apple resellers.",
+      stdout: "FINAL RESPONSE:\niPhone 17 starts around PKR 450,000",
+      stderr: "",
+      exitCode: 0,
+      skillCategory: "search",
+      userStatusMessage: "Jarvis is searching...",
+    });
+    const groq = await import("../hermes-groq-conversational");
+    const groqSpy = vi.spyOn(groq, "invokeHermesGroqConversational");
+
+    const adapter = new HermesAdapterPython({
+      env: { GROQ_API_KEY: "test-key" },
+      agentRoot: "C:\\hermes-agent",
+    });
+
+    const response = await adapter.invoke({
+      ...sampleRequest,
+      intent: {
+        kind: "default",
+        description: "iPhone 17 price Pakistan mein",
+      },
+    });
+
+    expect(response.success).toBe(true);
+    expect(response.plan.executionMode).toBe("skills");
+    expect(spawnSpy).toHaveBeenCalled();
+    expect(groqSpy).not.toHaveBeenCalled();
+    expect(response.plan.summary).toContain("iPhone 17");
   });
 
   it("maps parsed FINAL RESPONSE into a real plan", async () => {
@@ -54,10 +162,65 @@ describe("HermesAdapterPython", () => {
       agentRoot: "C:\\hermes-agent",
     });
 
-    const response = await adapter.invoke(sampleRequest);
+    const response = await adapter.invoke({
+      ...sampleRequest,
+      intent: {
+        kind: "research",
+        description: "search latest AI news and summarize findings",
+      },
+    });
     expect(response.success).toBe(true);
     expect(response.stub).toBe(false);
+    expect(response.plan.executionMode).toBe("skills");
     expect(response.plan.steps.length).toBeGreaterThan(0);
     expect(response.reasoning.confidence).toBeGreaterThan(0.8);
+  });
+
+  it("retries skills subprocess with Gemini when Groq rate limits", async () => {
+    const runner = await import("../hermes-python-process-runner");
+    const geminiSkills = await import("../hermes-gemini-skills");
+    const groq = await import("../hermes-groq-conversational");
+    const gemini = await import("../hermes-gemini-conversational");
+
+    const runSpy = vi.spyOn(runner, "runHermesAgentProcess").mockResolvedValue({
+      success: false,
+      finalResponse: "",
+      stdout: "rate limit reached HTTP 429",
+      stderr: "429 Too Many Requests",
+      exitCode: 1,
+      errorCode: "HERMES_FINAL_RESPONSE_MISSING",
+    });
+    const geminiRetrySpy = vi
+      .spyOn(geminiSkills, "runHermesAgentProcessWithGemini")
+      .mockResolvedValue({
+        success: true,
+        finalResponse: "Gemini skills result with tools",
+        stdout: "FINAL RESPONSE:\nGemini skills result with tools",
+        stderr: "",
+        exitCode: 0,
+      });
+    const groqSpy = vi.spyOn(groq, "invokeHermesGroqConversational");
+    const geminiChatSpy = vi.spyOn(gemini, "invokeHermesGeminiConversational");
+
+    const adapter = new HermesAdapterPython({
+      env: { GROQ_API_KEY: "test-key", GEMINI_API_KEY: "gem-key" },
+      agentRoot: "C:\\hermes-agent",
+    });
+
+    const response = await adapter.invoke({
+      ...sampleRequest,
+      intent: {
+        kind: "research",
+        description: "search latest AI news and summarize findings",
+      },
+    });
+
+    expect(runSpy).toHaveBeenCalled();
+    expect(geminiRetrySpy).toHaveBeenCalled();
+    expect(groqSpy).not.toHaveBeenCalled();
+    expect(geminiChatSpy).not.toHaveBeenCalled();
+    expect(response.success).toBe(true);
+    expect(response.plan.executionMode).toBe("skills");
+    expect(response.plan.summary).toContain("Gemini skills result");
   });
 });

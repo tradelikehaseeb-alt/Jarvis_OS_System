@@ -19,12 +19,13 @@
     "@jarvis/openclaw": "*",
     "@jarvis/provider-runtime": "*",
     "@jarvis/speech-service": "*",
-    "@jarvis/types": "*"
+    "@jarvis/types": "*",
+    "electron": "42.3.2"
   },
   "devDependencies": {
     "@jarvis/provider-runtime": "*",
     "@jarvis/runtime-process": "*",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.3"
+    "vitest": "^4.1.8"
   }
 }

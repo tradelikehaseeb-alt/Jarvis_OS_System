@@ -2,10 +2,8 @@ import type { MemorySearchResult, RetrievalRequest, RetrievalResponse } from "@j
 
 import { TfidfEmbeddingProvider } from "../embedding-provider/tfidf-embedding-provider";
 import type { EmbeddingProvider } from "../embedding-provider/contract";
-import {
-  SqliteStorageAdapter,
-  type ConversationRow,
-} from "../storage-adapter/sqlite-storage-adapter";
+import type { ConversationRow } from "../storage-adapter/memory-row-types";
+import type { JarvisPersistentStorage } from "../storage-adapter/jarvis-persistent-storage";
 import type { RetrievalEngine } from "./contract";
 
 /**
@@ -15,7 +13,7 @@ export class DefaultRetrievalEngine implements RetrievalEngine {
   readonly componentId = "retrieval-engine" as const;
 
   constructor(
-    private readonly storage: SqliteStorageAdapter,
+    private readonly storage: JarvisPersistentStorage,
     private readonly embeddings: EmbeddingProvider,
   ) {}
 

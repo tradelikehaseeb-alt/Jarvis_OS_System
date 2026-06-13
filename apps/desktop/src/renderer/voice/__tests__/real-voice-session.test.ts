@@ -21,7 +21,9 @@ describe("RealVoiceSession", () => {
     const states: string[] = [];
     session.subscribe((state) => states.push(state.status));
 
-    const result = await session.processAudio(Buffer.from("audio"));
+    const result = await session.processAudio(
+      new TextEncoder().encode("audio"),
+    );
     expect(result.isWakeWord).toBe(true);
     expect(result.transcript).toContain("hey jarvis");
     expect(states).toContain("listening");

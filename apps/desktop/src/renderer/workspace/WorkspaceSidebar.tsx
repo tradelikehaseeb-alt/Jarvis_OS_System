@@ -20,7 +20,7 @@ export function WorkspaceSidebar({
 }: WorkspaceSidebarProps) {
   return (
     <aside
-      className="workspace-sidebar"
+      className="workspace-sidebar cc-glass"
       aria-label="Conversation workspace sessions"
       data-testid="workspace-sidebar"
     >
@@ -41,17 +41,20 @@ export function WorkspaceSidebar({
           <li key={session.sessionId}>
             <button
               type="button"
-              className={`workspace-sidebar__item${
+              className={`workspace-sidebar__item cc-session-pill${
                 session.sessionId === activeSessionId
-                  ? " workspace-sidebar__item--active"
+                  ? " workspace-sidebar__item--active cc-session-pill--active"
                   : ""
               }`}
               data-testid={`workspace-session-${session.sessionId}`}
               data-status={session.status}
               onClick={() => onSelect(session.sessionId)}
             >
-              <strong>{session.conversationId}</strong>
-              <span>{session.status}</span>
+              <strong className="cc-session-pill__id">{session.conversationId}</strong>
+              {session.sessionId === activeSessionId ? (
+                <span className="cc-session-pill__live" aria-hidden />
+              ) : null}
+              <span className="cc-session-pill__status">{session.status}</span>
             </button>
             {session.status === "archived" ? (
               <button

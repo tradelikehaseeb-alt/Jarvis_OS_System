@@ -10,6 +10,8 @@ import {
   safeEndpointProbe,
 } from "@jarvis/runtime-manager";
 
+import { isHermesPythonAgentConfigured } from "./hermes-python-runtime-config";
+import { resolveHermesAgentRoot } from "./hermes-python-process-runner";
 import {
   readHermesRuntimeEnv,
   type EnvSource,
@@ -65,6 +67,26 @@ export class HermesRuntimeDiscoveryAdapter implements RuntimeProvider {
           mode: env.mode,
           configured: false,
           probe: "skipped",
+        },
+      };
+    }
+
+    const envSource = this.options.env ?? process.env;
+    if (isHermesPythonAgentConfigured(envSource)) {
+      const agentRoot = resolveHermesAgentRoot(envSource);
+      return {
+        runtimeId: this.runtimeId,
+        status: "available",
+        available: true,
+        lastCheckedAt,
+        message: `Hermes Python agent configured at ${agentRoot}`,
+        endpoint: detection.endpoint,
+        stub: false,
+        details: {
+          mode: env.mode,
+          configured: true,
+          probe: "python-agent",
+          agentRoot,
         },
       };
     }

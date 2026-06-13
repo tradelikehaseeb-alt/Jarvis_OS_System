@@ -1,8 +1,20 @@
+import { friendlyUserErrorMessage, sanitizeAssistantReplyForDisplay } from "@jarvis/types";
+
 import type { ChatMessage } from "./ChatMessages";
-import { IntentBadge } from "./IntentBadge";
+import { AssistantReplyCard } from "./AssistantReplyCard";
 import { HermesPlanMessage } from "./HermesPlanMessage";
+import { JarvisVoiceWave } from "./JarvisVoiceWave";
 
 function errorHintForMessage(text: string): string | undefined {
+  if (text.includes("429") || text.toLowerCase().includes("rate limit")) {
+    return "Groq free tier limit — 15–20s wait karo ya GEMINI_API_KEY fallback use karo.";
+  }
+  if (
+    text.toLowerCase().includes("mediastream") ||
+    text.toLowerCase().includes("microphone")
+  ) {
+    return "Windows Settings → Privacy → Microphone — enable access for desktop apps, then restart Jarvis.";
+  }
   if (text.includes("network_disabled") || text.includes("OpenClaw endpoint not reachable")) {
     return "Start OpenClaw in WSL: .\\scripts\\start-openclaw-gateway-wsl.ps1 — then restart Jarvis.";
   }
@@ -14,17 +26,33 @@ function errorHintForMessage(text: string): string | undefined {
 
 export interface ChatMessageBubbleProps {
   readonly message: ChatMessage;
+  readonly showVoiceWave?: boolean;
 }
 
 /**
  * Single chat bubble — text, loading, error, or Hermes plan card (Phase 23).
  */
-export function ChatMessageBubble({ message }: ChatMessageBubbleProps) {
-  const className = `chat-bubble ${message.role}`;
+function formatMessageClock(): string {
+  return new Date().toISOString().slice(11, 19);
+}
+
+export function ChatMessageBubble({
+  message,
+  showVoiceWave = false,
+}: ChatMessageBubbleProps) {
+  const clockLabel = message.createdAt ?? formatMessageClock();
+  const className = `chat-bubble chat-bubble--os cc-hud-frame ${message.role}${
+    showVoiceWave ? " chat-bubble--responding chat-bubble--streaming" : ""
+  }`;
 
   if (message.role === "loading") {
     return (
       <div className={className} role="status" aria-busy="true">
+        <span className="chat-bubble__meta">
+          <span className="chat-bubble__role">SYS</span>
+          <time className="chat-bubble__time">{clockLabel}</time>
+        </span>
+        <JarvisVoiceWave />
         <span className="spinner" aria-hidden />
         {message.text}
       </div>
@@ -32,21 +60,30 @@ export function ChatMessageBubble({ message }: ChatMessageBubbleProps) {
   }
 
   if (message.role === "error") {
+    const displayError = friendlyUserErrorMessage(message.text);
     const hint = errorHintForMessage(message.text);
     return (
       <div className={className} role="alert" data-testid="chat-error">
-        <strong className="chat-error-label">Could not complete</strong>
-        <p className="chat-error-text">{message.text}</p>
+        <span className="chat-bubble__meta">
+          <span className="chat-bubble__role">ALERT</span>
+          <time className="chat-bubble__time">{clockLabel}</time>
+        </span>
+        <p className="chat-error-text">{displayError}</p>
         {hint ? <p className="chat-error-hint">{hint}</p> : null}
       </div>
     );
   }
 
   if (message.role === "assistant" && message.hermesPlan) {
+    const reply = message.assistantReply ?? message.text;
     return (
       <div className={`${className} has-plan`}>
-        {message.text ? <p className="chat-assistant-lead">{message.text}</p> : null}
+        <span className="chat-bubble__meta">
+          <span className="chat-bubble__role">JARVIS</span>
+          <time className="chat-bubble__time">{clockLabel}</time>
+        </span>
         <HermesPlanMessage data={message.hermesPlan} />
+        <AssistantReplyCard text={reply} />
       </div>
     );
   }
@@ -54,15 +91,26 @@ export function ChatMessageBubble({ message }: ChatMessageBubbleProps) {
   if (message.role === "user") {
     return (
       <div className={className}>
-        {message.detectedIntent ? (
-          <div className="chat-user-meta">
-            <IntentBadge intent={message.detectedIntent} />
-          </div>
-        ) : null}
+        <span className="chat-bubble__meta">
+          <span className="chat-bubble__role">YOU</span>
+          <time className="chat-bubble__time">{clockLabel}</time>
+        </span>
         <p className="chat-user-text">{message.text}</p>
       </div>
     );
   }
 
-  return <div className={className}>{message.text}</div>;
+  const replyText = sanitizeAssistantReplyForDisplay(
+    message.assistantReply ?? message.text,
+  );
+  return (
+    <div className={`${className} assistant-reply-bubble jarvis-reply`}>
+      <span className="chat-bubble__meta">
+        <span className="chat-bubble__role">JARVIS</span>
+        <time className="chat-bubble__time">{clockLabel}</time>
+      </span>
+      {showVoiceWave ? <JarvisVoiceWave testId="jarvis-reply-voice-wave" /> : null}
+      <p className="chat-assistant-text">{replyText}</p>
+    </div>
+  );
 }

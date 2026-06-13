@@ -6,6 +6,7 @@ import {
   DEFAULT_VOICE_SETTINGS,
   loadVoiceSettings,
   saveVoiceSettings,
+  useSpeechConnection,
   type VoiceSettings,
 } from "../voice";
 
@@ -18,6 +19,7 @@ export function SettingsPage() {
   );
   const [voiceSaved, setVoiceSaved] = useState(false);
   const saveTimerRef = useRef<number | null>(null);
+  const speech = useSpeechConnection();
 
   useEffect(() => {
     void (async () => {
@@ -62,7 +64,7 @@ export function SettingsPage() {
           <dt>API gateway</dt>
           <dd>{loadError ?? apiUrl}</dd>
           <dt>Authentication</dt>
-          <dd style={{ color: "var(--muted)" }}>Not configured (Phase 18)</dd>
+          <dd>Embedded local runtime (no external auth token required)</dd>
           <dt>Theme</dt>
           <dd>Dark (default)</dd>
         </dl>
@@ -74,8 +76,8 @@ export function SettingsPage() {
       >
         <h3 id="settings-voice-heading">Voice</h3>
         <p className="settings-voice-note">
-          Voice-native command center uses streaming STT/TTS when a real microphone
-          is enabled. Tasks route through the Jarvis API to Hermes and OpenClaw.
+          STT and TTS run in the Electron main process. Groq Whisper transcribes
+          microphone audio; Edge TTS speaks responses.
         </p>
 
         <ul className="settings-voice-list">
@@ -116,27 +118,29 @@ export function SettingsPage() {
               Enable speech normalization before intent classification
             </label>
           </li>
-          <li>
-            <label>
-              <input
-                type="checkbox"
-                checked={voiceSettings.simulateCaptureError}
-                onChange={(e) =>
-                  updateVoice({ simulateCaptureError: e.target.checked })
-                }
-              />
-              Simulate capture error (test UI)
-            </label>
-          </li>
         </ul>
 
         <p className="settings-voice-meta">
-          STT engine: <span className="settings-muted">Not connected</span>
+          STT engine:{" "}
+          <span className={speech.ready ? "settings-ok" : "settings-muted"}>
+            {speech.loading ? "Checking…" : speech.sttEngine}
+          </span>
           <br />
-          TTS engine: <span className="settings-muted">Not connected</span>
+          TTS engine:{" "}
+          <span className="settings-ok">{speech.loading ? "Checking…" : speech.ttsEngine}</span>
           <br />
-          Microphone: <span className="settings-muted">Not accessed</span>
+          TTS voice: <span className="settings-muted">{speech.ttsVoice}</span>
+          <br />
+          Microphone:{" "}
+          <span className={speech.microphoneGranted ? "settings-ok" : "settings-muted"}>
+            {speech.microphoneLabel}
+          </span>
         </p>
+        {speech.error ? (
+          <p className="settings-voice-error" role="alert">
+            {speech.error}
+          </p>
+        ) : null}
 
         {voiceSaved ? (
           <p className="settings-saved" role="status">

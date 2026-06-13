@@ -200,6 +200,7 @@ export function ConversationWorkspace() {
     try {
       const { create, status } = await submitChatAsTask(text, {
         classification,
+        conversationId: activeSession.conversationId,
       });
       setCreateResult(create);
       timeline.ingestTaskStatus(status);

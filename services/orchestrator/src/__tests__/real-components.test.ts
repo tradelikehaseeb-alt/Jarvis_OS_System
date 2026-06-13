@@ -31,7 +31,10 @@ describe("DefaultTaskRouter", () => {
   });
 
   it("routes browse intents to plan + OpenClaw steps", async () => {
-    const task = taskWithDescription("Open the analytics dashboard", "chat");
+    const task = taskWithDescription(
+      "Open website analytics.example.com and click on screen",
+      "chat",
+    );
     const routed = detectRoutedIntentKind(task.intent);
     expect(routed).toBe("browse");
     const steps = buildWorkflowStepsForTask(task);

@@ -16,7 +16,7 @@ describe("AIStatusOrb", () => {
     );
 
     expect(screen.getByTestId("ai-status-provider")).toHaveTextContent("groq");
-    expect(screen.getByTestId("ai-status-provider")).toHaveTextContent("842ms");
+    expect(screen.getByTestId("ai-status-micro-dashboard")).toHaveTextContent("842 ms");
   });
 });
 

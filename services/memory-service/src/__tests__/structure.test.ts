@@ -11,7 +11,7 @@ import { DefaultMemoryProvider } from "../memory-provider/default-memory-provide
 import { EmbeddingProviderStub } from "../embedding-provider/stub";
 import { TfidfEmbeddingProvider } from "../embedding-provider/tfidf-embedding-provider";
 import { StorageAdapterStub } from "../storage-adapter/stub";
-import { SqliteStorageAdapter } from "../storage-adapter/sqlite-storage-adapter";
+import { InMemoryJarvisStorageAdapter } from "../storage-adapter/in-memory-jarvis-storage-adapter";
 
 describe("memory-service structure", () => {
   it("declares five core modules", () => {
@@ -24,14 +24,16 @@ describe("memory-service structure", () => {
     ]);
   });
 
-  it("createMemoryService wires real SQLite components by default", () => {
-    const service = createMemoryService();
+  it("createMemoryService wires in-memory components when JARVIS_MEMORY_BACKEND=local", () => {
+    const service = createMemoryService({
+      env: { JARVIS_MEMORY_BACKEND: "local", NODE_ENV: "development" },
+    });
     expect(service.components.memoryProvider).toBeInstanceOf(DefaultMemoryProvider);
     expect(service.components.embeddingProvider).toBeInstanceOf(
       TfidfEmbeddingProvider,
     );
     expect(service.components.storageAdapter).toBeInstanceOf(
-      SqliteStorageAdapter,
+      InMemoryJarvisStorageAdapter,
     );
   });
 

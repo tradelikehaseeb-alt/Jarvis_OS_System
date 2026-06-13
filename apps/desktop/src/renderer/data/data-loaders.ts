@@ -52,6 +52,23 @@ export interface UserProfile {
   readonly facts: readonly UserProfileFact[];
 }
 
+export interface MemoryConversationRow {
+  readonly id: string;
+  readonly role: string;
+  readonly content: string;
+  readonly timestamp: string;
+  readonly taskId?: string;
+}
+
+export interface MemorySearchHit {
+  readonly record: {
+    readonly id: string;
+    readonly content: string;
+    readonly createdAt: string;
+  };
+  readonly score: number;
+}
+
 /**
  * Dashboard snapshot — mock in test, live API in production.
  */
@@ -68,7 +85,7 @@ export async function loadDashboardData(): Promise<DashboardData> {
 }
 
 /**
- * Memory facts from API proxy or mock rows in test.
+ * Memory facts from embedded API.
  */
 export async function loadMemoryFacts(): Promise<readonly MockMemoryRow[]> {
   if (isTestEnvironment()) {
@@ -83,6 +100,39 @@ export async function loadMemoryFacts(): Promise<readonly MockMemoryRow[]> {
     title: fact.key,
     snippet: fact.value,
   }));
+}
+
+export async function loadRecentConversations(): Promise<readonly MemoryConversationRow[]> {
+  if (isTestEnvironment()) {
+    return [];
+  }
+  const payload = await fetchJson<{
+    conversations?: MemoryConversationRow[];
+  }>("/memory/recent?userId=default&limit=10");
+  return payload.conversations ?? [];
+}
+
+export async function searchMemories(query: string): Promise<readonly MemorySearchHit[]> {
+  if (isTestEnvironment()) {
+    const lower = query.toLowerCase();
+    return MOCK_MEMORY.filter(
+      (row) =>
+        row.title.toLowerCase().includes(lower) ||
+        row.snippet.toLowerCase().includes(lower),
+    ).map((row, index) => ({
+      record: {
+        id: row.id,
+        content: `${row.title}: ${row.snippet}`,
+        createdAt: new Date().toISOString(),
+      },
+      score: 1 - index * 0.05,
+    }));
+  }
+  const encoded = encodeURIComponent(query);
+  const payload = await fetchJson<{ results?: MemorySearchHit[] }>(
+    `/memory/search?userId=default&q=${encoded}&limit=10`,
+  );
+  return payload.results ?? [];
 }
 
 /**

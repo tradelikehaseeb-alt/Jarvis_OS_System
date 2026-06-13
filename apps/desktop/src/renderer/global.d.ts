@@ -19,6 +19,8 @@ import type {
   SaveProviderApiKeyRequest,
   SelectProviderModelRequest,
   SelectProviderRequest,
+  SyncClientLocaleRequest,
+  JarvisClientLocale,
 } from "./providers/provider-settings-types";
 
 /** Mirrors preload bridge (Phase 54). */
@@ -33,6 +35,13 @@ export interface JarvisDesktopApi {
   validateRuntime(): Promise<RuntimeStartupResponse>;
   recoverRuntime(): Promise<RuntimeStartupResponse>;
   getStartupStatus(): Promise<RuntimeStartupResponse>;
+  getHermesStartupStatus(): Promise<{
+    connected: boolean;
+    label: string;
+    detail: string;
+    adapterId: string;
+    agentRoot: string;
+  }>;
   getAggregatedRuntimeHealth(): Promise<AggregatedRuntimeHealthResponse>;
   getAggregatedRuntimeHealthSnapshot(): Promise<AggregatedRuntimeHealthResponse>;
   createTask(body: CreateTaskRequest): Promise<CreateTaskResponse>;
@@ -50,6 +59,46 @@ export interface JarvisDesktopApi {
   selectProviderModel(
     request: SelectProviderModelRequest,
   ): Promise<ProviderSettings>;
+  syncClientLocale(request: SyncClientLocaleRequest): Promise<JarvisClientLocale>;
+  speechInit(): Promise<{
+    ready: boolean;
+    sttEngine: string;
+    ttsEngine: string;
+    ttsVoice: string;
+    groqConfigured: boolean;
+    message: string;
+  }>;
+  speechTranscribe(request: {
+    audioBase64: string;
+    mimeType?: string;
+    requestId?: string;
+  }): Promise<{
+    output: string;
+    error?: { code: string; message: string };
+    audioBase64?: string;
+    mimeType?: string;
+    confidence?: number;
+    isWakeWord?: boolean;
+  }>;
+  speechSpeak(request: {
+    text: string;
+    requestId?: string;
+    voice?: string;
+  }): Promise<{
+    output: string;
+    error?: { code: string; message: string };
+    audioBase64?: string;
+    mimeType?: string;
+  }>;
+  onSpeechPlaybackStream(
+    handler: (payload: {
+      requestId: string;
+      audioBase64: string;
+      mimeType: string;
+      providerId: string;
+    }) => void,
+  ): () => void;
+  onSpeechPlaybackStop(handler: () => void): () => void;
 }
 
 declare global {

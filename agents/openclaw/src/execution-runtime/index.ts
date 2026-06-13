@@ -8,7 +8,39 @@ export { ExecutionPermissionManager, createDefaultExecutionPermissionManager } f
 export type { ExecutionPermissionDecision, ExecutionPermissionManagerOptions, ExecutionPermissionRequest, ExecutionRiskLevel } from "./execution-permission-manager";
 export { ExecutionSafetyRuntime, createDefaultExecutionSafetyRuntime } from "./execution-safety-runtime";
 export type { ExecutionSafetyDecision, ExecutionSafetyInput, ExecutionSafetyRuntimeOptions } from "./execution-safety-runtime";
-export { parseBrowserIntent, buildWorkflowProgressMessage } from "./parse-browser-intent";
+export {
+  parseBrowserIntent,
+  buildWorkflowProgressMessage,
+  buildNativeBrowserRuntimeResult,
+  isResolvableBrowserUrl,
+} from "./parse-browser-intent";
+export type { BrowserIntentRuntimeResult } from "./parse-browser-intent";
+export {
+  OpenClawAgentCluster,
+  createDefaultOpenClawAgentCluster,
+  createOpenClawAgentClusterMessaging,
+  createOpenClawSubAgentByProfile,
+} from "./agent-cluster";
+export {
+  BrowserScraperAgent,
+  EcomAutomationAgent,
+  SystemMonitorAgent,
+  createDefaultOpenClawSubAgentProfiles,
+} from "./agent-cluster-profiles";
+export type {
+  OpenClawSubAgentProfileId,
+  OpenClawSubAgentStatus,
+  OpenClawClusterMessageKind,
+  OpenClawClusterMessageTarget,
+  OpenClawSubAgentState,
+  OpenClawSubAgentInvocation,
+  OpenClawClusterMessage,
+  OpenClawSubAgentRunResult,
+  OpenClawClusterMessageListener,
+  OpenClawSubAgentRunContext,
+  OpenClawSubAgent,
+} from "./agent-cluster-types";
+export type { OpenClawAgentClusterMessaging } from "./agent-cluster";
 export {
   createPlaywrightBrowserActionPipeline,
   tryLaunchPlaywrightPage,

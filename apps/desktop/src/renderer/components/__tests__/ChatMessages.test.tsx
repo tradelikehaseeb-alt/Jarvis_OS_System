@@ -6,7 +6,7 @@ import { ChatMessages } from "../ChatMessages";
 describe("ChatMessages", () => {
   it("renders empty hint", () => {
     render(<ChatMessages messages={[]} />);
-    expect(screen.getByText(/Ask Jarvis anything/)).toBeInTheDocument();
+    expect(screen.getByText(/Ask anything/)).toBeInTheDocument();
   });
 
   it("renders user and assistant bubbles", () => {
@@ -22,7 +22,7 @@ describe("ChatMessages", () => {
     expect(screen.getByText("Hi")).toBeInTheDocument();
   });
 
-  it("shows intent badge on classified user messages", () => {
+  it("renders classified user message text without intent chrome", () => {
     render(
       <ChatMessages
         messages={[
@@ -35,7 +35,8 @@ describe("ChatMessages", () => {
         ]}
       />,
     );
-    expect(screen.getByTestId("intent-badge")).toHaveTextContent("Plan");
+    expect(screen.getByText("Plan my week")).toBeInTheDocument();
+    expect(screen.queryByTestId("intent-badge")).not.toBeInTheDocument();
   });
 
   it("shows loading state", () => {

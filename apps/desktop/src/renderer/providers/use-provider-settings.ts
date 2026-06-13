@@ -24,6 +24,7 @@ export interface UseProviderSettingsResult {
   readonly snapshot: ProviderSettingsSnapshot | null;
   readonly providers: readonly ProviderStatus[];
   readonly activeProviderId: string | null;
+  readonly clientLocale: ProviderSettingsSnapshot["locale"];
   readonly loading: boolean;
   readonly saving: boolean;
   readonly error: string | null;
@@ -127,6 +128,7 @@ export function useProviderSettings(
     snapshot,
     providers: snapshot?.providers ?? [],
     activeProviderId: snapshot?.settings.selectedProviderId ?? null,
+    clientLocale: snapshot?.locale ?? null,
     loading,
     saving,
     error,

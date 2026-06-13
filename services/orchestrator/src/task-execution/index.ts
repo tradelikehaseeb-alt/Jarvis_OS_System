@@ -5,6 +5,17 @@ export {
   type CreateTaskExecutionOptions,
   type CreateTaskExecutionResult,
 } from "./create-task-executor";
+export {
+  getDefaultTaskExecutionQueue,
+  shouldExecuteTaskSynchronously,
+  TaskExecutionQueue,
+} from "./task-execution-queue";
+export {
+  enforceAutomationTerminalConfirmation,
+  hasAutomationTerminalConfirmation,
+  isConversationalPlanningFiller,
+  requiresAutomationTerminalConfirmation,
+} from "./automation-terminal-confirmation";
 export { extractSkillOutput } from "./extract-skill-output";
 
 /** @deprecated Use `../storage` — re-exported for Phase 14 compatibility */

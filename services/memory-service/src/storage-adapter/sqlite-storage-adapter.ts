@@ -5,43 +5,25 @@ import type { Database as SqliteDatabase } from "better-sqlite3";
 import Database from "better-sqlite3";
 import type { MemoryRecord } from "@jarvis/types";
 
-import type { StorageAdapter } from "./contract";
+import type { JarvisPersistentStorage } from "./jarvis-persistent-storage";
 import { ensureMemoryDirectory, resolveDatabasePath } from "./memory-path";
+import type {
+  ConversationRow,
+  MemoryRow,
+  MemorySearchHit,
+  UserFactRow,
+} from "./memory-row-types";
+export type {
+  ConversationRow,
+  MemoryRow,
+  MemorySearchHit,
+  UserFactRow,
+} from "./memory-row-types";
 import {
   DEFAULT_USER_FACTS,
   type MemoryCategory,
   SQLITE_SCHEMA_SQL,
 } from "./sqlite-schema";
-
-export interface MemoryRow {
-  readonly id: string;
-  readonly userId: string;
-  readonly content: string;
-  readonly category: MemoryCategory;
-  readonly timestamp: string;
-  readonly importance: number;
-}
-
-export interface ConversationRow {
-  readonly id: string;
-  readonly userId: string;
-  readonly role: string;
-  readonly content: string;
-  readonly taskId?: string;
-  readonly timestamp: string;
-}
-
-export interface UserFactRow {
-  readonly userId: string;
-  readonly key: string;
-  readonly value: string;
-  readonly updatedAt: string;
-}
-
-export interface MemorySearchHit {
-  readonly memory: MemoryRow;
-  readonly score: number;
-}
 
 const BACKUP_EVERY_N_WRITES = 100;
 
@@ -79,7 +61,7 @@ function parseCategory(value: string | undefined): MemoryCategory {
 /**
  * SQLite-backed storage — durable memory at `jarvis.db` under {@link resolveDatabasePath}.
  */
-export class SqliteStorageAdapter implements StorageAdapter {
+export class SqliteStorageAdapter implements JarvisPersistentStorage {
   readonly componentId = "storage-adapter" as const;
 
   private readonly db: SqliteDatabase;

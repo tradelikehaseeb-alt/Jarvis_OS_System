@@ -3,7 +3,7 @@ export type MemoryCategory = "conversation" | "fact" | "task" | "reminder";
 
 export const DEFAULT_USER_FACTS: Readonly<Record<string, string>> = {
   name: "Haseeb Rasheed",
-  businesses: "GreenPlus Herbs, Ruby Travel and Tours",
+  businesses: "GreenPlus Herbs, Ruby Travel",
   location: "Karachi, Pakistan",
   language: "Roman Urdu + English",
 };

@@ -2,10 +2,8 @@ import type { MemorySearchResult } from "@jarvis/types";
 
 import { createMemoryService, type CreateMemoryServiceOptions } from "./create-memory-service";
 import type { DefaultMemoryApiService } from "./memory-api/default-memory-api-service";
-import {
-  SqliteStorageAdapter,
-  type ConversationRow,
-} from "./storage-adapter/sqlite-storage-adapter";
+import type { ConversationRow } from "./storage-adapter/memory-row-types";
+import { isJarvisPersistentStorage } from "./storage-adapter/jarvis-persistent-storage";
 
 /**
  * In-process client for orchestrator context loading (SQLite-backed).
@@ -20,7 +18,7 @@ export class JarvisMemoryClient {
 
   get databasePath(): string {
     const storage = this.service.components.storageAdapter;
-    if (storage instanceof SqliteStorageAdapter) {
+    if (isJarvisPersistentStorage(storage)) {
       return storage.databasePath;
     }
     return "";
@@ -52,7 +50,7 @@ export class JarvisMemoryClient {
     readonly taskId?: string;
   }): Promise<void> {
     const storage = this.service.components.storageAdapter;
-    if (!(storage instanceof SqliteStorageAdapter)) {
+    if (!isJarvisPersistentStorage(storage)) {
       return Promise.resolve();
     }
     return storage.saveConversation(input).then(() => undefined);

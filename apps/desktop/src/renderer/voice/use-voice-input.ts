@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { detectWakeWordInTranscript, transcribe } from "@jarvis/speech-service";
 
+import { blobToAudioBase64 } from "../utils/binary";
+import {
+  createMediaRecorderForStream,
+  requestMicrophoneStream,
+  resolveMicrophoneErrorMessage,
+} from "./microphone-access";
 import {
   MockVoiceSessionError,
   runMockVoiceCapture,
@@ -44,11 +50,6 @@ export interface UseVoiceInputResult {
   readonly clearTranscript: () => void;
 }
 
-async function blobToBuffer(blob: Blob): Promise<Buffer> {
-  const arrayBuffer = await blob.arrayBuffer();
-  return Buffer.from(arrayBuffer);
-}
-
 /**
  * Production voice input — microphone + VAD + speech-service STT.
  */
@@ -67,6 +68,7 @@ export function useVoiceInput(
   const audioContextRef = useRef<AudioContext | null>(null);
   const stopVadRef = useRef<(() => void) | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const micRequestInFlightRef = useRef(false);
 
   const cleanupMedia = useCallback(() => {
     stopVadRef.current?.();
@@ -111,8 +113,8 @@ export function useVoiceInput(
     const blob = new Blob(chunks, { type: mimeType });
 
     try {
-      const audioBuffer = await blobToBuffer(blob);
-      const response = await transcribe(audioBuffer, { mimeType });
+      const audioBase64 = await blobToAudioBase64(blob);
+      const response = await transcribe({ audioBase64 }, { mimeType });
       if (response.error) {
         setError(response.error.message);
         setStatus("error");
@@ -138,10 +140,11 @@ export function useVoiceInput(
   }, [cleanupMedia, options, settings.pushToChatInput]);
 
   const startListening = useCallback(async () => {
-    if (options.disabled) {
+    if (options.disabled || micRequestInFlightRef.current) {
       return;
     }
 
+    micRequestInFlightRef.current = true;
     cancel();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -152,7 +155,7 @@ export function useVoiceInput(
     setStatus("listening");
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await requestMicrophoneStream(controller.signal);
       if (controller.signal.aborted) {
         stream.getTracks().forEach((track) => track.stop());
         return;
@@ -166,7 +169,7 @@ export function useVoiceInput(
       analyser.fftSize = 2048;
       source.connect(analyser);
 
-      const recorder = new MediaRecorder(stream);
+      const recorder = createMediaRecorderForStream(stream);
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
 
@@ -191,15 +194,18 @@ export function useVoiceInput(
 
       recorder.start(250);
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return;
+      }
       const message =
         err instanceof MockVoiceSessionError
           ? err.message
-          : err instanceof Error
-            ? err.message
-            : "Microphone access denied";
+          : resolveMicrophoneErrorMessage(err);
       setError(message);
       setStatus("error");
       cleanupMedia();
+    } finally {
+      micRequestInFlightRef.current = false;
     }
   }, [cancel, cleanupMedia, finalizeCapture, options.disabled]);
 

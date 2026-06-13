@@ -8,6 +8,7 @@ import { CapabilityResolverStub } from "./capability-resolver";
 import type { CapabilityRouter, CapabilityRouterInput } from "./capability-router";
 import { DefaultAgentSelectionPolicy } from "./default-selection-policy";
 import type { RoutingDecision } from "./routing-decision";
+import { traceExecution } from "../internal/execution-trace";
 
 /**
  * Capability router — chat/research → Hermes, automate/browse → OpenClaw when capable.
@@ -37,19 +38,27 @@ export class DefaultCapabilityRouter implements CapabilityRouter {
           score: 1,
           executionCapable: true,
         };
-        return {
+        const decision = {
           taskId: input.taskId,
           selectedAgentId: OPENCLAW_AGENT_ID,
           policyId: "intent-routing-v1",
           reason: `Routed ${routedKind} intent to OpenClaw (execution)`,
           matches: [match],
-        };
+        } satisfies RoutingDecision;
+        traceExecution("router", {
+          taskId: input.taskId,
+          intentKind: routedKind,
+          selectedAgentId: OPENCLAW_AGENT_ID,
+          role: "executor",
+        });
+        return decision;
       }
     }
 
     if (
       routedKind === "chat" ||
       routedKind === "research" ||
+      routedKind === "local-execution" ||
       routedKind === "cron" ||
       routedKind === "plan" ||
       routedKind === "draft"
@@ -63,13 +72,20 @@ export class DefaultCapabilityRouter implements CapabilityRouter {
           score: 1,
           executionCapable: hermes.executionCapable,
         };
-        return {
+        const decision = {
           taskId: input.taskId,
           selectedAgentId: HERMES_AGENT_ID,
           policyId: "intent-routing-v1",
           reason: `Routed ${routedKind} intent to Hermes`,
           matches: [match],
-        };
+        } satisfies RoutingDecision;
+        traceExecution("router", {
+          taskId: input.taskId,
+          intentKind: routedKind,
+          selectedAgentId: HERMES_AGENT_ID,
+          role: "planner",
+        });
+        return decision;
       }
     }
 

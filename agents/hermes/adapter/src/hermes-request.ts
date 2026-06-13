@@ -15,4 +15,9 @@ export interface HermesRequest {
   readonly workflowStepId?: string;
   /** Recalled conversation snippets from orchestrator memory (Phase 93). */
   readonly recalledContextSnippets?: readonly string[];
+  /** Structured conversation turns for multi-turn Hermes chat. */
+  readonly conversationTurns?: readonly {
+    readonly role: "user" | "assistant" | "system";
+    readonly message: string;
+  }[];
 }

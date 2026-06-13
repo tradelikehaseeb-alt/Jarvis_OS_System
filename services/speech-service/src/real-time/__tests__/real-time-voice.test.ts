@@ -2,11 +2,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DEFAULT_STUB_SPEECH_PROVIDER_CONFIG } from "../../adapters/speech-provider-config";
 import { StubSpeechToTextAdapterLegacy } from "../../adapters/stub-speech-to-text-adapter-legacy";
+import { StubTextToSpeechAdapterLegacy } from "../../adapters/stub-text-to-speech-adapter-legacy";
 import { SyntheticMicrophoneRuntime } from "../microphone-runtime";
 import { RealTimeTranscriptionSession } from "../real-time-transcription-session";
 import { createDefaultStreamingSpeechRuntime } from "../streaming-speech-runtime";
 import { createDefaultVoicePlaybackController } from "../voice-playback-controller";
-import { createDefaultTtsProviderRuntime } from "../tts-provider-runtime";
+import {
+  createDefaultTtsProviderRuntime,
+  TtsProviderRuntime,
+} from "../tts-provider-runtime";
 import { resolveFirstConfiguredSttProvider } from "../speech-provider-resolver";
 
 describe("SyntheticMicrophoneRuntime", () => {
@@ -48,19 +52,22 @@ describe("RealTimeTranscriptionSession", () => {
 describe("StreamingSpeechRuntime", () => {
   it("finalizes transcript after microphone capture", async () => {
     vi.useFakeTimers();
-    const runtime = createDefaultStreamingSpeechRuntime({
-      sttConfig: DEFAULT_STUB_SPEECH_PROVIDER_CONFIG,
-      sttAdapter: new StubSpeechToTextAdapterLegacy(),
-    });
-    const capture = runtime.getMicrophone().startCapture();
-    await vi.advanceTimersByTimeAsync(200);
+    try {
+      const runtime = createDefaultStreamingSpeechRuntime({
+        sttConfig: DEFAULT_STUB_SPEECH_PROVIDER_CONFIG,
+        sttAdapter: new StubSpeechToTextAdapterLegacy(),
+      });
+      const capture = runtime.getMicrophone().startCapture();
+      await vi.advanceTimersByTimeAsync(200);
 
-    const response = await runtime.finalizeTranscript("req-stream-1");
-    await capture;
+      const response = await runtime.finalizeTranscript("req-stream-1");
+      await capture;
 
-    expect(response.output.length).toBeGreaterThan(0);
-    expect(runtime.getTranscriptionSession().getPartialText()).toBe(response.output);
-    vi.useRealTimers();
+      expect(response.output.length).toBeGreaterThan(0);
+      expect(runtime.getTranscriptionSession().getPartialText()).toBe(response.output);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
@@ -69,6 +76,10 @@ describe("VoicePlaybackController", () => {
     const chunks: string[] = [];
     const controller = createDefaultVoicePlaybackController({
       onChunk: (chunk) => chunks.push(chunk.text),
+      ttsRuntime: new TtsProviderRuntime({
+        config: DEFAULT_STUB_SPEECH_PROVIDER_CONFIG,
+        adapter: new StubTextToSpeechAdapterLegacy(),
+      }),
     });
 
     const speakPromise = controller.speak("req-playback", "one two three four");
@@ -101,15 +112,31 @@ describe("provider fallback", () => {
   it(
     "returns TTS_PROVIDER_ERROR when all live providers fail (no stub fallback)",
     async () => {
-      const runtime = createDefaultTtsProviderRuntime({
-        fallbackChain: [
-          {
+      const failingConfig = {
+        providerId: "openai-tts",
+        mode: "live" as const,
+        apiKey: "invalid",
+        baseUrl: "https://example.invalid",
+      };
+      const failingAdapter: import("../../adapters/text-to-speech-adapter").TextToSpeechAdapter =
+        {
+          synthesize: async (request) => ({
+            requestId: request.requestId,
+            adapterId: "openai-tts",
             providerId: "openai-tts",
-            mode: "live",
-            apiKey: "invalid",
-            baseUrl: "https://example.invalid",
-          },
-        ],
+            stub: false,
+            output: request.text,
+            createdAt: new Date().toISOString(),
+            error: {
+              code: "TTS_PROVIDER_ERROR",
+              message: "Provider unreachable",
+            },
+          }),
+        };
+      const runtime = new TtsProviderRuntime({
+        config: failingConfig,
+        adapter: failingAdapter,
+        fallbackChain: [failingConfig],
       });
 
       const response = await runtime.synthesize({

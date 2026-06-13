@@ -1,10 +1,20 @@
 import type { TextToSpeechAdapter } from "../adapters/text-to-speech-adapter";
-import type { SpeechProviderConfig } from "../adapters/speech-provider-config";
+import {
+  DEFAULT_STUB_SPEECH_PROVIDER_CONFIG,
+  type SpeechProviderConfig,
+} from "../adapters/speech-provider-config";
 import type { SpeechRequest } from "../adapters/speech-request";
 import type { SpeechResponse } from "../adapters/speech-response";
+import { StubTextToSpeechAdapterLegacy } from "../adapters/stub-text-to-speech-adapter-legacy";
 
-import { isBrowserLikeEnvironment } from "./resolve-streaming-stt-adapter";
-import { resolveTtsAdapter } from "./resolve-tts-provider-runtime";
+import {
+  DesktopIpcTextToSpeechAdapter,
+  hasDesktopSpeechBridge,
+} from "./desktop-ipc-speech-adapters";
+import {
+  isBrowserLikeEnvironment,
+  isJarvisRendererBuild,
+} from "./environment";
 import {
   resolveFirstConfiguredTtsProvider,
   resolveSpeechProviderConfig,
@@ -41,31 +51,63 @@ function buildLiveTtsChain(
   return chain;
 }
 
+function resolveNodeTts(
+  config: SpeechProviderConfig,
+  explicit?: TextToSpeechAdapter,
+): TextToSpeechAdapter {
+  const { resolveTtsAdapter } =
+    require("./resolve-tts-provider-runtime") as typeof import("./resolve-tts-provider-runtime");
+  return resolveTtsAdapter(config, explicit);
+}
+
+function resolveDefaultTtsConfig(): SpeechProviderConfig {
+  return resolveFirstConfiguredTtsProvider();
+}
+
 /**
  * TTS provider runtime with ordered live fallback (no silent stub fallback).
  */
 export class TtsProviderRuntime {
   private readonly adapters: Map<string, TextToSpeechAdapter>;
   private readonly fallbackChain: readonly SpeechProviderConfig[];
+  private readonly primaryConfig: SpeechProviderConfig;
 
   constructor(options: TtsProviderRuntimeOptions = {}) {
-    const config = options.config ?? resolveFirstConfiguredTtsProvider();
-    const adapter = resolveTtsAdapter(config, options.adapter);
+    if (options.adapter) {
+      this.primaryConfig = options.config ?? DEFAULT_STUB_SPEECH_PROVIDER_CONFIG;
+      this.adapters = new Map([[this.primaryConfig.providerId, options.adapter]]);
+      this.fallbackChain = [];
+      return;
+    }
+
+    if (isJarvisRendererBuild() || isBrowserLikeEnvironment()) {
+      const ipcAdapter = hasDesktopSpeechBridge()
+        ? new DesktopIpcTextToSpeechAdapter()
+        : new StubTextToSpeechAdapterLegacy();
+      this.primaryConfig = {
+        providerId: hasDesktopSpeechBridge() ? "edge-tts" : "speech-stub",
+        mode: hasDesktopSpeechBridge() ? "live" : "stub",
+      };
+      this.adapters = new Map([[this.primaryConfig.providerId, ipcAdapter]]);
+      this.fallbackChain = [];
+      return;
+    }
+
+    const config = options.config ?? resolveDefaultTtsConfig();
+    const adapter = resolveNodeTts(config, options.adapter);
+    this.primaryConfig = config;
     this.adapters = new Map([[config.providerId, adapter]]);
-    this.fallbackChain = isBrowserLikeEnvironment()
-      ? []
-      : buildLiveTtsChain(
-          options.fallbackChain ??
-            (options.config ? [options.config] : undefined),
-        );
+    this.fallbackChain = buildLiveTtsChain(
+      options.fallbackChain ??
+        (options.config ? [options.config] : undefined),
+    );
   }
 
   async synthesize(request: SpeechRequest): Promise<SpeechResponse> {
     if (this.fallbackChain.length === 0) {
       const primary = this.adapters.values().next().value;
       if (primary) {
-        const config = resolveFirstConfiguredTtsProvider();
-        return primary.synthesize(request, config);
+        return primary.synthesize(request, this.primaryConfig);
       }
       return {
         requestId: request.requestId,
@@ -84,8 +126,7 @@ export class TtsProviderRuntime {
     let lastResponse: SpeechResponse | undefined;
     for (const config of this.fallbackChain) {
       const adapter =
-        this.adapters.get(config.providerId) ??
-        resolveTtsAdapter(config);
+        this.adapters.get(config.providerId) ?? resolveNodeTts(config);
       const response = await adapter.synthesize(request, config);
       if (!response.error && response.audioBase64 && response.audioBase64.length > 0) {
         return response;
@@ -113,9 +154,19 @@ export class TtsProviderRuntime {
 export function createDefaultTtsProviderRuntime(
   options?: TtsProviderRuntimeOptions,
 ): TtsProviderRuntime {
+  if (isJarvisRendererBuild() || isBrowserLikeEnvironment()) {
+    const ipcAdapter = hasDesktopSpeechBridge()
+      ? new DesktopIpcTextToSpeechAdapter()
+      : (options?.adapter ?? new StubTextToSpeechAdapterLegacy());
+    return new TtsProviderRuntime({
+      ...options,
+      adapter: ipcAdapter,
+    });
+  }
+
   return new TtsProviderRuntime({
     ...options,
-    config: options?.config ?? resolveFirstConfiguredTtsProvider(),
+    config: options?.config ?? resolveDefaultTtsConfig(),
     fallbackChain: options?.fallbackChain ?? buildLiveTtsChain(),
   });
 }

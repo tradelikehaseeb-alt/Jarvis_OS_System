@@ -24,6 +24,18 @@ export {
   type UseVoiceInputOptions,
   type UseVoiceInputResult,
 } from "./use-voice-input";
+export { useSpeechConnection, type SpeechConnectionStatus } from "./use-speech-connection";
+export {
+  MIC_DENIED_MESSAGE,
+  MIC_NO_STREAM_MESSAGE,
+  MIC_WINDOWS_PRIVACY_HINT,
+  createMediaRecorderForStream,
+  isMicrophoneApiAvailable,
+  isValidMediaStream,
+  requestMicrophoneStream,
+  resolveMicrophoneErrorMessage,
+  resolveRecorderMimeType,
+} from "./microphone-access";
 export { VOICE_SILENCE_STOP_MS } from "./voice-activity-detector";
 export {
   useVoiceExecution,

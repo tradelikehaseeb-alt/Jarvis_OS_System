@@ -6,12 +6,15 @@ import {
   getProviderSettingsSnapshot,
   saveProviderApiKeyForUser,
   selectProviderForUser,
+  syncClientLocaleForUser,
   __resetProviderSettingsRuntimeForTest,
 } from "../../../ipc/provider-settings-lifecycle";
+import { resetProviderFactoryForTests } from "@jarvis/provider-runtime";
 
 describe("provider settings desktop integration", () => {
   it("IPC lifecycle returns statuses without exposing keys", async () => {
     __resetProviderSettingsRuntimeForTest();
+    resetProviderFactoryForTests();
 
     await saveProviderApiKeyForUser({
       userId: "desktop-user",
@@ -35,6 +38,7 @@ describe("provider settings desktop integration", () => {
 
   it("save and select provider through lifecycle helpers", async () => {
     __resetProviderSettingsRuntimeForTest();
+    resetProviderFactoryForTests();
 
     const validation = await saveProviderApiKeyForUser({
       userId: "desktop-user",
@@ -50,5 +54,21 @@ describe("provider settings desktop integration", () => {
     });
 
     expect(settings.selectedProviderId).toBe(GROQ_PROVIDER_ID);
+  });
+
+  it("syncs client locale into process env for timezone awareness", async () => {
+    __resetProviderSettingsRuntimeForTest();
+    resetProviderFactoryForTests();
+    delete process.env.JARVIS_USER_TIMEZONE;
+
+    const locale = await syncClientLocaleForUser("desktop-user", {
+      timeZone: "Asia/Karachi",
+      locale: "en-PK",
+      cityLabel: "Karachi",
+    });
+
+    expect(locale.timeZone).toBe("Asia/Karachi");
+    expect(process.env.JARVIS_USER_TIMEZONE).toBe("Asia/Karachi");
+    expect(process.env.JARVIS_USER_CITY).toBe("Karachi");
   });
 });

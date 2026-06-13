@@ -12,6 +12,7 @@ export interface HermesGatewayResponse {
   readonly plan: HermesStructuredPlan & {
     readonly intentKind: string;
     readonly summary: string;
+    readonly executionMode?: "fast" | "skills";
   };
   readonly reasoning: {
     readonly summary: string;

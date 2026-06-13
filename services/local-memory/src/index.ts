@@ -47,3 +47,12 @@ export {
   createDefaultLocalMemoryRuntime,
   type DefaultLocalMemoryRuntimeOptions,
 } from "./create-default-local-memory-runtime";
+export {
+  LOCAL_MEMORY_JSON_FILENAME,
+  ensureLocalMemoryDirectory,
+  resolveLocalMemoryDirectory,
+  resolveLocalMemoryFilePath,
+  resolveLocalMemoryStorage,
+  type ResolveLocalMemoryStorageOptions,
+  type ResolvedLocalMemoryStorage,
+} from "./resolve-local-memory-storage";

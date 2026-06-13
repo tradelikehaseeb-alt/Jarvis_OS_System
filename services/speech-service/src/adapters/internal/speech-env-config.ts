@@ -12,6 +12,8 @@ export interface JarvisSpeechEnvConfig {
   readonly ttsSpeed: string;
   readonly ttsVolume: string;
   readonly groqApiKey?: string;
+  readonly deepgramApiKey?: string;
+  readonly elevenlabsApiKey?: string;
   readonly pythonCommand: string;
 }
 
@@ -25,7 +27,9 @@ export function readJarvisSpeechEnvConfig(
     ttsVoice: env.JARVIS_TTS_VOICE?.trim() || "en-US-GuyNeural",
     ttsSpeed: env.JARVIS_TTS_SPEED?.trim() || "+0%",
     ttsVolume: env.JARVIS_TTS_VOLUME?.trim() || "+0%",
-    groqApiKey: readEnvApiKey(["GROQ_API_KEY", "JARVIS_GROQ_API_KEY"]),
+    groqApiKey: readEnvApiKey(["GROQ_API_KEY", "JARVIS_GROQ_API_KEY"], env),
+    deepgramApiKey: readEnvApiKey(["DEEPGRAM_API_KEY", "JARVIS_DEEPGRAM_API_KEY"], env),
+    elevenlabsApiKey: readEnvApiKey(["ELEVENLABS_API_KEY", "JARVIS_ELEVENLABS_API_KEY"], env),
     pythonCommand: env.JARVIS_PYTHON?.trim() || env.HERMES_PYTHON?.trim() || "py -3.11",
   };
 }

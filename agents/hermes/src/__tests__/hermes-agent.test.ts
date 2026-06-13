@@ -75,6 +75,50 @@ describe("HermesAgent", () => {
     expect(result.payload?.memoryAccess).toBe("memory-service-api");
   });
 
+  it("returns native Hermes tool output without running the search skill again", async () => {
+    const executeSkill = vi.fn();
+    const agent = createHermesAgent(
+      {
+        executorId: "skill-executor",
+        execute: executeSkill,
+      },
+      {
+        adapterId: "hermes-native-tools-test",
+        invoke: vi.fn().mockResolvedValue({
+          success: true,
+          adapterId: "hermes-native-tools-test",
+          stub: false,
+          plan: {
+            goal: "Edit the video",
+            steps: ["Edited video with ffmpeg"],
+            intentKind: "automate",
+            summary: "Video edit completed and saved to output.mp4",
+            executionMode: "skills",
+            skillCategory: "development",
+          },
+          reasoning: {
+            summary: "Native Hermes tool execution completed",
+            confidence: 0.95,
+          },
+        }),
+      },
+    );
+
+    const result = await agent.execute(
+      {
+        ...task,
+        intent: { kind: "automate", description: "Is video ko edit karo" },
+      },
+      context,
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.payload?.conversationalReply).toBe(
+      "Video edit completed and saved to output.mp4",
+    );
+    expect(executeSkill).not.toHaveBeenCalled();
+  });
+
   it("registers via AgentRegistryContract", async () => {
     const { skillExecutor } = await createDefaultSkillPipeline();
     const registry = new InMemoryAgentRegistry();

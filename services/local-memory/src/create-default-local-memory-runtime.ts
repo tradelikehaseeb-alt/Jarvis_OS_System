@@ -4,11 +4,13 @@ import {
 } from "./file-local-memory-repository";
 import type { LocalMemoryRepository } from "./local-memory-repository";
 import type { LocalMemoryRuntime } from "./local-memory-runtime";
+import { resolveLocalMemoryStorage } from "./resolve-local-memory-storage";
 
 export interface DefaultLocalMemoryRuntimeOptions {
   readonly filePath?: string;
   readonly useFileBackend?: boolean;
   readonly repository?: LocalMemoryRepository;
+  readonly env?: Readonly<Record<string, string | undefined>>;
 }
 
 /**
@@ -53,9 +55,13 @@ export function createDefaultLocalMemoryRuntime(
     return new DefaultLocalMemoryRuntime(options.repository);
   }
 
-  const useFile = options?.useFileBackend ?? true;
-  const repository = useFile
-    ? new FileLocalMemoryRepository(options?.filePath)
+  const resolved = resolveLocalMemoryStorage({
+    filePath: options?.filePath,
+    useFileBackend: options?.useFileBackend,
+    env: options?.env,
+  });
+  const repository = resolved.useFileBackend
+    ? new FileLocalMemoryRepository(resolved.filePath)
     : new InMemoryLocalMemoryRepository();
 
   return new DefaultLocalMemoryRuntime(repository);

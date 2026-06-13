@@ -14,7 +14,22 @@ import {
   SqliteStorageAdapter,
 } from "../storage-adapter/sqlite-storage-adapter";
 
-describe("SQLite memory service", () => {
+function isSqliteBindingsAvailable(): boolean {
+  try {
+    const Database = require("better-sqlite3") as new (path: string) => {
+      close(): void;
+    };
+    const db = new Database(":memory:");
+    db.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const sqliteBindingsAvailable = isSqliteBindingsAvailable();
+
+describe.skipIf(!sqliteBindingsAvailable)("SQLite memory service", () => {
   let tempDir = "";
   const openAdapters: SqliteStorageAdapter[] = [];
 
@@ -42,11 +57,19 @@ describe("SQLite memory service", () => {
   }
 
   function createService(): DefaultMemoryApiService {
-    const components = createMemoryComponents({
+    const storage = new SqliteStorageAdapter({
       dbPath: dbPath(),
-      env: { JARVIS_MEMORY_PATH: tempDir },
+      env: {
+        JARVIS_MEMORY_PATH: tempDir,
+        JARVIS_MEMORY_BACKEND: "memory-service",
+        NODE_ENV: "development",
+      },
     });
-    openAdapters.push(components.storageAdapter as SqliteStorageAdapter);
+    openAdapters.push(storage);
+    const components = createMemoryComponents({
+      storageAdapter: storage,
+      env: { JARVIS_MEMORY_PATH: tempDir, JARVIS_MEMORY_BACKEND: "memory-service" },
+    });
     return new DefaultMemoryApiService(components);
   }
 

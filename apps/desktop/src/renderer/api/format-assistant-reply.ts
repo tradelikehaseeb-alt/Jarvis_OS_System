@@ -1,35 +1,23 @@
-import type { TaskStatusResponse } from "@jarvis/types";
+import {
+  friendlyUserErrorMessage,
+  resolveAssistantReplyFromTaskStatus,
+  sanitizeAssistantReplyForDisplay,
+  type TaskStatusResponse,
+} from "@jarvis/types";
 
-function readLlmAssistantText(status: TaskStatusResponse): string | undefined {
-  const output = status.output;
-  if (!output) {
-    return undefined;
-  }
-
-  const assistantReply = output.assistantReply;
-  if (typeof assistantReply === "string" && assistantReply.trim().length > 0) {
-    return assistantReply.trim();
-  }
-
-  const llmProvider = output.llmProvider as
-    | { contentPreview?: string; success?: boolean }
-    | undefined;
-  if (
-    llmProvider?.success !== false &&
-    typeof llmProvider?.contentPreview === "string" &&
-    llmProvider.contentPreview.trim().length > 0
-  ) {
-    return llmProvider.contentPreview.trim();
-  }
-
-  return undefined;
+function isInternalMemoryDigest(text: string): boolean {
+  return /^Memory summary for user /i.test(text.trim());
 }
 
 /** User-visible chat reply from task output (LLM, search skill, or status). */
 export function formatAssistantReply(status: TaskStatusResponse): string {
-  const llmText = readLlmAssistantText(status);
-  if (llmText) {
-    return llmText;
+  const resolved = resolveAssistantReplyFromTaskStatus(status);
+  if (resolved && !isInternalMemoryDigest(resolved)) {
+    return sanitizeAssistantReplyForDisplay(resolved);
+  }
+
+  if (status.status === "failed") {
+    return friendlyUserErrorMessage(status.error?.message);
   }
 
   const skill = status.output?.skill as

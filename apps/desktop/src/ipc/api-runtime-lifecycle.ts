@@ -1,3 +1,5 @@
+import { ensureElectronMemoryBackend } from "../ensure-electron-memory-backend";
+
 import type { ApiHealth } from "@jarvis/api-runtime";
 import {
   createDefaultJarvisApiServer,
@@ -58,6 +60,8 @@ async function startEmbeddedApiRuntimeInternal(): Promise<string> {
       `http://127.0.0.1:${DEFAULT_EMBEDDED_API_PORT}`;
     return embeddedBaseUrl;
   }
+
+  ensureElectronMemoryBackend();
 
   const port = Number(process.env.JARVIS_API_RUNTIME_PORT ?? DEFAULT_EMBEDDED_API_PORT);
   const orchestrator = await createDefaultOrchestratorService();

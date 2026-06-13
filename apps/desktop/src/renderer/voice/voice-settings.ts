@@ -51,7 +51,7 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
   simulateCaptureError: false,
   enableNormalization: true,
   autoExecuteVoicePipeline: true,
-  listeningMode: "push-to-talk",
+  listeningMode: "wake-word",
   wakeWordEnabled: true,
   wakePhrase: "jarvis",
   voiceNativeUi: true,
@@ -59,6 +59,9 @@ export const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
 };
 
 const STORAGE_KEY = "jarvis.desktop.voiceSettings";
+const REAL_MIC_MIGRATION_KEY = "jarvis.desktop.voiceSettings.realMicV2";
+const WAKE_WORD_PTT_MIGRATION_KEY = "jarvis.desktop.voiceSettings.wakeWordPttV3";
+const WAKE_WORD_DEFAULT_V4_KEY = "jarvis.desktop.voiceSettings.wakeWordDefaultV4";
 
 export function loadVoiceSettings(): VoiceSettings {
   if (typeof localStorage === "undefined") {
@@ -70,10 +73,38 @@ export function loadVoiceSettings(): VoiceSettings {
       return DEFAULT_VOICE_SETTINGS;
     }
     const parsed = JSON.parse(raw) as Partial<VoiceSettings>;
-    return {
+    let merged: VoiceSettings = {
       ...DEFAULT_VOICE_SETTINGS,
       ...parsed,
     };
+
+    if (localStorage.getItem(REAL_MIC_MIGRATION_KEY) !== "true") {
+      localStorage.setItem(REAL_MIC_MIGRATION_KEY, "true");
+      merged = { ...merged, useRealMicrophone: true };
+    }
+
+    if (localStorage.getItem(WAKE_WORD_PTT_MIGRATION_KEY) !== "true") {
+      localStorage.setItem(WAKE_WORD_PTT_MIGRATION_KEY, "true");
+      if (merged.listeningMode === "push-to-talk") {
+        merged = { ...merged, wakeWordEnabled: false };
+      }
+    }
+
+    if (localStorage.getItem(WAKE_WORD_DEFAULT_V4_KEY) !== "true") {
+      localStorage.setItem(WAKE_WORD_DEFAULT_V4_KEY, "true");
+      merged = {
+        ...merged,
+        listeningMode: "wake-word",
+        wakeWordEnabled: true,
+        wakePhrase: merged.wakePhrase || "jarvis",
+      };
+    }
+
+    if (typeof window !== "undefined" && window.jarvis?.speechInit) {
+      merged = { ...merged, useRealMicrophone: true };
+    }
+
+    return merged;
   } catch {
     return DEFAULT_VOICE_SETTINGS;
   }

@@ -45,8 +45,25 @@ export function extractHermesPlanFromTaskStatus(
     return undefined;
   }
 
+  const conversationalReply =
+    typeof payload.conversationalReply === "string"
+      ? payload.conversationalReply.trim()
+      : "";
+  const planBlock = payload.plan as
+    | (PlanShape & { intentKind?: string })
+    | undefined;
+  const intentKind = planBlock?.intentKind?.trim().toLowerCase();
+
+  if (
+    conversationalReply.length > 0 ||
+    intentKind === "default" ||
+    intentKind === "chat" ||
+    intentKind === "conversation"
+  ) {
+    return undefined;
+  }
+
   const structured = payload.structuredPlan as PlanShape | undefined;
-  const planBlock = payload.plan as PlanShape | undefined;
 
   const goal =
     structured?.goal?.trim() ||

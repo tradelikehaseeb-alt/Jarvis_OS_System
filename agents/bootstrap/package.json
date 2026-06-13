@@ -14,10 +14,11 @@
     "@jarvis/agents-shared": "*",
     "@jarvis/hermes": "*",
     "@jarvis/openclaw": "*",
-    "@jarvis/provider-registry": "*"
+    "@jarvis/provider-registry": "*",
+    "electron": "42.3.2"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
-    "vitest": "^3.2.3"
+    "vitest": "^4.1.8"
   }
 }

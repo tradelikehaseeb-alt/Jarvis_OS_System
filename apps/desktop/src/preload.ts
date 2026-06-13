@@ -13,6 +13,14 @@ import type {
   RuntimeActionResponse,
 } from "./ipc/runtime-action";
 import type { RuntimeStartupResponse } from "./ipc/runtime-startup-lifecycle";
+import type { HermesStartupStatus } from "./ipc/hermes-startup-status";
+import type {
+  SpeechInitStatus,
+  SpeechIpcResponse,
+  SpeechSpeakRequest,
+  SpeechTranscribeRequest,
+} from "./ipc/speech-types";
+import type { SpeechPlaybackStreamPayload } from "./ipc/speech-playback-runtime";
 import type { AggregatedRuntimeHealthResponse } from "./ipc/aggregated-runtime-health-response";
 import type {
   ApiKeyValidationResult,
@@ -21,7 +29,9 @@ import type {
   SaveProviderApiKeyRequest,
   SelectProviderModelRequest,
   SelectProviderRequest,
+  SyncClientLocaleRequest,
 } from "./ipc/provider-settings-types";
+import type { JarvisClientLocale } from "@jarvis/provider-runtime";
 
 /**
  * Renderer-safe API — delegates to main process IPC (Phase 54).
@@ -37,6 +47,7 @@ export interface JarvisDesktopApi {
   validateRuntime(): Promise<RuntimeStartupResponse>;
   recoverRuntime(): Promise<RuntimeStartupResponse>;
   getStartupStatus(): Promise<RuntimeStartupResponse>;
+  getHermesStartupStatus(): Promise<HermesStartupStatus>;
   getAggregatedRuntimeHealth(): Promise<AggregatedRuntimeHealthResponse>;
   getAggregatedRuntimeHealthSnapshot(): Promise<AggregatedRuntimeHealthResponse>;
   createTask(body: CreateTaskRequest): Promise<CreateTaskResponse>;
@@ -54,6 +65,14 @@ export interface JarvisDesktopApi {
   selectProviderModel(
     request: SelectProviderModelRequest,
   ): Promise<ProviderSettings>;
+  syncClientLocale(request: SyncClientLocaleRequest): Promise<JarvisClientLocale>;
+  speechInit(): Promise<SpeechInitStatus>;
+  speechTranscribe(request: SpeechTranscribeRequest): Promise<SpeechIpcResponse>;
+  speechSpeak(request: SpeechSpeakRequest): Promise<SpeechIpcResponse>;
+  onSpeechPlaybackStream(
+    handler: (payload: SpeechPlaybackStreamPayload) => void,
+  ): () => void;
+  onSpeechPlaybackStop(handler: () => void): () => void;
 }
 
 const jarvisApi: JarvisDesktopApi = {
@@ -66,6 +85,8 @@ const jarvisApi: JarvisDesktopApi = {
   validateRuntime: () => ipcRenderer.invoke("jarvis:validateRuntime"),
   recoverRuntime: () => ipcRenderer.invoke("jarvis:recoverRuntime"),
   getStartupStatus: () => ipcRenderer.invoke("jarvis:getStartupStatus"),
+  getHermesStartupStatus: () =>
+    ipcRenderer.invoke("jarvis:getHermesStartupStatus"),
   getAggregatedRuntimeHealth: () =>
     ipcRenderer.invoke("jarvis:getAggregatedRuntimeHealth"),
   getAggregatedRuntimeHealthSnapshot: () =>
@@ -81,6 +102,27 @@ const jarvisApi: JarvisDesktopApi = {
   selectProvider: (request) => ipcRenderer.invoke("jarvis:selectProvider", request),
   selectProviderModel: (request) =>
     ipcRenderer.invoke("jarvis:selectProviderModel", request),
+  syncClientLocale: (request) =>
+    ipcRenderer.invoke("jarvis:syncClientLocale", request),
+  speechInit: () => ipcRenderer.invoke("speech:init"),
+  speechTranscribe: (request) => ipcRenderer.invoke("speech:transcribe", request),
+  speechSpeak: (request) => ipcRenderer.invoke("speech:speak", request),
+  onSpeechPlaybackStream: (handler) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: SpeechPlaybackStreamPayload) => {
+      handler(payload);
+    };
+    ipcRenderer.on("speech:playback-stream", listener);
+    return () => {
+      ipcRenderer.removeListener("speech:playback-stream", listener);
+    };
+  },
+  onSpeechPlaybackStop: (handler) => {
+    const listener = () => handler();
+    ipcRenderer.on("speech:playback-stop", listener);
+    return () => {
+      ipcRenderer.removeListener("speech:playback-stop", listener);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld("jarvis", jarvisApi);

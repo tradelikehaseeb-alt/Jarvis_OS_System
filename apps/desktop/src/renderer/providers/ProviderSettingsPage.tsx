@@ -6,6 +6,7 @@ export function ProviderSettingsPage() {
   const {
     providers,
     activeProviderId,
+    clientLocale,
     loading,
     saving,
     error,
@@ -41,8 +42,17 @@ export function ProviderSettingsPage() {
       <h3 id="settings-providers-heading">AI Providers</h3>
       <p className="settings-providers-note">
         Configure real LLM providers for Jarvis. API keys are stored locally
-        and never shown after save.
+        and never shown after save. Switching providers reallocates the active
+        runtime instantly — no restart required.
       </p>
+
+      {clientLocale ? (
+        <p className="settings-providers-locale" data-testid="client-locale-banner">
+          Local session: <strong>{clientLocale.cityLabel}</strong> (
+          {clientLocale.timeZone}) — Jarvis uses your timezone for instant time
+          awareness.
+        </p>
+      ) : null}
 
       {error ? <p className="settings-providers-error">{error}</p> : null}
 

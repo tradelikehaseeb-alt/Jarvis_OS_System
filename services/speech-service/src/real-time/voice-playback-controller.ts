@@ -4,6 +4,7 @@ import { stripMarkdownForSpeech } from "../adapters/internal/markdown-strip";
 
 import { createDefaultTtsProviderRuntime, type TtsProviderRuntime } from "./tts-provider-runtime";
 import { naturalWordDelayMs } from "./speech-timing";
+import { isJarvisRendererBuild } from "./environment";
 
 export interface VoicePlaybackChunk {
   readonly text: string;
@@ -75,6 +76,49 @@ export class VoicePlaybackController {
     if (controller.signal.aborted) {
       this.speaking = false;
       return response;
+    }
+
+    if (response.audioBase64 && isJarvisRendererBuild()) {
+      type BrowserAudio = {
+        onended: (() => void) | null;
+        onerror: (() => void) | null;
+        pause: () => void;
+        play: () => Promise<void>;
+      };
+      const AudioCtor = (
+        globalThis as { Audio?: new (src: string) => BrowserAudio }
+      ).Audio;
+      if (AudioCtor) {
+        const audio = new AudioCtor(
+          `data:${response.mimeType ?? "audio/mpeg"};base64,${response.audioBase64}`,
+        );
+        const abortListener = () => {
+          audio.pause();
+        };
+        controller.signal.addEventListener("abort", abortListener, { once: true });
+        try {
+          await new Promise<void>((resolve, reject) => {
+            audio.onended = () => resolve();
+            audio.onerror = () => reject(new Error("TTS audio playback failed"));
+            void audio.play().catch(reject);
+          });
+        } catch (error) {
+          if (!(error instanceof Error) || error.message !== "TTS audio playback failed") {
+            throw error;
+          }
+        } finally {
+          controller.signal.removeEventListener("abort", abortListener);
+        }
+        this.onChunk?.({
+          text,
+          audioBase64: response.audioBase64,
+          mimeType: response.mimeType,
+        });
+        this.speaking = false;
+        this.abortController = null;
+        this.onComplete?.();
+        return response;
+      }
     }
 
     const words = text.split(/\s+/).filter(Boolean);

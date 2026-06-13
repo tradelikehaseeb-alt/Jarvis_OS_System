@@ -10,11 +10,14 @@ import type {
 import type { DefaultMemoryProvider } from "../memory-provider/default-memory-provider";
 import type { DefaultRetrievalEngine } from "../retrieval-engine/default-retrieval-engine";
 import type { MemoryCategory } from "../storage-adapter/sqlite-schema";
+import type {
+  ConversationRow,
+  UserFactRow,
+} from "../storage-adapter/memory-row-types";
 import {
-  SqliteStorageAdapter,
-  type ConversationRow,
-  type UserFactRow,
-} from "../storage-adapter/sqlite-storage-adapter";
+  isJarvisPersistentStorage,
+  type JarvisPersistentStorage,
+} from "../storage-adapter/jarvis-persistent-storage";
 import type { MemoryServiceComponents, MemoryApiService } from "./contract";
 
 /**
@@ -74,7 +77,7 @@ export class DefaultMemoryApiService implements MemoryApiService {
   }
 
   listUserFacts(userId: string): Promise<readonly UserFactRow[]> {
-    return this.sqliteStorage().listUserFacts(userId);
+    return this.persistentStorage().listUserFacts(userId);
   }
 
   saveUserFact(
@@ -82,11 +85,15 @@ export class DefaultMemoryApiService implements MemoryApiService {
     key: string,
     value: string,
   ): Promise<UserFactRow> {
-    return this.sqliteStorage().saveUserFact(userId, key, value);
+    return this.persistentStorage().saveUserFact(userId, key, value);
   }
 
-  private sqliteStorage(): SqliteStorageAdapter {
-    return this.components.storageAdapter as SqliteStorageAdapter;
+  private persistentStorage(): JarvisPersistentStorage {
+    const storage = this.components.storageAdapter;
+    if (!isJarvisPersistentStorage(storage)) {
+      throw new Error("Memory storage adapter does not support user facts API");
+    }
+    return storage;
   }
 
   deleteMemory(recordId: string, userId: string): Promise<boolean> {

@@ -102,11 +102,8 @@ export class DefaultContextBuilder implements ContextBuilder {
         .flatMap((history) => history.turns);
     }
 
-    if (query.taskId) {
-      const taskTurns = turns.filter((turn) => turn.taskId === query.taskId);
-      if (taskTurns.length > 0) {
-        turns = taskTurns;
-      }
+    if (query.conversationId) {
+      return turns.slice(-limit).map(toContextTurn);
     }
 
     const keywords = extractKeywords(query.intentDescription);

@@ -56,6 +56,46 @@ describe("invokeTaskLlm", () => {
     vi.unstubAllEnvs();
   });
 
+  it("skips duplicate Groq call for conversational chat intents", async () => {
+    vi.stubEnv("HERMES_MODE", "local");
+    const executePrompt = vi.fn();
+    const result = await invokeTaskLlm({
+      task: {
+        id: "task-chat",
+        userId: "user-1",
+        intent: { kind: "default", description: "hello" },
+        createdAt: new Date().toISOString(),
+      },
+      requestId: "req-chat",
+      providerSettingsRuntime: mockRuntime({ executePrompt }),
+    });
+
+    expect(result.planningSource).toBe("hermes-adapter");
+    expect(result.response).toBeUndefined();
+    expect(executePrompt).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
+
+  it("does not replace automation execution with a generic chat reply", async () => {
+    vi.stubEnv("HERMES_MODE", "local");
+    const executePrompt = vi.fn();
+    const result = await invokeTaskLlm({
+      task: {
+        id: "task-execute",
+        userId: "user-1",
+        intent: { kind: "automate", description: "Is video ko edit karo" },
+        createdAt: new Date().toISOString(),
+      },
+      requestId: "req-execute",
+      providerSettingsRuntime: mockRuntime({ executePrompt }),
+    });
+
+    expect(result.planningSource).toBe("hermes-adapter");
+    expect(result.response).toBeUndefined();
+    expect(executePrompt).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
+
   it("uses orchestrator planning prompt when HERMES_MODE is stub", async () => {
     vi.stubEnv("HERMES_MODE", "stub");
     const executePrompt = vi.fn().mockResolvedValue({

@@ -26,7 +26,11 @@ function memoryTypeFromMetadata(
 export class MemoryServiceBackedMemoryStore implements MemoryStore {
   private readonly cache = new Map<string, MemoryRecord>();
 
-  constructor(private readonly api: MemoryApiService = createMemoryService()) {}
+  constructor(
+    private readonly api: MemoryApiService = createMemoryService({
+      env: process.env,
+    }),
+  ) {}
 
   saveRecord(record: MemoryRecord): MemoryRecord {
     this.cache.set(record.recordId, record);

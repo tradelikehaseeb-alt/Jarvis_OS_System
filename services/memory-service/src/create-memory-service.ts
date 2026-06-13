@@ -7,31 +7,51 @@ import { DefaultMemoryProvider } from "./memory-provider/default-memory-provider
 import { MemoryProviderStub } from "./memory-provider/memory-provider-legacy";
 import { DefaultRetrievalEngine } from "./retrieval-engine/default-retrieval-engine";
 import { RetrievalEngineStub } from "./retrieval-engine/retrieval-engine-legacy";
-import { useMemoryStubComponents } from "./internal/memory-component-policy";
 import {
-  createSqliteStorageAdapter,
+  useMemoryStubComponents,
+  shouldUseSqliteJarvisStorage,
+} from "./internal/memory-component-policy";
+import {
+  createInMemoryJarvisStorageAdapter,
   StorageAdapterStub,
-  type SqliteStorageAdapter,
 } from "./storage-adapter/stub";
+import type { JarvisPersistentStorage } from "./storage-adapter/jarvis-persistent-storage";
 
 export interface CreateMemoryServiceOptions {
   readonly dbPath?: string;
   readonly env?: Readonly<Record<string, string | undefined>>;
-  readonly storageAdapter?: SqliteStorageAdapter;
+  readonly storageAdapter?: JarvisPersistentStorage;
+}
+
+function createDefaultStorageAdapter(
+  options: CreateMemoryServiceOptions = {},
+): JarvisPersistentStorage {
+  if (options.storageAdapter) {
+    return options.storageAdapter;
+  }
+
+  const env = options.env ?? process.env;
+
+  if (shouldUseSqliteJarvisStorage(env)) {
+    // Lazy require — keeps `better-sqlite3` out of Electron / local startup paths.
+    const { createSqliteStorageAdapter } =
+      require("./sqlite-storage-factory") as typeof import("./sqlite-storage-factory");
+    return createSqliteStorageAdapter({
+      dbPath: options.dbPath,
+      env,
+    });
+  }
+
+  return createInMemoryJarvisStorageAdapter();
 }
 
 /**
- * Real SQLite-backed memory components (default for production).
+ * Jarvis memory components (SQLite or in-memory per env).
  */
 export function createMemoryComponents(
   options: CreateMemoryServiceOptions = {},
 ): MemoryServiceComponents {
-  const storageAdapter =
-    options.storageAdapter ??
-    createSqliteStorageAdapter({
-      dbPath: options.dbPath,
-      env: options.env ?? process.env,
-    });
+  const storageAdapter = createDefaultStorageAdapter(options);
   const embeddingProvider = new TfidfEmbeddingProvider();
   const memoryProvider = new DefaultMemoryProvider(
     storageAdapter,
@@ -78,7 +98,7 @@ export function createStubMemoryComponents(
 }
 
 /**
- * Fully wired {@link MemoryApiService} with SQLite persistence.
+ * Fully wired {@link MemoryApiService} with configured persistence backend.
  */
 export function createMemoryService(
   options: CreateMemoryServiceOptions = {},

@@ -9,6 +9,26 @@ const URL_HINTS: Readonly<Record<string, string>> = {
   github: "https://github.com",
 };
 
+const STUB_FALLBACK_URL = "https://stub.local/task";
+
+export interface BrowserIntentRuntimeResult {
+  readonly success: boolean;
+  readonly stub: boolean;
+  readonly action: string;
+  readonly url: string;
+  readonly status: "completed" | "failed" | "validated";
+  readonly message: string;
+  readonly executedAt: string;
+  readonly screenshotRef?: string | null;
+  readonly nativeOpen: boolean;
+  readonly browserState?: {
+    readonly sessionId: string;
+    readonly url: string;
+    readonly active: boolean;
+    readonly stub: boolean;
+  };
+}
+
 function nowIso(): string {
   return new Date().toISOString();
 }
@@ -39,22 +59,146 @@ function resolveHintUrl(description: string): string | undefined {
       return url;
     }
   }
-  if (/\bopen\b/.test(lower) || /\bnavigate\b/.test(lower) || /\bgo to\b/.test(lower)) {
-    return "https://stub.local/task";
-  }
   return undefined;
 }
 
+function isCloseWindowIntent(description: string): boolean {
+  const lower = description.toLowerCase();
+  return (
+    /\bexit\s+window\b/.test(lower) ||
+    /\bshutdown\b/.test(lower) ||
+    /\bclose\b/.test(lower)
+  );
+}
+
+function isSimpleOpenIntent(description: string): boolean {
+  const lower = description.toLowerCase();
+  return (
+    lower.includes("youtube") ||
+    /\b(open|play)\b/.test(lower) ||
+    /\bgo to\b/.test(lower) ||
+    /\bnavigate\b/.test(lower)
+  );
+}
+
 /**
- * Derives browser URL and workflow steps from natural-language intent (Phase 95).
+ * True when the URL is a real http(s) target (not the OpenClaw stub placeholder).
+ */
+export function isResolvableBrowserUrl(url: string): boolean {
+  if (!url || url.includes("stub.local")) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Builds a successful runtime result for native OS browser actions (Playwright fallback).
+ */
+export function buildNativeBrowserRuntimeResult(
+  url: string,
+  action: string,
+): BrowserIntentRuntimeResult | undefined {
+  if (action === "close_window") {
+    const executedAt = nowIso();
+    return {
+      success: true,
+      stub: false,
+      action,
+      url: "",
+      status: "completed",
+      message: "Prepared native browser close_window action",
+      executedAt,
+      screenshotRef: null,
+      nativeOpen: true,
+      browserState: {
+        sessionId: `native-browser-${executedAt}`,
+        url: "",
+        active: false,
+        stub: false,
+      },
+    };
+  }
+
+  if (!isResolvableBrowserUrl(url)) {
+    return undefined;
+  }
+
+  const executedAt = nowIso();
+  return {
+    success: true,
+    stub: false,
+    action,
+    url,
+    status: "completed",
+    message: `Prepared native browser open for ${url}`,
+    executedAt,
+    screenshotRef: null,
+    nativeOpen: true,
+    browserState: {
+      sessionId: `native-browser-${executedAt}`,
+      url,
+      active: true,
+      stub: false,
+    },
+  };
+}
+
+function resolveBrowserAction(
+  description: string,
+  workflowSteps: readonly BrowserWorkflowStep[],
+): string {
+  if (isCloseWindowIntent(description)) {
+    return "close_window";
+  }
+
+  const lower = description.toLowerCase();
+  if (lower.includes("youtube") && workflowSteps.length === 1) {
+    return "open";
+  }
+
+  if (workflowSteps.length > 1) {
+    return "workflow";
+  }
+
+  if (isSimpleOpenIntent(description)) {
+    return "open";
+  }
+
+  return "navigate";
+}
+
+/**
+ * Derives browser URL, workflow steps, and optional native runtime result from intent (Phase 95).
  */
 export function parseBrowserIntent(description: string): {
   readonly url: string;
   readonly action: string;
   readonly workflowSteps: readonly BrowserWorkflowStep[];
+  readonly runtimeResult?: BrowserIntentRuntimeResult;
 } {
-  const url = extractExplicitUrl(description) ?? resolveHintUrl(description) ?? "https://stub.local/task";
   const lower = description.toLowerCase();
+
+  if (isCloseWindowIntent(description)) {
+    const action = "close_window";
+    const runtimeResult = buildNativeBrowserRuntimeResult("", action);
+    return {
+      url: "",
+      action,
+      workflowSteps: [],
+      ...(runtimeResult ? { runtimeResult } : {}),
+    };
+  }
+
+  const url =
+    extractExplicitUrl(description) ??
+    resolveHintUrl(description) ??
+    STUB_FALLBACK_URL;
 
   const workflowSteps: BrowserWorkflowStep[] = [
     {
@@ -63,7 +207,12 @@ export function parseBrowserIntent(description: string): {
     },
   ];
 
-  if (lower.includes("summarize") || lower.includes("extract") || lower.includes("read") || lower.includes("check")) {
+  if (
+    lower.includes("summarize") ||
+    lower.includes("extract") ||
+    lower.includes("read") ||
+    lower.includes("check")
+  ) {
     workflowSteps.push({
       action: "extract-content",
       url,
@@ -104,10 +253,14 @@ export function parseBrowserIntent(description: string): {
     });
   }
 
+  const action = resolveBrowserAction(description, workflowSteps);
+  const runtimeResult = buildNativeBrowserRuntimeResult(url, action);
+
   return {
     url,
-    action: workflowSteps.length > 1 ? "workflow" : "navigate",
+    action,
     workflowSteps,
+    ...(runtimeResult ? { runtimeResult } : {}),
   };
 }
 

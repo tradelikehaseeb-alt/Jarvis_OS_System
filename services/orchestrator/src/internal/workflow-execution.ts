@@ -8,6 +8,7 @@ import type { WorkflowStep } from "@jarvis/types";
 
 import type { Workflow } from "../workflow-manager/contract";
 import { OPENCLAW_AGENT_ID, HERMES_AGENT_ID } from "../execution/agent-ids";
+import { traceExecution } from "./execution-trace";
 
 export interface WorkflowStepResult {
   readonly stepId: string;
@@ -85,6 +86,13 @@ export async function runWorkflowSteps(
     }
 
     const agentId = step.agentId ?? HERMES_AGENT_ID;
+    traceExecution("workflow-step", {
+      workflowId: workflow.workflowId,
+      stepId: step.stepId,
+      agentId,
+      skillId: step.skillId,
+      role: agentId === OPENCLAW_AGENT_ID ? "executor" : "planner",
+    });
     const agent = await agents.resolve(agentId);
 
     if (!agent) {
@@ -109,6 +117,12 @@ export async function runWorkflowSteps(
     }
 
     const agentTask = buildAgentTask(task, requestId, step);
+    traceExecution("agent-execute", {
+      stepId: step.stepId,
+      agentId,
+      intentKind: task.intent.kind,
+      description: task.intent.description,
+    });
     const result = await agent.execute(agentTask, {
       ...agentContext,
       metadata: {

@@ -43,11 +43,22 @@ export {
   HERMES_PYTHON_ADAPTER_ID,
   type HermesAdapterPythonOptions,
 } from "./hermes-adapter-python";
+export { isHermesPythonAgentConfigured } from "./hermes-python-runtime-config";
 export {
   runHermesAgentProcess,
   parseFinalResponseFromStdout,
+  parseHermesAgentStdout,
+  parseLastAssistantMessageFromStdout,
   resolveHermesAgentRoot,
   hasGroqCredentialsForHermesAgent,
   type RunHermesAgentProcessOptions,
   type RunHermesAgentProcessResult,
 } from "./hermes-python-process-runner";
+export {
+  getHermesExecutionMode,
+  getHermesSkillCategory,
+  resolveHermesToolsets,
+  resolveHermesUserStatusMessage,
+  type HermesExecutionMode,
+  type HermesSkillCategory,
+} from "./get-hermes-execution-mode";

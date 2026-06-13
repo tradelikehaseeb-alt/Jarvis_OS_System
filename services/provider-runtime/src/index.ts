@@ -18,3 +18,18 @@ export {
   validateProviderConnection,
   type ProviderConnectionValidation,
 } from "./validate-provider-connection";
+export {
+  resolveClientLocale,
+  formatCityLabelFromTimeZone,
+  applyClientLocaleToProcessEnv,
+  type JarvisClientLocale,
+} from "./client-locale";
+export {
+  ProviderFactory,
+  getProviderFactory,
+  resetProviderFactoryForTests,
+  SUPPORTED_LLM_PROVIDER_IDS,
+  type ProviderFactorySelection,
+  type ProviderFactoryState,
+  type SupportedLlmProviderId,
+} from "./provider-factory";

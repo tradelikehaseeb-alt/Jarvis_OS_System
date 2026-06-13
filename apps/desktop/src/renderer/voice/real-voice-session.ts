@@ -66,7 +66,7 @@ export class RealVoiceSession {
    * Transcribe captured audio and detect wake phrase.
    */
   async processAudio(
-    audioBuffer: Buffer,
+    audio: Uint8Array | ArrayBuffer | { readonly audioBase64: string },
     mimeType = "audio/webm",
   ): Promise<RealVoiceSessionState> {
     this.abortController?.abort();
@@ -76,7 +76,7 @@ export class RealVoiceSession {
     this.emit({ status: "processing", error: null });
 
     try {
-      const response = await transcribe(audioBuffer, { mimeType });
+      const response = await transcribe(audio, { mimeType });
       if (controller.signal.aborted) {
         return this.state;
       }

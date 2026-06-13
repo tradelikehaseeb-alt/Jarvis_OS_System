@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import {
   extractHermesPlanFromTaskStatus,
@@ -12,6 +12,7 @@ import type { HermesPlanMessageData } from "../types/hermes-plan";
 import {
   loadVoiceSettings,
   useAdaptiveVoiceInput,
+  useSpeechConnection,
   useVoiceExecution,
   type VoiceSettings,
 } from "../voice";
@@ -28,6 +29,10 @@ let messageCounter = 0;
 function nextMessageId(): string {
   messageCounter += 1;
   return `msg-${messageCounter}`;
+}
+
+function messageCreatedAt(): string {
+  return new Date().toISOString().slice(11, 19);
 }
 
 function buildPlanMessageData(
@@ -58,6 +63,9 @@ export function useJarvisConversation() {
   const [voiceNormalizerError, setVoiceNormalizerError] = useState<string | null>(
     null,
   );
+  const activeRequestRef = useRef(0);
+  const submitInFlightRef = useRef(false);
+  const lastVoiceErrorRef = useRef<string | null>(null);
 
   const agentStatus = useAgentStatus({
     events: timeline.events,
@@ -81,7 +89,7 @@ export function useJarvisConversation() {
       });
 
       const plan = buildPlanMessageData(status);
-      const reply = plan ? "" : formatAssistantReply(status);
+      const reply = formatAssistantReply(status);
 
       setMessages((prev) => {
         const next = [
@@ -89,7 +97,9 @@ export function useJarvisConversation() {
           {
             id: nextMessageId(),
             role: "assistant" as const,
-            text: reply,
+            text: plan ? "" : reply,
+            assistantReply: reply,
+            createdAt: messageCreatedAt(),
             ...(plan ? { hermesPlan: plan } : {}),
           },
         ];
@@ -100,8 +110,12 @@ export function useJarvisConversation() {
     [applyTaskResult],
   );
 
+  const speechConnection = useSpeechConnection();
+
   const voiceSession = useVoiceSession({
     settings: voiceSettings,
+    conversationId: activeSession.conversationId,
+    speechReady: speechConnection.ready && !speechConnection.loading,
     activity: timeline,
     disabled: loading,
     onTranscriptReady: (normalized) => {
@@ -118,12 +132,17 @@ export function useJarvisConversation() {
           id: nextMessageId(),
           role: "user",
           text: normalized,
+          createdAt: messageCreatedAt(),
           detectedIntent: classifyChatIntent(normalized).intent,
         },
         {
           id: nextMessageId(),
           role: "loading",
-          text: loadingMessageForJarvisIntent(classifyChatIntent(normalized).intent),
+          createdAt: messageCreatedAt(),
+          text: loadingMessageForJarvisIntent(
+            classifyChatIntent(normalized).intent,
+            normalized,
+          ),
         },
       ]);
       setLoading(true);
@@ -133,12 +152,21 @@ export function useJarvisConversation() {
       setLoading(false);
     },
     onError: (message) => {
+      if (lastVoiceErrorRef.current === message) {
+        return;
+      }
+      lastVoiceErrorRef.current = message;
       setTaskError(message);
       setLoading(false);
-      setMessages((prev) => [
-        ...prev.filter((m) => m.role !== "loading"),
-        { id: nextMessageId(), role: "error", text: message },
-      ]);
+      setMessages((prev) => {
+        const withoutDupes = prev.filter(
+          (entry) => entry.role !== "loading" && entry.text !== message,
+        );
+        return [
+          ...withoutDupes,
+          { id: nextMessageId(), role: "error", text: message, createdAt: messageCreatedAt() },
+        ];
+      });
     },
   });
 
@@ -154,7 +182,7 @@ export function useJarvisConversation() {
         setTaskError(message);
         setMessages((prev) => [
           ...prev.filter((m) => m.role !== "loading"),
-          { id: nextMessageId(), role: "error", text: message },
+          { id: nextMessageId(), role: "error", text: message, createdAt: messageCreatedAt() },
         ]);
       }
     },
@@ -172,12 +200,17 @@ export function useJarvisConversation() {
             id: nextMessageId(),
             role: "user",
             text: normalized,
+            createdAt: messageCreatedAt(),
             detectedIntent: classifyChatIntent(normalized).intent,
           },
           {
             id: nextMessageId(),
             role: "loading",
-            text: loadingMessageForJarvisIntent(classifyChatIntent(normalized).intent),
+            createdAt: messageCreatedAt(),
+            text: loadingMessageForJarvisIntent(
+            classifyChatIntent(normalized).intent,
+            normalized,
+          ),
           },
         ]);
         setLoading(true);
@@ -210,29 +243,44 @@ export function useJarvisConversation() {
       }
     : legacyVoice;
 
+  const dismissThinking = useCallback(() => {
+    activeRequestRef.current += 1;
+    setLoading(false);
+    setMessages((prev) => prev.filter((message) => message.role !== "loading"));
+    timeline.stopStream();
+  }, [timeline]);
+
   const handleSubmit = useCallback(async () => {
-    const text = input.trim();
-    if (!text || loading) {
+    if (submitInFlightRef.current) {
       return;
     }
+    const text = input.trim();
+    if (!text) {
+      return;
+    }
+    submitInFlightRef.current = true;
 
+    const requestId = activeRequestRef.current + 1;
+    activeRequestRef.current = requestId;
     const classification = classifyChatIntent(text);
 
     setInput("");
     setTaskError(null);
     voice.clearTranscript();
     setMessages((prev) => [
-      ...prev,
+      ...prev.filter((message) => message.role !== "loading"),
       {
         id: nextMessageId(),
         role: "user",
         text,
+        createdAt: messageCreatedAt(),
         detectedIntent: classification.intent,
       },
       {
         id: nextMessageId(),
         role: "loading",
-        text: loadingMessageForJarvisIntent(classification.intent),
+        createdAt: messageCreatedAt(),
+        text: loadingMessageForJarvisIntent(classification.intent, text),
       },
     ]);
     setLoading(true);
@@ -241,14 +289,19 @@ export function useJarvisConversation() {
     try {
       const { create, status } = await submitChatAsTask(text, {
         classification,
+        conversationId: activeSession.conversationId,
       });
+      if (activeRequestRef.current !== requestId) {
+        return;
+      }
+
       setCreateResult(create);
       timeline.ingestTaskStatus(status);
 
       const plan = buildPlanMessageData(status);
-      const reply = plan ? "" : formatAssistantReply(status);
+      const reply = formatAssistantReply(status);
 
-      if (status.status === "failed" && !plan) {
+      if (status.status === "failed" && !plan && !reply.trim()) {
         throw new Error(
           status.error?.message ?? "Task failed without a planning result",
         );
@@ -260,7 +313,9 @@ export function useJarvisConversation() {
           {
             id: nextMessageId(),
             role: "assistant" as const,
-            text: reply,
+            text: plan ? "" : reply,
+            assistantReply: reply,
+            createdAt: messageCreatedAt(),
             ...(plan ? { hermesPlan: plan } : {}),
           },
         ];
@@ -268,6 +323,9 @@ export function useJarvisConversation() {
         return next;
       });
     } catch (err) {
+      if (activeRequestRef.current !== requestId) {
+        return;
+      }
       const message = err instanceof Error ? err.message : "Request failed";
       setTaskError(message);
       timeline.reportError(message);
@@ -276,9 +334,12 @@ export function useJarvisConversation() {
         { id: nextMessageId(), role: "error", text: message },
       ]);
     } finally {
-      setLoading(false);
+      submitInFlightRef.current = false;
+      if (activeRequestRef.current === requestId) {
+        setLoading(false);
+      }
     }
-  }, [applyTaskResult, input, loading, timeline, voice]);
+  }, [activeSession.conversationId, applyTaskResult, input, timeline, voice]);
 
   const orbState = useMemo(() => {
     if (voiceSettings.voiceNativeUi && voiceSession.sessionState !== "idle") {
@@ -352,6 +413,7 @@ export function useJarvisConversation() {
     voice,
     voiceSession,
     handleSubmit,
+    dismissThinking,
     orbState,
     providerTelemetry,
     memoryRecallView,

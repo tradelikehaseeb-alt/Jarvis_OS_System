@@ -18,6 +18,9 @@ import {
   type LocalMemoryRuntime,
 } from "@jarvis/local-memory";
 
+import { traceExecution } from "../internal/execution-trace";
+import { detectRoutedIntentKind } from "../internal/intent-routing";
+import type { WorkflowExecutionResult } from "../internal/workflow-execution";
 import {
   HERMES_AGENT_ID,
   OPENCLAW_AGENT_ID,
@@ -112,7 +115,17 @@ import { mockRequestId } from "../internal/mock-ids";
 import { extractSkillOutput } from "./extract-skill-output";
 import type { TaskExecutionRecord, TaskStore } from "../storage";
 import { createWorkforceAgentExecutor } from "../agent-workforce/create-workforce-agent-executor";
+import {
+  looksLikeRawApiError,
+  resolveAssistantReplyFromTaskOutput,
+} from "@jarvis/types";
+
 import { invokeTaskLlm } from "../runtime-integration/invoke-task-llm";
+import { enforceAutomationTerminalConfirmation } from "./automation-terminal-confirmation";
+import {
+  getDefaultTaskExecutionQueue,
+  shouldExecuteTaskSynchronously,
+} from "./task-execution-queue";
 
 /** Shared safe execution evaluator (Phase 94). */
 const safeExecutionFallbackRuntime = new SafeExecutionFallbackRuntime();
@@ -145,6 +158,8 @@ export interface CreateTaskExecutionOptions {
   readonly feedbackRuntime?: FeedbackRuntime;
   readonly llmProviderRuntime?: LlmProviderRuntime;
   readonly providerSettingsRuntime?: ProviderSettingsRuntime;
+  /** When set, reuses a task id allocated by the background queue. */
+  readonly preallocatedTaskId?: string;
 }
 
 function resolveConversationId(
@@ -218,7 +233,35 @@ function buildUserTaskFromDescriptor(
 
 /** Hermes → OpenClaw handshake applies to automation intents only (Phase 14). */
 function intentRequiresExecutionHandshake(intent: TaskIntent): boolean {
-  return intent.kind === "automate";
+  const routedKind = detectRoutedIntentKind(intent);
+  return routedKind === "automate" || routedKind === "browse";
+}
+
+function agentResultFromWorkflow(
+  workflowExecution: WorkflowExecutionResult,
+  task: UserTask,
+  requestId: string,
+  selectedAgentId: string,
+): AgentResult | undefined {
+  if (workflowExecution.stepResults.length === 0) {
+    return undefined;
+  }
+
+  const step = [...workflowExecution.stepResults]
+    .reverse()
+    .find((result) => result.agentId === selectedAgentId);
+  if (!step) {
+    return undefined;
+  }
+
+  return {
+    taskId: task.id,
+    requestId,
+    agentId: step.agentId,
+    success: step.success,
+    payload: step.payload,
+    error: step.error,
+  };
 }
 
 function readAgentPayloadRecord(
@@ -451,13 +494,96 @@ async function runExecutionHandshake(
   };
 }
 
+function buildQueuedTaskRecord(
+  task: UserTask,
+  correlationId?: string,
+): CreateTaskExecutionResult {
+  const createTaskResponse: CreateTaskResponse = {
+    taskId: task.id,
+    status: "queued",
+    createdAt: task.createdAt,
+    correlationId,
+  };
+  const taskStatus = buildTaskStatus(task, "queued", {
+    message: "Task queued for background execution",
+    executionQueue: {
+      state: "queued",
+    },
+  });
+  return {
+    record: {
+      createTaskResponse,
+      taskStatus,
+    },
+  };
+}
+
+/**
+ * Public entry — queues work in the background unless sync execution is forced.
+ */
+export async function executeCreateTask(
+  components: OrchestratorComponents,
+  executableRegistry: AgentRegistryContract,
+  input: CreateTaskExecutionInput,
+  store: TaskStore,
+  options: CreateTaskExecutionOptions = {},
+): Promise<CreateTaskExecutionResult> {
+  if (shouldExecuteTaskSynchronously()) {
+    return runCreateTaskExecution(
+      components,
+      executableRegistry,
+      input,
+      store,
+      options,
+    );
+  }
+
+  const taskId = `task-${Date.now()}`;
+  const task = buildUserTask(taskId, input);
+  const queued = buildQueuedTaskRecord(task, input.correlationId);
+  store.save(queued.record);
+
+  getDefaultTaskExecutionQueue().enqueue({
+    taskId,
+    run: async () => {
+      const runningStatus = buildTaskStatus(task, "running", {
+        message: "Task execution in progress",
+        progressPercent: 5,
+        executionQueue: {
+          state: "running",
+        },
+      });
+      store.save({
+        createTaskResponse: {
+          ...queued.record.createTaskResponse,
+          status: "running",
+        },
+        taskStatus: runningStatus,
+      });
+
+      await runCreateTaskExecution(
+        components,
+        executableRegistry,
+        input,
+        store,
+        {
+          ...options,
+          preallocatedTaskId: taskId,
+        },
+      );
+    },
+  });
+
+  return queued;
+}
+
 /**
  * End-to-end create-task flow (Phase 14, 45):
  *
  * TaskRouter → ContextManager → WorkflowManager → CapabilityRouter →
  * ExecutionLifecycle → Agent.execute (→ SkillExecutor → Skill).
  */
-export async function executeCreateTask(
+async function runCreateTaskExecution(
   components: OrchestratorComponents,
   executableRegistry: AgentRegistryContract,
   input: CreateTaskExecutionInput,
@@ -508,7 +634,7 @@ export async function executeCreateTask(
       contextRankingRuntime,
     });
 
-  const taskId = `task-${Date.now()}`;
+  const taskId = options.preallocatedTaskId ?? `task-${Date.now()}`;
   const task = buildUserTask(taskId, input);
   const requestId = mockRequestId(taskId);
   const conversationId = resolveConversationId(task.userId, task.metadata);
@@ -565,6 +691,14 @@ export async function executeCreateTask(
     { taskId: task.id, intent: task.intent },
     components.agentRegistry,
   );
+  traceExecution("task-routed", {
+    taskId: task.id,
+    userMessage: task.intent.description,
+    intentKind: task.intent.kind,
+    workflowId: route.workflowId,
+    selectedAgentId: routing.selectedAgentId,
+    routerReason: routing.reason,
+  });
 
   const llmInvoke = await invokeTaskLlm({
     task,
@@ -584,6 +718,10 @@ export async function executeCreateTask(
     metadata: {
       ...task.metadata,
       planningSource: llmInvoke.planningSource,
+      conversationMessages: orchestratorContext.messages.map((entry) => ({
+        role: entry.role,
+        message: entry.message,
+      })),
     },
     contextRuntime,
     contextRankingRuntime,
@@ -614,6 +752,29 @@ export async function executeCreateTask(
             },
           },
         });
+  traceExecution("workflow-complete", {
+    taskId: task.id,
+    workflowId: workflowExecution.workflowId,
+    success: workflowExecution.success,
+    stepsCompleted: workflowExecution.stepsCompleted,
+    stepResults: workflowExecution.stepResults.map((step) => ({
+      stepId: step.stepId,
+      agentId: step.agentId,
+      success: step.success,
+      skillId:
+        typeof step.payload?.skillExecution === "object" &&
+        step.payload?.skillExecution !== null &&
+        "skillId" in (step.payload.skillExecution as object)
+          ? (step.payload.skillExecution as { skillId: string }).skillId
+          : step.payload?.search
+            ? "search-skill"
+            : step.payload?.browser
+              ? "browser-skill"
+              : step.payload?.file
+                ? "file-skill"
+                : undefined,
+    })),
+  });
 
   let agentResult: AgentResult;
   let planningResult: AgentResult | undefined;
@@ -862,27 +1023,27 @@ export async function executeCreateTask(
       `Single-agent ${initialState}`,
     );
 
-    const resolved = await executeAgent(
-      executableRegistry,
-      selectedAgentId,
+    const agentContextWithHistory: AgentContext = {
+      ...enrichedAgentContext,
+      metadata: {
+        ...enrichedAgentContext.metadata,
+        orchestratorUserProfile: orchestratorContext.userProfile,
+        conversationMessages: orchestratorContext.messages.map((entry) => ({
+          role: entry.role,
+          message: entry.message,
+        })),
+      },
+    };
+
+    const fromWorkflow = agentResultFromWorkflow(
+      workflowExecution,
       task,
       requestId,
-      agentContext,
+      selectedAgentId,
     );
 
-    if (!resolved) {
-      agentResult = {
-        taskId: task.id,
-        requestId,
-        agentId: selectedAgentId,
-        success: false,
-        error: {
-          code: "AGENT_NOT_FOUND",
-          message: `Agent ${selectedAgentId} is not registered for execution`,
-        },
-      };
-    } else {
-      agentResult = resolved;
+    if (fromWorkflow) {
+      agentResult = fromWorkflow;
       if (selectedAgentId === HERMES_AGENT_ID) {
         emitHermesPlanningActivities(
           lifecycle,
@@ -898,8 +1059,52 @@ export async function executeCreateTask(
           agentResult,
         );
       }
+    } else {
+      const resolved = await executeAgent(
+        executableRegistry,
+        selectedAgentId,
+        task,
+        requestId,
+        agentContextWithHistory,
+      );
+
+      if (!resolved) {
+        agentResult = {
+          taskId: task.id,
+          requestId,
+          agentId: selectedAgentId,
+          success: false,
+          error: {
+            code: "AGENT_NOT_FOUND",
+            message: `Agent ${selectedAgentId} is not registered for execution`,
+          },
+        };
+      } else {
+        agentResult = resolved;
+        if (selectedAgentId === HERMES_AGENT_ID) {
+          emitHermesPlanningActivities(
+            lifecycle,
+            session.sessionId,
+            task.id,
+            agentResult,
+          );
+        } else if (selectedAgentId === OPENCLAW_AGENT_ID) {
+          emitOpenClawExecutionActivities(
+            lifecycle,
+            session.sessionId,
+            task.id,
+            agentResult,
+          );
+        }
+      }
     }
   }
+
+  agentResult = enforceAutomationTerminalConfirmation({
+    intent: task.intent,
+    agentResult,
+    planningResult,
+  });
 
   if (agentResult.error?.code === "AGENT_NOT_FOUND") {
     lifecycle.transition(session.sessionId, "failed", agentResult.error.message);
@@ -1005,19 +1210,37 @@ export async function executeCreateTask(
     taskId: task.id,
     conversationId,
   });
+  const draftOutput: Readonly<Record<string, unknown>> = {
+    assistantReply: llmProviderResponse?.content.trim(),
+    llmProvider: llmProviderResponse
+      ? {
+          success: llmProviderResponse.success,
+          contentPreview: llmProviderResponse.content.slice(0, 240),
+        }
+      : undefined,
+    agentPayload: agentResult.payload,
+  };
+  const resolvedAssistantReply = resolveAssistantReplyFromTaskOutput(draftOutput);
   const assistantMessage =
-    llmProviderResponse?.success && llmProviderResponse.content.trim().length > 0
-      ? llmProviderResponse.content.trim()
-      : summary.text;
+    resolvedAssistantReply ??
+    (agentResult.success
+      ? "Done."
+      : "I couldn't complete that request. Please try again.");
 
-  memory.persistConversationTurn({
-    conversationId,
-    userId: task.userId,
-    role: "assistant",
-    message: assistantMessage,
-    taskId: task.id,
-    intentKind: task.intent.kind,
-  });
+  const persistAssistantMessage =
+    assistantMessage.trim().length > 0 &&
+    !looksLikeRawApiError(assistantMessage) &&
+    !assistantMessage.includes("Abhi jawab nahi de sakta");
+  if (persistAssistantMessage) {
+    memory.persistConversationTurn({
+      conversationId,
+      userId: task.userId,
+      role: "assistant",
+      message: assistantMessage,
+      taskId: task.id,
+      intentKind: task.intent.kind,
+    });
+  }
   detachMemory();
   detachActivity();
   completeExecutionStream(stream, streamContext, agentResult.success);
@@ -1157,9 +1380,9 @@ export async function executeCreateTask(
             contentPreview: llmProviderResponse.content.slice(0, 240),
             error: llmProviderResponse.error,
           },
-          assistantReply: llmProviderResponse.content.trim(),
         }
       : {}),
+    ...(assistantMessage.trim().length > 0 ? { assistantReply: assistantMessage } : {}),
     executionLifecycle: toExecutionLifecycleSnapshot(
       finalSession,
       handshake

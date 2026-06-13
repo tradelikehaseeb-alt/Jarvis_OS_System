@@ -21,8 +21,11 @@ import type { VoiceSettings } from "../voice/voice-settings";
 import { DEFAULT_VOICE_SETTINGS } from "../voice/voice-settings";
 import type { VoiceStatus } from "../voice/voice-types";
 
+import { MIC_WINDOWS_PRIVACY_HINT } from "../voice/microphone-access";
+
 import { BrowserMicrophoneRuntime } from "./browser-microphone-runtime";
 import { useStablePartialTranscript, useThrottledMicLevels } from "../polish";
+import { playAudioBase64 } from "../utils/binary";
 
 function isVoiceTestEnvironment(): boolean {
   if (typeof process !== "undefined" && process.env.NODE_ENV === "test") {
@@ -56,8 +59,10 @@ function mapSessionStateToVoiceStatus(state: VoiceSessionState): VoiceStatus {
 
 export interface UseVoiceSessionOptions {
   readonly settings?: VoiceSettings;
+  readonly conversationId?: string;
   readonly activity?: UseActivityStreamResult;
   readonly disabled?: boolean;
+  readonly speechReady?: boolean;
   readonly onTranscriptReady?: (transcript: string) => void;
   readonly onCommandRecognized?: (transcript: string) => void;
   readonly onExecutionComplete?: (status: TaskStatusResponse) => void;
@@ -83,6 +88,8 @@ export interface UseVoiceSessionResult {
   readonly interruptSpeaking: () => void;
   readonly cancel: () => void;
   readonly clearTranscript: () => void;
+  readonly micBlocked: boolean;
+  readonly isRequestingMic: boolean;
 }
 
 /**
@@ -100,12 +107,23 @@ export function useVoiceSession(
   const [streamingResponse, setStreamingResponse] = useState("");
   const [transcript, setTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [micBlocked, setMicBlocked] = useState(false);
+  const [isRequestingMic, setIsRequestingMic] = useState(false);
   const [micLevels, setMicLevels] = useState<readonly number[]>([]);
+  const micRequestInFlightRef = useRef(false);
+  const lastReportedErrorRef = useRef<string | null>(null);
   const [transcriptConfidence, setTranscriptConfidence] = useState<number | undefined>();
   const [sttLatencyMs, setSttLatencyMs] = useState<number | undefined>();
   const realTimeCaptureRef = useRef<ReturnType<typeof createRealTimeVoiceCaptureDelegate> | null>(
     null,
   );
+  const listeningStartedAtRef = useRef<number | null>(null);
+  const silentRetryCountRef = useRef(0);
+  const partialTranscriptRef = useRef("");
+  const MAX_SILENT_CAPTURE_RETRIES = 2;
+  const audioResumeAttemptsRef = useRef(0);
+  const MAX_AUDIO_RESUME_ATTEMPTS = 4;
+  const activeTtsAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const runtimeRef = useRef<VoiceSessionRuntime>(
     createDefaultVoiceSessionRuntime({
@@ -150,6 +168,7 @@ export function useVoiceSession(
         const classification = classifyChatIntent(input.normalizedText);
         const { create, status } = await submitChatAsTask(input.normalizedText, {
           classification,
+          conversationId: options.conversationId,
         });
 
         options.activity?.startStream(classification.intent);
@@ -202,8 +221,130 @@ export function useVoiceSession(
   );
 
   useEffect(() => {
+    if (!useRealMicrophone || isVoiceTestEnvironment()) {
+      return;
+    }
+
+    const unsubscribeStream = window.jarvis.onSpeechPlaybackStream((payload) => {
+      if (!payload.audioBase64?.trim()) {
+        return;
+      }
+      activeTtsAudioRef.current?.pause();
+      activeTtsAudioRef.current = playAudioBase64(
+        payload.audioBase64,
+        payload.mimeType ?? "audio/mpeg",
+      );
+    });
+
+    const unsubscribeStop = window.jarvis.onSpeechPlaybackStop(() => {
+      activeTtsAudioRef.current?.pause();
+      activeTtsAudioRef.current = null;
+    });
+
+    return () => {
+      unsubscribeStream();
+      unsubscribeStop();
+      activeTtsAudioRef.current?.pause();
+      activeTtsAudioRef.current = null;
+    };
+  }, [useRealMicrophone]);
+
+  useEffect(() => {
     runtimeRef.current.setMode(settings.listeningMode);
   }, [settings.listeningMode]);
+
+  useEffect(() => {
+    if (
+      options.disabled ||
+      isVoiceTestEnvironment() ||
+      !useRealMicrophone ||
+      options.speechReady === false
+    ) {
+      return;
+    }
+    if (settings.listeningMode === "wake-word" && settings.wakeWordEnabled) {
+      void runtimeRef.current.startWakeWordListening().catch((err: unknown) => {
+        const message =
+          err instanceof Error ? err.message : MIC_WINDOWS_PRIVACY_HINT;
+        setError(message);
+        if (lastReportedErrorRef.current !== message) {
+          lastReportedErrorRef.current = message;
+          options.onError?.(message);
+        }
+      });
+      return;
+    }
+    if (settings.listeningMode === "continuous") {
+      void runtimeRef.current.startContinuousListening();
+    }
+  }, [
+    options.disabled,
+    options.onError,
+    options.speechReady,
+    settings.listeningMode,
+    settings.wakeWordEnabled,
+    useRealMicrophone,
+  ]);
+
+  useEffect(() => {
+    partialTranscriptRef.current = partialTranscript;
+  }, [partialTranscript]);
+
+  useEffect(() => {
+    if (sessionState !== "listening" || !useRealMicrophone || !realTimeCaptureRef.current) {
+      if (sessionState !== "listening") {
+        listeningStartedAtRef.current = null;
+        silentRetryCountRef.current = 0;
+      }
+      return;
+    }
+
+    if (listeningStartedAtRef.current === null) {
+      listeningStartedAtRef.current = Date.now();
+      silentRetryCountRef.current = 0;
+    }
+
+    const stallTimer = window.setInterval(() => {
+      const capture = realTimeCaptureRef.current;
+      const startedAt = listeningStartedAtRef.current;
+      if (!capture || !startedAt) {
+        return;
+      }
+
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < 2_000) {
+        return;
+      }
+
+      const levels = capture.getMicLevels();
+      const peak = levels.length > 0 ? Math.max(...levels) : 0;
+      if (peak > 0.04 || partialTranscriptRef.current.trim().length > 0) {
+        return;
+      }
+
+      if (silentRetryCountRef.current >= MAX_SILENT_CAPTURE_RETRIES) {
+        const message =
+          "No microphone input detected. Check Windows privacy settings and your audio device.";
+        setError(message);
+        setMicBlocked(true);
+        setIsRequestingMic(false);
+        runtimeRef.current.stopListening();
+        if (lastReportedErrorRef.current !== message) {
+          lastReportedErrorRef.current = message;
+          options.onError?.(message);
+        }
+        return;
+      }
+
+      silentRetryCountRef.current += 1;
+      void capture.runtime.interrupt();
+      void capture.runtime.startListening().then(() => {
+        listeningStartedAtRef.current = Date.now();
+      });
+    }, 800);
+
+    return () => window.clearInterval(stallTimer);
+  }, [options.onError, sessionState, useRealMicrophone]);
 
   useEffect(() => {
     if (sessionState !== "listening" || !realTimeCaptureRef.current) {
@@ -216,7 +357,24 @@ export function useVoiceSession(
       }
       setMicLevels([...capture.getMicLevels()]);
       setTranscriptConfidence(capture.getConfidence());
-      setSttLatencyMs(capture.getLatencyMs());
+      const latency = capture.getLatencyMs() ?? 0;
+      setSttLatencyMs(latency);
+
+      const microphone = capture.runtime.getMicrophone();
+      if (!(microphone instanceof BrowserMicrophoneRuntime)) {
+        return;
+      }
+
+      const packetDeltaMs = microphone.getLastPacketDeltaMs();
+      const peak =
+        capture.getMicLevels().length > 0 ? Math.max(...capture.getMicLevels()) : 0;
+      const stalledCapture =
+        latency === 0 && packetDeltaMs === 0 && peak < 0.02 && sessionState === "listening";
+
+      if (stalledCapture && audioResumeAttemptsRef.current < MAX_AUDIO_RESUME_ATTEMPTS) {
+        audioResumeAttemptsRef.current += 1;
+        void microphone.resumeAudioContextIfStalled();
+      }
     }, 120);
     return () => window.clearInterval(timer);
   }, [sessionState]);
@@ -232,7 +390,36 @@ export function useVoiceSession(
       setStreamingResponse(event.streamingResponse);
       if (event.error) {
         setError(event.error);
-        options.onError?.(event.error);
+        const permissionLike =
+          event.error.includes("denied") ||
+          event.error.includes("Privacy") ||
+          event.error.includes("No microphone");
+        if (permissionLike) {
+          setMicBlocked(true);
+        }
+        setIsRequestingMic(false);
+        micRequestInFlightRef.current = false;
+        if (lastReportedErrorRef.current !== event.error) {
+          lastReportedErrorRef.current = event.error;
+          options.onError?.(event.error);
+        }
+      }
+      if (event.state === "listening") {
+        setIsRequestingMic(true);
+        setMicBlocked(false);
+        setError(null);
+        lastReportedErrorRef.current = null;
+        listeningStartedAtRef.current = Date.now();
+        silentRetryCountRef.current = 0;
+        audioResumeAttemptsRef.current = 0;
+        const microphone = realTimeCaptureRef.current?.runtime.getMicrophone();
+        if (microphone instanceof BrowserMicrophoneRuntime) {
+          void microphone.resumeAudioContextIfStalled();
+        }
+      }
+      if (event.state === "idle" && !event.error) {
+        setIsRequestingMic(false);
+        micRequestInFlightRef.current = false;
       }
       if (event.state === "thinking" && event.partialTranscript) {
         setTranscript(event.partialTranscript);
@@ -253,41 +440,72 @@ export function useVoiceSession(
   const mode = settings.listeningMode;
 
   const toggleListening = useCallback(() => {
-    if (options.disabled) {
+    if (options.disabled || micBlocked || micRequestInFlightRef.current) {
       return;
     }
     if (sessionState === "listening") {
-      runtimeRef.current.stopListening();
+      if (mode === "push-to-talk") {
+        runtimeRef.current.pushToTalkEnd();
+      } else {
+        runtimeRef.current.stopListening();
+      }
       return;
     }
-    if (mode === "continuous" || mode === "wake-word") {
+    if (mode === "wake-word") {
+      void runtimeRef.current.startWakeWordListening();
+      return;
+    }
+    if (mode === "continuous") {
       void runtimeRef.current.startContinuousListening();
       return;
     }
     void runtimeRef.current.pushToTalkStart();
-  }, [mode, options.disabled, sessionState]);
+  }, [micBlocked, mode, options.disabled, sessionState]);
 
   const pushToTalkDown = useCallback(() => {
-    if (options.disabled) {
+    if (options.disabled || micRequestInFlightRef.current) {
       return;
     }
+    micRequestInFlightRef.current = true;
+    setIsRequestingMic(true);
     setError(null);
-    void runtimeRef.current.pushToTalkStart();
-  }, [options.disabled]);
+    setMicBlocked(false);
+    lastReportedErrorRef.current = null;
+    void runtimeRef.current.pushToTalkStart().catch((err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : MIC_WINDOWS_PRIVACY_HINT;
+      setError(message);
+      setMicBlocked(true);
+      setIsRequestingMic(false);
+      micRequestInFlightRef.current = false;
+      if (lastReportedErrorRef.current !== message) {
+        lastReportedErrorRef.current = message;
+        options.onError?.(message);
+      }
+    });
+  }, [micBlocked, options.disabled, options.onError]);
 
   const pushToTalkUp = useCallback(() => {
     runtimeRef.current.pushToTalkEnd();
+    setIsRequestingMic(false);
+    micRequestInFlightRef.current = false;
   }, []);
 
   const interruptSpeaking = useCallback(() => {
     runtimeRef.current.interruptSpeaking("user-barge-in");
     setStreamingResponse("");
+    activeTtsAudioRef.current?.pause();
+    activeTtsAudioRef.current = null;
   }, []);
 
   const cancel = useCallback(() => {
     runtimeRef.current.stopListening();
     runtimeRef.current.interruptSpeaking("cancelled");
     setError(null);
+    setMicBlocked(false);
+    setIsRequestingMic(false);
+    micRequestInFlightRef.current = false;
+    lastReportedErrorRef.current = null;
     setSessionState("idle");
   }, []);
 
@@ -328,5 +546,7 @@ export function useVoiceSession(
     interruptSpeaking,
     cancel,
     clearTranscript,
+    micBlocked,
+    isRequestingMic,
   };
 }

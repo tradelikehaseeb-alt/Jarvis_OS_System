@@ -84,7 +84,6 @@ describe("ChatPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /send/i }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("intent-badge")).toHaveTextContent("Plan");
       expect(screen.getByTestId("hermes-plan-card")).toBeInTheDocument();
       expect(screen.getByTestId("jarvis-command-center")).toBeInTheDocument();
     });

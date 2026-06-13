@@ -6,6 +6,8 @@ import {
   getSharedJarvisMemoryClient,
   type JarvisMemoryClient,
 } from "@jarvis/memory-service";
+import type { MemoryStore } from "../memory/memory-store";
+import type { ConversationMemory } from "../memory/conversation-memory";
 
 import { createDefaultConversationHistoryRuntime } from "../conversation-history/create-default-conversation-history-runtime";
 import type { ConversationHistoryRuntime } from "../conversation-history/conversation-history-runtime";
@@ -24,19 +26,86 @@ import type {
 
 const DEFAULT_CONVERSATION_MESSAGE_LIMIT = 10;
 
-function resolveConversationId(taskId: string, userId: string): string {
+function resolveConversationId(
+  userId: string,
+  metadata?: Readonly<Record<string, unknown>>,
+): string {
+  const fromMetadata = metadata?.conversationId;
+  if (typeof fromMetadata === "string" && fromMetadata.trim().length > 0) {
+    return fromMetadata.trim();
+  }
   return `conv-${userId}`;
+}
+
+function readConversationTurn(
+  content: Readonly<Record<string, unknown>>,
+): ConversationMemory | undefined {
+  const role = content.role;
+  const message = content.message;
+  if (
+    (role !== "user" && role !== "assistant" && role !== "system") ||
+    typeof message !== "string"
+  ) {
+    return undefined;
+  }
+  return {
+    conversationId:
+      typeof content.conversationId === "string" ? content.conversationId : "",
+    userId: typeof content.userId === "string" ? content.userId : "",
+    turnIndex: typeof content.turnIndex === "number" ? content.turnIndex : 0,
+    role,
+    message,
+    taskId: typeof content.taskId === "string" ? content.taskId : undefined,
+    intentKind:
+      typeof content.intentKind === "string" ? content.intentKind : undefined,
+    timestamp:
+      typeof content.timestamp === "string"
+        ? content.timestamp
+        : new Date().toISOString(),
+  };
+}
+
+function loadRecentMessagesFromMemoryStore(
+  store: MemoryStore,
+  userId: string,
+  conversationId: string,
+  limit: number,
+): readonly ConversationContextMessage[] {
+  const records = store.queryHistory({
+    userId,
+    conversationId,
+    types: ["conversation"],
+    limit,
+  });
+
+  return records
+    .map((record) => readConversationTurn(record.content))
+    .filter((turn): turn is ConversationMemory => turn !== undefined)
+    .map((turn) => ({
+      role: turn.role,
+      message: turn.message,
+      timestamp: turn.timestamp,
+    }));
 }
 
 function shouldUseJarvisSqliteMemory(
   env: Readonly<Record<string, string | undefined>>,
 ): boolean {
-  const path = env.JARVIS_MEMORY_PATH?.trim();
-  if (path && path.length > 0) {
-    return true;
+  if (process.versions.electron) {
+    return false;
   }
   const backend = env.JARVIS_MEMORY_BACKEND?.trim().toLowerCase();
-  return backend === "memory-service" || backend === "local";
+  if (backend === "local" || backend === "") {
+    return false;
+  }
+  if (env.MEMORY_USE_IN_MEMORY_STORAGE === "true") {
+    return false;
+  }
+  const path = env.JARVIS_MEMORY_PATH?.trim();
+  if (path && path.length > 0 && backend !== "local") {
+    return true;
+  }
+  return backend === "memory-service";
 }
 
 async function resolveUserProfile(
@@ -65,7 +134,20 @@ async function loadRecentMessages(options: {
   readonly conversationId: string;
   readonly env: Readonly<Record<string, string | undefined>>;
   readonly memoryClient?: JarvisMemoryClient;
+  readonly memoryStore?: MemoryStore;
 }): Promise<readonly ConversationContextMessage[]> {
+  if (options.memoryStore) {
+    const fromStore = loadRecentMessagesFromMemoryStore(
+      options.memoryStore,
+      options.userId,
+      options.conversationId,
+      DEFAULT_CONVERSATION_MESSAGE_LIMIT,
+    );
+    if (fromStore.length > 0) {
+      return fromStore;
+    }
+  }
+
   if (options.memoryClient && shouldUseJarvisSqliteMemory(options.env)) {
     const rows = await options.memoryClient.getRecentConversations(
       options.userId,
@@ -107,6 +189,7 @@ export class DefaultContextManager implements ContextManager {
       readonly localMemory?: LocalMemoryRuntime;
       readonly conversationHistory?: ConversationHistoryRuntime;
       readonly memoryClient?: JarvisMemoryClient;
+      readonly memoryStore?: MemoryStore;
       readonly env?: Readonly<Record<string, string | undefined>>;
     } = {},
   ) {}
@@ -137,7 +220,10 @@ export class DefaultContextManager implements ContextManager {
 
   async create(input: ContextManagerCreateInput): Promise<OrchestratorContext> {
     const env = this.options.env ?? process.env;
-    const conversationId = resolveConversationId(input.task.id, input.task.userId);
+    const conversationId = resolveConversationId(
+      input.task.userId,
+      input.task.metadata,
+    );
     const history = this.history();
     const memoryClient = this.resolveMemoryClient(env);
     const rawMessages = await loadRecentMessages({
@@ -146,6 +232,7 @@ export class DefaultContextManager implements ContextManager {
       conversationId,
       env,
       memoryClient,
+      memoryStore: this.options.memoryStore,
     });
     const messages = trimMessagesToTokenBudget(
       rawMessages,

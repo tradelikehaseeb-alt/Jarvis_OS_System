@@ -1,3 +1,5 @@
+import { isHermesPythonAgentConfigured } from "./hermes-python-runtime-config";
+
 /**
  * Environment-driven configuration for Hermes local runtime discovery (Phase 21).
  */
@@ -52,7 +54,8 @@ export function readHermesRuntimeEnv(
       : "");
 
   const configured =
-    (mode === "local" || mode === "official") && endpoint.length > 0;
+    isHermesPythonAgentConfigured(env) ||
+    ((mode === "local" || mode === "official") && endpoint.length > 0);
 
   return { mode, endpoint, configured };
 }
